@@ -85,14 +85,15 @@ class HDF5Splitter:
         splitter = StratifiedGroupKFold(n_splits=self.num_splits, shuffle=True, random_state=self.seed)
 
         for fold, (_, val_idx) in enumerate(splitter.split(self.train_val_features, stratify_values, groups)):
-            assert len(val_idx) > 0, (
-                f"Fold {fold} is empty. Reduce the number of folds or change stratification/grouping criteria."
-            )
+            if len(val_idx) == 0:
+                raise ValueError(
+                    f"Fold {fold} is empty. Reduce the number of folds or change stratification/grouping criteria."
+                )
 
             fold_path = train_val_dir / f"fold_{fold}.h5ad"
             self._save_fold(fold_path, val_idx, self.train_val_metadata, self.train_val_features)
 
-    def _save_fold(self, path: str, indices: np.ndarray, metadata: pd.DataFrame, features: np.ndarray) -> None:
+    def _save_fold(self, path: Path, indices: np.ndarray, metadata: pd.DataFrame, features: np.ndarray) -> None:
         """Saves the selected fold or split as an AnnData object."""
         features_split = features[indices]
         metadata_split = metadata.iloc[indices].reset_index(drop=True)
