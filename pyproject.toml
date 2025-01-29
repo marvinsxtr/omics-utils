@@ -12,6 +12,7 @@ dependencies = [
   "h5py>=3.12.1",
   "anndata>=0.11.3",
   "dask>=2025.1.0",
+  "cellarium-ml>=0.0.7",
 ]
 
 [dependency-groups]
@@ -19,6 +20,16 @@ dev = [
     "pre-commit>=4.0.1",
     "ruff>=0.8.0",
 ]
+
+[tool.uv.sources]
+torch = [
+  { index = "pytorch-cu124", marker = "platform_system != 'Darwin'" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cu124"
+url = "https://download.pytorch.org/whl/cu124"
+explicit = true
 
 [tool.mypy]
 explicit_package_bases = true
