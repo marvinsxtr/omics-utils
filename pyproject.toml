@@ -13,7 +13,7 @@ dependencies = [
   "anndata>=0.11.3",
   "dask>=2025.1.0",
   "cellarium-ml>=0.0.7",
-  "zarr>=3.0.1",
+  "zarr==2.18.4",
 ]
 
 [dependency-groups]
