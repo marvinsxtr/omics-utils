@@ -14,7 +14,7 @@ RUN rm -f /etc/apt/sources.list.d/*.list
 RUN apt-get update && apt-get upgrade -y
 RUN apt-get install -y --no-install-recommends build-essential \
     sudo curl git htop less rsync screen vim nano wget ca-certificates \
-    clang openssh-client zsh
+    clang openssh-client zsh graphviz
 
 # Slurm
 RUN groupadd -g 12067 slurm
