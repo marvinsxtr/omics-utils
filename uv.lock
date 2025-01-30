@@ -1685,6 +1685,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "ipykernel" },
     { name = "ipython" },
     { name = "notebook" },
     { name = "pre-commit" },
@@ -1708,6 +1709,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "ipykernel", specifier = ">=6.29.5" },
     { name = "ipython", specifier = ">=8.31.0" },
     { name = "notebook", specifier = ">=7.3.2" },
     { name = "pre-commit", specifier = ">=4.0.1" },
