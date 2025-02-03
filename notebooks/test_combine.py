@@ -1,11 +1,13 @@
 # %%
 #%load_ext memory_profiler
 from pathlib import Path
+from typing import Union
 
 import anndata as ad
 import zarr
 from tqdm import tqdm
 import scipy.sparse as sp
+import dask.array as da
 import numpy as np
 # %%
 cellxgene_path = Path("/home/space/omics/datasets/cellxgene/h5ads")
@@ -17,19 +19,13 @@ files
 test_path = Path("/tmp/test")
 test_path.mkdir(exist_ok=True)
 # %%
-def normalize_csr(X_csr: sp.csr_array, target_sum: int = 1e4, log: bool = True) -> sp.csr_array:
-    """Normalize the single cell data and optionally take the log1p."""
-    cell_sums = np.array(X_csr.sum(axis=1)).flatten()
-    scaling_factors = sp.diags(target_sum / cell_sums)
-    X_norm = scaling_factors.dot(X_csr)
-
-    if log:
-        X_norm.data = np.log1p(X_norm.data)
-
-    X_norm.sort_indices()
-    return X_norm
-
 def preprocess_adata(adata: ad.AnnData) -> ad.AnnData:
+    # TODO(marvin): Clean the data and select (un)-normalized X.  # noqa: TD003
+
+    del adata.obsm
+    del adata.obsp
+    del adata.varm
+    del adata.varp
 
     stratification_keys = ["sex", "tissue", "disease"]
     grouping_keys = ["donor_id"]
@@ -44,16 +40,40 @@ def preprocess_adata(adata: ad.AnnData) -> ad.AnnData:
 
     adata.obs = adata.obs[obs_keys]
 
-    raw_x = adata.raw.X if hasattr(adata, "raw") and hasattr(adata.raw, "X") else adata.X
-    norm_x = normalize_csr(raw_x.to_memory())
-
-    print("norm", norm_x[0])
-    print("raw", raw_x[0])
-    print("X", adata.X[0])
+    adata.X = adata.raw.X if hasattr(adata, "raw") and hasattr(adata.raw, "X") else adata.X
+    del adata.raw
 
     adata = adata[adata.obs["organism_ontology_term_id"] == "NCBITaxon:9606", :] # Human tissue
     return adata
 
+
+def preprocess_zarr(zarr_data: zarr.Group):
+    dask_X = ad.experimental.read_elem_as_dask(
+        zarr_data.raw.X if hasattr(zarr_data, "raw") and hasattr(zarr_data.raw, "X") else zarr_data.X
+    )
+
+    row_sums = dask_X.map_blocks(
+        lambda x: x.sum(axis=1).A1.reshape(-1, 1),
+        chunks=(dask_X.chunks[0], (1,)),
+        drop_axis=1,
+        new_axis=1,
+        dtype=dask_X.dtype
+    )
+
+    def normalize_and_log(x, sums):
+        scale_factors = 1e4 / sums.flatten()
+        scaled = sp.diags(scale_factors) @ x
+        scaled.data = np.log1p(scaled.data)
+        return scaled
+
+    final_X = dask_X.map_blocks(
+        normalize_and_log,
+        row_sums,
+        dtype=dask_X.dtype
+    )
+
+    final_X = final_X.compute()
+    print(final_X)
 
 #%%
 
@@ -64,13 +84,15 @@ def adata_to_zarr(h5ad_files) -> list[str]:
         file_path = test_path / f"file_{i}.zarr"
 
         if not file_path.exists():
-            adata = ad.read_h5ad(f, backed="r")
+            adata = ad.read_h5ad(f, backed="r+")
+
             adata = preprocess_adata(adata)
 
-            # TODO(marvin): Clean the data and select (un)-normalized X.  # noqa: TD003
-
-            adata.write_zarr(file_path)
+            adata.write_zarr(file_path, chunks=True)
             zarr.consolidate_metadata(file_path)
+
+            zarr_data = zarr.open(file_path)
+            preprocess_zarr(zarr_data)
 
         zarr_paths.append(file_path)
 
