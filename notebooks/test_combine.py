@@ -1,14 +1,13 @@
 # %%
 #%load_ext memory_profiler
 from pathlib import Path
-from typing import Union
 
 import anndata as ad
 import zarr
 from tqdm import tqdm
-import scipy.sparse as sp
 import dask.array as da
-import numpy as np
+import scanpy as sc
+import pandas as pd
 # %%
 cellxgene_path = Path("/home/space/omics/datasets/cellxgene/h5ads")
 files = list(cellxgene_path.glob("*.h5ad"))
@@ -19,7 +18,7 @@ files
 test_path = Path("/tmp/test")
 test_path.mkdir(exist_ok=True)
 # %%
-def preprocess_adata(adata: ad.AnnData) -> ad.AnnData:
+def preprocess_adata(adata: ad.AnnData) -> tuple[pd.DataFrame, ad.AnnData] | None:
     # TODO(marvin): Clean the data and select (un)-normalized X.  # noqa: TD003
 
     del adata.obsm
@@ -27,7 +26,7 @@ def preprocess_adata(adata: ad.AnnData) -> ad.AnnData:
     del adata.varm
     del adata.varp
 
-    stratification_keys = ["sex", "tissue", "disease"]
+    stratification_keys = ["sex", "tissue", "disease", "assay"]
     grouping_keys = ["donor_id"]
 
     obs_keys = ["assay_ontology_term_id", "cell_type_ontology_term_id", "development_stage_ontology_term_id",
@@ -36,46 +35,53 @@ def preprocess_adata(adata: ad.AnnData) -> ad.AnnData:
                 "tissue_ontology_term_id", "assay", "cell_type", "development_stage", "disease", "observation_joinid",
                 "organism", "self_reported_ethnicity", "sex", "tissue"]
 
-    print(adata.obs["assay"].drop_duplicates())
-
     adata.obs = adata.obs[obs_keys]
+    metadata = adata.obs[grouping_keys + stratification_keys].drop_duplicates()
 
     adata.X = adata.raw.X if hasattr(adata, "raw") and hasattr(adata.raw, "X") else adata.X
     del adata.raw
 
+    print(adata.X)
+
     adata = adata[adata.obs["organism_ontology_term_id"] == "NCBITaxon:9606", :] # Human tissue
+
+    if len(adata) == 0:
+        return None
+
+    return metadata, adata
+
+
+def preprocess_zarr(adata: ad.AnnData) -> ad.AnnData:
+
+    print(adata)
+
+    sc.pp.normalize_total(adata, target_sum=1e4)
+    sc.pp.log1p(adata)
+
     return adata
 
-
-def preprocess_zarr(zarr_data: zarr.Group):
-    dask_X = ad.experimental.read_elem_as_dask(
-        zarr_data.raw.X if hasattr(zarr_data, "raw") and hasattr(zarr_data.raw, "X") else zarr_data.X
-    )
-
-    row_sums = dask_X.map_blocks(
-        lambda x: x.sum(axis=1).A1.reshape(-1, 1),
-        chunks=(dask_X.chunks[0], (1,)),
-        drop_axis=1,
-        new_axis=1,
-        dtype=dask_X.dtype
-    )
-
-    def normalize_and_log(x, sums):
-        scale_factors = 1e4 / sums.flatten()
-        scaled = sp.diags(scale_factors) @ x
-        scaled.data = np.log1p(scaled.data)
-        return scaled
-
-    final_X = dask_X.map_blocks(
-        normalize_and_log,
-        row_sums,
-        dtype=dask_X.dtype
-    )
-
-    final_X = final_X.compute()
-    print(final_X)
-
 #%%
+
+def read_dask(store):
+    f = zarr.open(store, mode="r")
+
+    def callback(func, elem_name: str, elem, iospec):
+        if iospec.encoding_type in (
+            "dataframe",
+            "csr_matrix",
+            "csc_matrix",
+            "awkward-array",
+        ):
+            # Preventing recursing inside of these types
+            return ad.io.read_elem(elem)
+        elif iospec.encoding_type == "array":
+            return da.from_zarr(elem)
+        else:
+            return func(elem)
+
+    adata = ad.experimental.read_dispatched(f, callback=callback)
+
+    return adata
 
 def adata_to_zarr(h5ad_files) -> list[str]:
     zarr_paths = []
@@ -86,12 +92,18 @@ def adata_to_zarr(h5ad_files) -> list[str]:
         if not file_path.exists():
             adata = ad.read_h5ad(f, backed="r+")
 
-            adata = preprocess_adata(adata)
+            proc = preprocess_adata(adata)
+
+            if proc is None:
+                continue
+
+            metadata, adata = proc
 
             adata.write_zarr(file_path, chunks=True)
             zarr.consolidate_metadata(file_path)
 
-            zarr_data = zarr.open(file_path)
+            zarr_data = read_dask(file_path)
+            print(type(zarr_data))
             preprocess_zarr(zarr_data)
 
         zarr_paths.append(file_path)
