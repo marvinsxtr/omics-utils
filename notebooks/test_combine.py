@@ -1,7 +1,6 @@
 # %%
-#%load_ext memory_profiler
+%load_ext memory_profiler
 from pathlib import Path
-
 import anndata as ad
 import zarr
 from tqdm import tqdm
@@ -19,12 +18,17 @@ test_path = Path("/tmp/test")
 test_path.mkdir(exist_ok=True)
 # %%
 def preprocess_adata(adata: ad.AnnData) -> tuple[pd.DataFrame, ad.AnnData] | None:
-    # TODO(marvin): Clean the data and select (un)-normalized X.  # noqa: TD003
-
+    """Preprocess an `AnnData` file and extract metadata."""
     del adata.obsm
     del adata.obsp
     del adata.varm
     del adata.varp
+
+    # Filter out non-human tissue
+    adata = adata[adata.obs["organism_ontology_term_id"] == "NCBITaxon:9606", :]
+
+    if len(adata) == 0:
+        return None
 
     stratification_keys = ["sex", "tissue", "disease", "assay"]
     grouping_keys = ["donor_id"]
@@ -36,17 +40,7 @@ def preprocess_adata(adata: ad.AnnData) -> tuple[pd.DataFrame, ad.AnnData] | Non
                 "organism", "self_reported_ethnicity", "sex", "tissue"]
 
     adata.obs = adata.obs[obs_keys]
-    metadata = adata.obs[grouping_keys + stratification_keys].drop_duplicates()
-
-    adata.X = adata.raw.X if hasattr(adata, "raw") and hasattr(adata.raw, "X") else adata.X
-    del adata.raw
-
-    print(adata.X)
-
-    adata = adata[adata.obs["organism_ontology_term_id"] == "NCBITaxon:9606", :] # Human tissue
-
-    if len(adata) == 0:
-        return None
+    metadata = adata.obs[grouping_keys + stratification_keys].drop_duplicates().reset_index()
 
     return metadata, adata
 
@@ -54,6 +48,10 @@ def preprocess_adata(adata: ad.AnnData) -> tuple[pd.DataFrame, ad.AnnData] | Non
 def preprocess_zarr(adata: ad.AnnData) -> ad.AnnData:
 
     print(adata)
+
+    raw_X = adata.raw.X if hasattr(adata, "raw") and hasattr(adata.raw, "X") else adata.X
+    adata.X = raw_X
+    del adata.raw
 
     sc.pp.normalize_total(adata, target_sum=1e4)
     sc.pp.log1p(adata)
@@ -99,11 +97,13 @@ def adata_to_zarr(h5ad_files) -> list[str]:
 
             metadata, adata = proc
 
+            print(metadata)
+
             adata.write_zarr(file_path, chunks=True)
             zarr.consolidate_metadata(file_path)
 
             zarr_data = read_dask(file_path)
-            print(type(zarr_data))
+
             preprocess_zarr(zarr_data)
 
         zarr_paths.append(file_path)
