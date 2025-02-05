@@ -1,21 +1,16 @@
 # %%
-%load_ext memory_profiler
 from pathlib import Path
 import anndata as ad
-import zarr
 from tqdm import tqdm
-import dask.array as da
 import scanpy as sc
 import pandas as pd
-import traceback
 # %%
+test_path = Path("/tmp/test")
+test_path.mkdir(exist_ok=True)
 cellxgene_path = Path("/home/space/omics/datasets/cellxgene/h5ads")
 files = list(cellxgene_path.glob("*.h5ad"))
 dataset_ids = [file.stem for file in files]
 files
-# %%
-test_path = Path("/tmp/test")
-test_path.mkdir(exist_ok=True)
 # %%
 def preprocess_adata(adata: ad.AnnData) -> ad.AnnData | None:
     """Preprocess an `AnnData` file and extract metadata."""
@@ -44,90 +39,85 @@ def preprocess_adata(adata: ad.AnnData) -> ad.AnnData | None:
     else:
         raw_x = adata.X
 
-    new_adata = ad.AnnData(
-        X=raw_x,
+    adata = ad.AnnData(
+        X=raw_x.to_memory(),
         obs=adata.obs,
         var=adata.var,
     )
 
-    return new_adata
-
-
-def preprocess_zarr(adata: ad.AnnData) -> ad.AnnData:
-
-    sc.pp.normalize_total(adata, target_sum=1e4)
-    sc.pp.log1p(adata)
+    scales_counts = sc.pp.normalize_total(adata, target_sum=1e4, inplace=False)
+    adata.X = sc.pp.log1p(scales_counts["X"])
 
     return adata
+# %%
+import uuid
+import numpy as np
 
-#%%
+def anndata_to_df(adata: ad.AnnData) -> tuple[pd.DataFrame, pd.DataFrame]:
+    stratification_keys = ["sex", "tissue", "disease", "assay"]
+    grouping_keys = ["donor_id"]
 
-def read_dask(store):
-    f = zarr.open(store, mode="r")
+    obs = adata.obs
 
-    def callback(func, elem_name: str, elem, iospec):
-        if iospec.encoding_type in (
-            "dataframe",
-            "csr_matrix",
-            "csc_matrix",
-            "awkward-array",
-        ):
-            # Preventing recursing inside of these types
-            return ad.io.read_elem(elem)
-        elif iospec.encoding_type == "array":
-            return da.from_zarr(elem)
-        else:
-            return func(elem)
+    # Assign case and sample identifiers
+    obs["sample_id"] = [str(uuid.uuid4()) for _ in range(len(adata.obs))]
+    obs["case_id"] = obs["donor_id"].map({id: str(uuid.uuid4()) for id in obs["donor_id"].unique()})
+    obs = obs.set_index("sample_id")
 
-    adata = ad.experimental.read_dispatched(f, callback=callback)
+    adata.obs = obs
+    metadata = obs[["case_id"] + grouping_keys + stratification_keys].drop_duplicates().reset_index(drop=True)
+    
+    X = adata.X.toarray()
+    X[X == 0] = np.nan
 
-    return adata
+    df = pd.DataFrame(X, index=adata.obs_names, columns=adata.var_names)
+    df["case_id"] = obs["case_id"]
 
-def adata_to_zarr(h5ad_files: list[str]) -> list[str]:
+    return metadata, df
+
+def adata_to_zarr(h5ad_files: list[Path]) -> list[str]:
     """Preprocess adatas and convert to zarr."""
-    for i, f in enumerate(tqdm(h5ad_files)):
-        file_path = test_path / f"file_{i}.zarr"
+    metadata_path = test_path / "metadata"
+    metadata_path.mkdir(exist_ok=True)
+    data_path = test_path / "data"
+    data_path.mkdir(exist_ok=True)
 
-        if not file_path.exists():
-            try:
-                adata = ad.read_h5ad(f, backed="r+")
-                adata = preprocess_adata(adata)
+    for file in tqdm(h5ad_files):
+        adata = ad.read_h5ad(file, backed="r")
+        adata = preprocess_adata(adata)
 
-                if adata is None:
-                    continue
+        if adata is None:
+            continue
 
-                adata.write_zarr(file_path, chunks=True)
-                zarr.consolidate_metadata(file_path)
+        metadata_df, data_df = anndata_to_df(adata)
+        data_file_path = data_path / f"{file.stem}.parquet"
+        metadata_file_path = metadata_path / f"{file.stem}.parquet"
 
-                zarr_data = read_dask(file_path)
+        try:
+            data_df.to_parquet(data_file_path)
+            metadata_df.to_parquet(metadata_file_path)
+        except KeyboardInterrupt:
+            print("Cleaning up...")
+            data_file_path.unlink()
+            metadata_file_path.unlink()
+            exit(0)
 
-                preprocess_zarr(zarr_data)
-            except Exception:
-                print(traceback.format_exc())
-                continue
-
-        if i > 10:
-            break
-
-adata_to_zarr(files)
-
+adata_to_zarr(files[10:])
 # %%
-merged_path = test_path / "merged.zarr"
-zarr_paths = list(test_path.glob("*.zarr"))
-ad.experimental.concat_on_disk(zarr_paths, merged_path, join="outer")
+from sklearn.model_selection import StratifiedGroupKFold
 
-# %%
-full_data = zarr.open(merged_path, mode="r")
-X = ad.experimental.read_elem_as_dask(full_data["X"])
-X
-# %%
-zarr_data = read_dask(merged_path)
-zarr_data
-# %%
-zarr_data.obs
-# %%
 stratification_keys = ["sex", "tissue", "disease", "assay"]
 grouping_keys = ["donor_id"]
-metadata = zarr_data.obs[grouping_keys + stratification_keys].drop_duplicates().reset_index(drop=True)
-metadata
+
+aggregated_strata = metadata[stratification_keys].astype(str).agg("_".join, axis=1)
+aggregated_grouping = metadata[grouping_keys].astype(str).agg("_".join, axis=1)
+
+sgf = StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=42)
 # %%
+print(aggregated_strata, aggregated_grouping)
+
+metadata["fold"] = -1
+fold_column_idx = metadata.columns.get_loc("fold")
+
+for fold_idx, (_, test_idx) in enumerate(sgf.split(X=aggregated_strata, y=aggregated_strata, groups=aggregated_grouping)):
+    metadata.iloc[test_idx, fold_column_idx] = fold_idx
