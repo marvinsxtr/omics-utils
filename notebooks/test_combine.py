@@ -75,13 +75,13 @@ def anndata_to_df(adata: ad.AnnData) -> tuple[pd.DataFrame, pd.DataFrame]:
 
     return metadata, df
 
-def adata_to_zarr(h5ad_files: list[Path]) -> list[str]:
-    """Preprocess adatas and convert to zarr."""
-    metadata_path = test_path / "metadata"
-    metadata_path.mkdir(exist_ok=True)
-    data_path = test_path / "data"
-    data_path.mkdir(exist_ok=True)
+metadata_path = test_path / "metadata"
+metadata_path.mkdir(exist_ok=True)
+data_path = test_path / "data"
+data_path.mkdir(exist_ok=True)
 
+def adata_to_parquet(h5ad_files: list[Path]) -> list[str]:
+    """Preprocess adatas and convert to zarr."""
     for file in tqdm(h5ad_files):
         adata = ad.read_h5ad(file, backed="r")
         adata = preprocess_adata(adata)
@@ -98,26 +98,43 @@ def adata_to_zarr(h5ad_files: list[Path]) -> list[str]:
             metadata_df.to_parquet(metadata_file_path)
         except KeyboardInterrupt:
             print("Cleaning up...")
-            data_file_path.unlink()
-            metadata_file_path.unlink()
+            if data_file_path.exists():
+                data_file_path.unlink()
+            if metadata_file_path.exists():
+                metadata_file_path.unlink()
             exit(0)
 
-adata_to_zarr(files[10:])
+adata_to_parquet(files)
+# %%
+
+import dask.dataframe as dd
+
+metadata_df = dd.read_parquet(metadata_path / "*.parquet").compute()
+metadata_df = metadata_df.set_index("case_id")
+metadata_df
+
+# %%
+data_df = dd.read_parquet(data_path / "*.parquet")
+data_df.head()
 # %%
 from sklearn.model_selection import StratifiedGroupKFold
 
 stratification_keys = ["sex", "tissue", "disease", "assay"]
 grouping_keys = ["donor_id"]
 
-aggregated_strata = metadata[stratification_keys].astype(str).agg("_".join, axis=1)
-aggregated_grouping = metadata[grouping_keys].astype(str).agg("_".join, axis=1)
+aggregated_strata = metadata_df[stratification_keys].astype(str).agg("_".join, axis=1)
+aggregated_grouping = metadata_df[grouping_keys].astype(str).agg("_".join, axis=1)
 
 sgf = StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=42)
 # %%
-print(aggregated_strata, aggregated_grouping)
-
-metadata["fold"] = -1
-fold_column_idx = metadata.columns.get_loc("fold")
+metadata_df["fold"] = -1
+fold_column_idx = metadata_df.columns.get_loc("fold")
 
 for fold_idx, (_, test_idx) in enumerate(sgf.split(X=aggregated_strata, y=aggregated_strata, groups=aggregated_grouping)):
-    metadata.iloc[test_idx, fold_column_idx] = fold_idx
+    metadata_df.iloc[test_idx, fold_column_idx] = fold_idx
+
+metadata_df
+# %%
+joined_df = data_df.join(metadata_df, on="case_id", how="left")
+joined_df.head()
+# %%
