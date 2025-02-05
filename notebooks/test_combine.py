@@ -4,6 +4,8 @@ import anndata as ad
 from tqdm import tqdm
 import scanpy as sc
 import pandas as pd
+import uuid
+import numpy as np
 # %%
 test_path = Path("/tmp/test")
 test_path.mkdir(exist_ok=True)
@@ -50,9 +52,11 @@ def preprocess_adata(adata: ad.AnnData) -> ad.AnnData | None:
 
     return adata
 # %%
-import uuid
-import numpy as np
-
+metadata_path = test_path / "metadata"
+metadata_path.mkdir(exist_ok=True)
+data_path = test_path / "data"
+data_path.mkdir(exist_ok=True)
+# %%
 def anndata_to_df(adata: ad.AnnData) -> tuple[pd.DataFrame, pd.DataFrame]:
     stratification_keys = ["sex", "tissue", "disease", "assay"]
     grouping_keys = ["donor_id"]
@@ -74,11 +78,6 @@ def anndata_to_df(adata: ad.AnnData) -> tuple[pd.DataFrame, pd.DataFrame]:
     df["case_id"] = obs["case_id"]
 
     return metadata, df
-
-metadata_path = test_path / "metadata"
-metadata_path.mkdir(exist_ok=True)
-data_path = test_path / "data"
-data_path.mkdir(exist_ok=True)
 
 def adata_to_parquet(h5ad_files: list[Path]) -> list[str]:
     """Preprocess adatas and convert to zarr."""
@@ -137,4 +136,8 @@ metadata_df
 # %%
 joined_df = data_df.join(metadata_df, on="case_id", how="left")
 joined_df.head()
+# %%
+for fold_idx in range(5):
+    shuffled_fold = joined_df[joined_df["fold"] == fold_idx].sample(frac=1)
+    print(shuffled_fold.head())
 # %%
