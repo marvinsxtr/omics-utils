@@ -114,19 +114,19 @@ metadata_df = metadata_df.set_index("case_id")
 metadata_df
 
 # %%
-data_df = dd.concat([dd.read_parquet(path, filesystem="arrow") for path in data_path.glob("*.parquet")])
-# %%
+data_df = dd.read_parquet(data_path / "*.parquet")
 data_df.head(compute=False)
 # %%
 from sklearn.model_selection import StratifiedGroupKFold
 
-stratification_keys = ["sex", "tissue", "disease", "assay"]
+stratification_keys = ["sex", "tissue"]
 grouping_keys = ["donor_id"]
 
 aggregated_strata = metadata_df[stratification_keys].astype(str).agg("_".join, axis=1)
 aggregated_grouping = metadata_df[grouping_keys].astype(str).agg("_".join, axis=1)
 
-sgf = StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=42)
+num_folds = 2
+sgf = StratifiedGroupKFold(n_splits=num_folds, shuffle=True, random_state=42)
 # %%
 metadata_df["fold"] = -1
 fold_column_idx = metadata_df.columns.get_loc("fold")
@@ -137,9 +137,12 @@ for fold_idx, (_, test_idx) in enumerate(sgf.split(X=aggregated_strata, y=aggreg
 metadata_df
 # %%
 joined_df = data_df.join(metadata_df, on="case_id", how="left")
-joined_df.head()
+joined_df.head(compute=False)
 # %%
-for fold_idx in range(5):
-    shuffled_fold = joined_df[joined_df["fold"] == fold_idx].sample(frac=1)
-    print(shuffled_fold.head())
+output_dir = test_path / "output"
+output_dir.mkdir(exist_ok=True)
+
+for fold_idx in range(num_folds):
+    name_function = lambda x: f"fold_{fold_idx}_part_{x}.parquet"
+    joined_df[joined_df["fold"] == fold_idx].sample(frac=1).to_parquet(output_dir, name_function=name_function)
 # %%
