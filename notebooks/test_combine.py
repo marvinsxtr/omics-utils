@@ -14,41 +14,40 @@ files = list(cellxgene_path.glob("*.h5ad"))
 dataset_ids = [file.stem for file in files]
 files
 # %%
+gene_vocab = pd.read_csv("../data/gene_vocabulary.csv", header=None, index_col=None, names=["name"])["name"].values
+gene_vocab
+# %%
 def preprocess_adata(adata: ad.AnnData) -> ad.AnnData | None:
     """Preprocess an `AnnData` file and extract metadata."""
-    # Filter out non-human tissue
-    if not all(adata.obs["organism_ontology_term_id"] == "NCBITaxon:9606"):
-        print("No human tissue found.")
-        return None
-
-    del adata.obsm
-    del adata.obsp
-    del adata.varm
-    del adata.varp
-
-    obs_keys = ["assay_ontology_term_id", "cell_type_ontology_term_id", "development_stage_ontology_term_id",
-                "disease_ontology_term_id", "donor_id", "is_primary_data", "organism_ontology_term_id",
-                "self_reported_ethnicity_ontology_term_id", "sex_ontology_term_id", "suspension_type", "tissue_type",
-                "tissue_ontology_term_id", "assay", "cell_type", "development_stage", "disease", "observation_joinid",
-                "organism", "self_reported_ethnicity", "sex", "tissue"]
-
-    adata.obs = adata.obs[obs_keys]
-
+    # Define X to be the raw counts
     if hasattr(adata, "raw") and hasattr(adata.raw, "X"):
-        # Make sure the processed genes were not filtered
         assert adata.var.shape[0] == adata.raw.var.shape[0]
-        raw_x = adata.raw.X
+        adata.X = adata.raw.X
     else:
-        raw_x = adata.X
+        assert (adata.X.astype("int") != adata.X).nnz == 0
 
-    adata = ad.AnnData(
-        X=raw_x.to_memory(),
-        obs=adata.obs,
-        var=adata.var,
+    # Filter out non-human tissue, non-primary and diseased data
+    cell_filter = (
+        (adata.obs["organism_ontology_term_id"] == "NCBITaxon:9606") &
+        (adata.obs["is_primary_data"] == True) &
+        (adata.obs["disease"] == "normal") & 
+        (adata.obs["assay"].isin(["10x 3' v1", "10x 3' v2", "10x 3' v3", "10x 5' v1", "10x 5' v2", 
+                                  "10x 3' transcription profiling", "10x 5' transcription profiling"]))
     )
 
-    scales_counts = sc.pp.normalize_total(adata, target_sum=1e4, inplace=False)
-    adata.X = sc.pp.log1p(scales_counts["X"])
+    # Only use genes in vocabulary
+    gene_filter = adata.var.index.isin(gene_vocab.tolist())
+
+    # Filter cells and genes
+    adata = adata[cell_filter, gene_filter].copy()
+
+    # Check if all cells/genes were filtered out
+    if adata.n_obs == 0 or adata.n_vars == 0:
+        return None
+
+    # Preprocessing
+    sc.pp.normalize_total(adata, target_sum=1e4)
+    sc.pp.log1p(adata)
 
     return adata
 # %%
@@ -75,6 +74,8 @@ def anndata_to_df(adata: ad.AnnData) -> tuple[pd.DataFrame, pd.DataFrame]:
     X[X == 0] = np.nan
 
     df = pd.DataFrame(X, index=adata.obs_names, columns=adata.var_names)
+    df = df.reindex(columns=gene_vocab, fill_value=np.nan)
+
     df["case_id"] = obs["case_id"]
 
     return metadata, df
@@ -82,7 +83,7 @@ def anndata_to_df(adata: ad.AnnData) -> tuple[pd.DataFrame, pd.DataFrame]:
 def adata_to_parquet(h5ad_files: list[Path]) -> list[str]:
     """Preprocess adatas and convert to zarr."""
     for file in tqdm(h5ad_files):
-        adata = ad.read_h5ad(file, backed="r")
+        adata = ad.read_h5ad(file)
         adata = preprocess_adata(adata)
 
         if adata is None:
@@ -114,17 +115,18 @@ metadata_df
 
 # %%
 data_df = dd.read_parquet(data_path / "*.parquet")
-data_df.head()
+data_df.head(compute=False)
 # %%
 from sklearn.model_selection import StratifiedGroupKFold
 
-stratification_keys = ["sex", "tissue", "disease", "assay"]
+stratification_keys = ["sex", "tissue"]
 grouping_keys = ["donor_id"]
 
 aggregated_strata = metadata_df[stratification_keys].astype(str).agg("_".join, axis=1)
 aggregated_grouping = metadata_df[grouping_keys].astype(str).agg("_".join, axis=1)
 
-sgf = StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=42)
+num_folds = 2
+sgf = StratifiedGroupKFold(n_splits=num_folds, shuffle=True, random_state=42)
 # %%
 metadata_df["fold"] = -1
 fold_column_idx = metadata_df.columns.get_loc("fold")
@@ -135,9 +137,12 @@ for fold_idx, (_, test_idx) in enumerate(sgf.split(X=aggregated_strata, y=aggreg
 metadata_df
 # %%
 joined_df = data_df.join(metadata_df, on="case_id", how="left")
-joined_df.head()
+joined_df.head(compute=False)
 # %%
-for fold_idx in range(5):
-    shuffled_fold = joined_df[joined_df["fold"] == fold_idx].sample(frac=1)
-    print(shuffled_fold.head())
+output_dir = test_path / "output"
+output_dir.mkdir(exist_ok=True)
+
+for fold_idx in range(num_folds):
+    name_function = lambda x: f"fold_{fold_idx}_part_{x}.parquet"
+    joined_df[joined_df["fold"] == fold_idx].sample(frac=1).to_parquet(output_dir, name_function=name_function)
 # %%
