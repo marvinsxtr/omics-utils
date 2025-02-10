@@ -8,7 +8,10 @@ ENV UV_PYTHON=python3.12
 ENV PATH="$UV_PROJECT_ENVIRONMENT/bin:$PATH"
 
 # Clean up
-RUN rm -f /etc/apt/sources.list.d/*.list
+RUN apt clean && \
+    rm -f /etc/apt/sources.list.d/*.list && \
+    rm -rf /var/lib/apt/lists/* && \
+    apt update
 
 # Utilities
 RUN apt-get update && apt-get upgrade -y

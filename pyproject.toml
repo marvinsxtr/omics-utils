@@ -20,6 +20,7 @@ dependencies = [
   "scanpy>=1.10.4",
   "pyarrow>=19.0.0",
   "dask-jobqueue>=0.9.0",
+  "ml-project-template",
 ]
 
 [dependency-groups]
@@ -35,6 +36,7 @@ dev = [
 torch = [
   { index = "pytorch-cu124", marker = "platform_system != 'Darwin'" },
 ]
+ml-project-template = { git = "https://github.com/marvinsxtr/ml-project-template.git" }
 
 [[tool.uv.index]]
 name = "pytorch-cu124"
