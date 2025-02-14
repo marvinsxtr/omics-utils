@@ -1,8 +1,13 @@
 # %%
+# Hack to make it work with newer versions.
+from anndata.compat import Index, Index1D
+import anndata
+anndata._core.index.Index = Index
+anndata._core.index.Index1D = Index1D
+
 from cellarium.ml.data import IterableDistributedAnnDataCollectionDataset as AnnDataLoader
 from cellarium.ml.data import DistributedAnnDataCollection
 from cellarium.ml.utilities.data import AnnDataField, densify
-
 
 dadc = DistributedAnnDataCollection(
     "/temp/test/fold_0_part_{0..5}.h5ad",
@@ -25,3 +30,4 @@ dl = AnnDataLoader(
 for batch in dl:
     print(batch)
     break
+# %%
