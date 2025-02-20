@@ -1,7 +1,9 @@
 from pathlib import Path
 
+import anndata as ad
 import dask.dataframe as dd
 import pandas as pd
+import scipy.sparse as sp
 import yaml
 
 from omics_utils.preprocessing.steps.step import PreprocessingStep
@@ -81,6 +83,16 @@ class Stratifier(PreprocessingStep):
 
         return folds, metadata_df
 
+    def df_to_anndata(
+        self, df: pd.DataFrame, output_dir: Path, fold_idx: int, partition_info: dict | None = None
+    ) -> None:
+        """Write a `DataFrame` to an anndata file."""
+        part = partition_info["number"]
+        gene_cols = list(set(df.columns) - set(self.metadata_columns) - set(ColumnNames.FOLD))
+        x_matrix = sp.csr_matrix(df[gene_cols].to_numpy())
+        adata = ad.AnnData(X=x_matrix, obs=df[self.metadata_columns])
+        adata.write_h5ad(output_dir / f"fold_{fold_idx}_part_{part}.h5ad")
+
     def write(self, folds: dict[int, dd.DataFrame], metadata_df: pd.DataFrame) -> None:
         """Save the folds and the case metadata separately.
 
@@ -93,18 +105,15 @@ class Stratifier(PreprocessingStep):
 
         self.split_path.mkdir(exist_ok=True)
 
-        divisions = {}
+        limits = {}
         for fold_idx, fold_df in folds.items():
+            limits[fold_idx] = list(fold_df.divisions)[1:]
 
-            def name_function(part: int) -> str:
-                return f"fold_{fold_idx}_part_{part}.parquet"  # noqa: B023
+            fold_df.map_partitions(self.df_to_anndata, self.split_path, fold_idx, meta=fold_df.head()).compute()
+            # fold_df.to_parquet(self.split_path, name_function=name_function)
 
-            divisions[fold_idx] = list(fold_df.divisions)
-
-            fold_df.to_parquet(self.split_path, name_function=name_function)
-
-        with Path.open(self.output_path / "divisions.yaml", "w") as outfile:
-            yaml.dump(divisions, outfile, default_flow_style=False)
+        with Path.open(self.output_path / "limits.yaml", "w") as outfile:
+            yaml.dump(limits, outfile, default_flow_style=False)
 
     def run(self) -> None:
         """Run the stratification and splitting step."""

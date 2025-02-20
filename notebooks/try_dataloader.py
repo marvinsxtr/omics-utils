@@ -9,10 +9,23 @@ from cellarium.ml.data import IterableDistributedAnnDataCollectionDataset as Ann
 from cellarium.ml.data import DistributedAnnDataCollection
 from cellarium.ml.utilities.data import AnnDataField, densify
 
+import yaml
+
+with open("/home/marvinsxtr/Projects/omics-utils/outputs/2025-02-20/11-45-52/stratification/divisions.yaml", "r") as f:
+    limits = yaml.safe_load(f)
+
+fold_idx = 0
+fold_limits = limits[fold_idx][1:]
+
+print(fold_limits)
+
+paths = f"/home/marvinsxtr/Projects/omics-utils/outputs/2025-02-20/11-45-52/stratification/split/fold_{fold_idx}_part_{{0..5}}.parquet"
+
 dadc = DistributedAnnDataCollection(
-    "/temp/test/fold_0_part_{0..5}.h5ad",
-    limits=[500, 1000, 2000, 2500, 3000, 4000],
-    max_cache_size=2)
+    paths,
+    limits=fold_limits,
+    max_cache_size=2
+)
 
 dl = AnnDataLoader(
     dadc,
