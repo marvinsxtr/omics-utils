@@ -43,3 +43,22 @@ def densify_matrix(sparse_matrix: sparse.spmatrix) -> np.ndarray:
     coo = sparse_matrix.tocoo()
     dense[coo.row, coo.col] = coo.data
     return dense
+
+
+def global_reset_index(df: dd.DataFrame, index_name: str = None) -> dd.DataFrame:
+    """Resets the index of a dask `DataFrame` globally instead of per partition.
+
+    Args:
+    ----
+      df: Dask `DataFrame` to reset the index of.
+      index_name: Name of the new index.
+
+    Returns:
+    -------
+    Dask `DataFrame` with a globally reset index.
+    """
+    df = df.assign(tmp_idx=1)
+    # Have to drop after resetting the index since the drop=True flag does not work
+    df = df.set_index((df["tmp_idx"].cumsum() - 1).rename(index_name))
+    df = df.drop(columns="tmp_idx")
+    return df

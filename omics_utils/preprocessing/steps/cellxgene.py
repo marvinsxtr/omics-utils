@@ -52,7 +52,7 @@ class CellXGenePreprocessing(PreprocessingStep):
         -------
         The data ready for transformation.
         """
-        input_files = list(self.input_path.glob("*.h5ad"))[:2]
+        input_files = list(self.input_path.glob("*.h5ad"))
         data_df = dd.from_map(self.transform, input_files)
         data_df = remove_empty_partitions(data_df)
         return data_df

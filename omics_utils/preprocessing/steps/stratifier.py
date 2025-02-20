@@ -7,6 +7,7 @@ import yaml
 from omics_utils.preprocessing.steps.step import PreprocessingStep
 from omics_utils.splitting.splitter import Splitter
 from omics_utils.utils.columns import ColumnNames
+from omics_utils.utils.helpers import global_reset_index
 
 
 class Stratifier(PreprocessingStep):
@@ -72,13 +73,10 @@ class Stratifier(PreprocessingStep):
 
         folds = {}
         for fold_idx in range(self.splitter.num_folds):
-            fold_df: dd.DataFrame = (
-                joined_df[joined_df[ColumnNames.FOLD] == fold_idx]
-                .sample(frac=1)
-                .repartition(partition_size=self.partition_size, force=True)
-                .reset_index()
-                .compute_current_divisions(set_divisions=True)
+            fold_df: dd.DataFrame = joined_df[joined_df[ColumnNames.FOLD] == fold_idx].sample(
+                frac=1, random_state=self.splitter.seed
             )
+            fold_df = global_reset_index(fold_df).compute_current_divisions(set_divisions=True)
             folds[fold_idx] = fold_df
 
         return folds, metadata_df

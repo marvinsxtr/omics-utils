@@ -23,6 +23,7 @@ class PreprocessingPipeline:
         output_dir: str | None = None,
         force_recompute: bool = False,
         cluster: JobQueueCluster | None = None,
+        scale: int = 10,
     ) -> None:
         """Args:
         ----
@@ -31,6 +32,7 @@ class PreprocessingPipeline:
             hydra output directory (`outputs`).
           force_recompute: Whether to recompute already existing intermediate results.
           cluster: Configured cluster to use for distributed preprocessing using dask.
+          scale: Number of jobs to start on the cluster. Defaults to 10.
         """
         output_path = get_hydra_output_dir() if output_dir is None else Path(output_dir)
         output_path.mkdir(parents=True, exist_ok=True)
@@ -40,6 +42,7 @@ class PreprocessingPipeline:
         self.force_recompute = force_recompute
 
         if cluster is not None:
+            cluster.scale(jobs=scale)
             self._setup_cluster(cluster)
 
     def _setup_cluster(self, cluster: JobQueueCluster) -> None:
