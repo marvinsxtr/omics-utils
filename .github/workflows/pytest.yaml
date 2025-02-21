@@ -2,17 +2,11 @@ name: Pytest
 
 on: [push]
 
-env:
-  # Use docker.io for Docker Hub if empty
-  REGISTRY: ghcr.io
-  # github.repository as <account>/<repo>
-  IMAGE_NAME: ${{ github.repository }}
-
 jobs:
   pytest:
     runs-on: ubuntu-latest
     container:
-      image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+      image: ghcr.io/${{ github.repository }}:latest
       credentials:
         username: ${{ secrets.GHCR_USERNAME }}
         password: ${{ secrets.ghcr_password }}
