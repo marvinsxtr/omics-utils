@@ -8,8 +8,8 @@ jobs:
     container:
       image: ghcr.io/${{ github.repository }}:latest
       credentials:
-        username: ${{ github.repository_owner }}
-        password: ${{ secrets.ghcr_password }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Run pytest
         run: pytest
