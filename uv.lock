@@ -81,7 +81,7 @@ wheels = [
 
 [[package]]
 name = "anndata"
-version = "0.11.3"
+version = "0.10.7"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "array-api-compat" },
@@ -92,9 +92,9 @@ dependencies = [
     { name = "pandas" },
     { name = "scipy" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/fd/1b/917c82b44cffc3157e74618fda92a61e9353c3d45a21bbffce90df337bef/anndata-0.11.3.tar.gz", hash = "sha256:986e626b62108e8db7034db2f391fd160c11d4b4e3af9c31183c82862297f7f6", size = 538016 }
+sdist = { url = "https://files.pythonhosted.org/packages/37/e8/050c2c7f5e5e028c2e08c22d0a6bb03dd7c6df8a3ab8ebf17d093722de22/anndata-0.10.7.tar.gz", hash = "sha256:9b186bea18956fefdc35e7464d822a17e9faa456ca2d20c7a0966a4837b822a2", size = 166952 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ca/ee/2c4ba5ddd3d5664c02e8b4faefc94c7689601a29af4735b1491eb44e12a6/anndata-0.11.3-py3-none-any.whl", hash = "sha256:2ce220c4c03b7dba31fab0540d3d64f6811bc343cd3f273d7bdeed50a5cd6367", size = 142665 },
+    { url = "https://files.pythonhosted.org/packages/2b/d3/92363888f71b1ddb604ac6508fac513688f1f21ac0a7ec54df8a11dab3c9/anndata-0.10.7-py3-none-any.whl", hash = "sha256:8b50af790f9a73414d0b94fd7b8e005f5cc6c53c33eb09206d2bd6720115bffc", size = 122354 },
 ]
 
 [[package]]
@@ -2077,7 +2077,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "anndata", specifier = ">=0.11.3" },
+    { name = "anndata", specifier = "==0.10.7" },
     { name = "bokeh", specifier = ">=3.6.3" },
     { name = "cellarium-ml", specifier = ">=0.0.7" },
     { name = "dask", specifier = ">=2025.1.0" },
