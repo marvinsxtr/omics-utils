@@ -96,9 +96,16 @@ class Stratifier(PreprocessingStep):
           partition_info: Dictionary containing metadata about the partition.
         """
         part = partition_info["number"]
+
         gene_cols = list(set(df.columns) - set(self.metadata_columns) - {ColumnNames.CASE_ID, ColumnNames.FOLD})
-        x_matrix = sparsify_matrix(df[gene_cols].to_numpy(dtype=float))
-        adata = ad.AnnData(X=x_matrix, obs=df[self.metadata_columns])
+        obs_cols = list(set(self.metadata_columns) + {ColumnNames.CASE_ID, ColumnNames.FOLD, ColumnNames.SAMPLE_ID})
+
+        gene_df = df[gene_cols].set_index(ColumnNames.SAMPLE_ID)
+        obs_df = df[obs_cols].set_index(ColumnNames.SAMPLE_ID)
+
+        x_matrix = sparsify_matrix(gene_df.to_numpy(dtype=float))
+
+        adata = ad.AnnData(X=x_matrix, obs=obs_df)
         adata.write_h5ad(output_dir / f"fold_{fold_idx}_part_{part}.h5ad")
 
     def write(self, folds: dict[int, dd.DataFrame], metadata_df: pd.DataFrame) -> None:

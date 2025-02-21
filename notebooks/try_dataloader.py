@@ -1,13 +1,7 @@
 # %%
-# Hack to make it work with newer versions.
-# from anndata.compat import Index, Index1D
-# import anndata
-# anndata._core.index.Index = Index
-# anndata._core.index.Index1D = Index1D
-
 from cellarium.ml.data import IterableDistributedAnnDataCollectionDataset as AnnDataLoader
 from cellarium.ml.data import DistributedAnnDataCollection
-from cellarium.ml.utilities.data import AnnDataField, densify
+from cellarium.ml.utilities.data import AnnDataField
 
 import yaml
 
