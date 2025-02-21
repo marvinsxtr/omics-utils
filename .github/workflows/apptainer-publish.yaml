@@ -28,7 +28,7 @@ jobs:
 
       - name: Build Container
         run: |
-           echo ${{ secrets.GITHUB_TOKEN }} | singularity remote login -u ${{ secrets.GHCR_USERNAME }} --password-stdin oci://ghcr.io
+           echo ${{ secrets.GITHUB_TOKEN }} | singularity remote login -u ${{ secrets.GHCR_USERNAME }} --password-stdin docker://ghcr.io
            singularity build container.sif docker://${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
       - name: Login and Deploy Container
