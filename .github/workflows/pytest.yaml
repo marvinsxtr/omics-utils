@@ -11,5 +11,5 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Run pytest
-        run: pytest
+      - uses: actions/checkout@v4
+      - run: pytest
