@@ -63,7 +63,7 @@ def sparsify_matrix(dense_matrix: np.ndarray) -> sparse.csr_matrix:
     return sparse_matrix
 
 
-def global_reset_index(df: dd.DataFrame, index_name: str = None) -> dd.DataFrame:
+def global_reset_index(df: dd.DataFrame, index_name: str | None = None) -> dd.DataFrame:
     """Resets the index of a dask `DataFrame` globally instead of per partition.
 
     Args:
