@@ -1,7 +1,9 @@
-name: Apptainer Build Deploy
+name: Apptainer
 
 on:
-  push:
+  workflow_run:
+    workflows: ["Docker"]
+    types: [completed]
 
 env:
   # Use docker.io for Docker Hub if empty
@@ -10,12 +12,12 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-test-container:
+  build-container:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-    name: Build Container
+    name: Build and Push Container
     steps:
       - uses: actions/checkout@v2
       - uses: eWaterCycle/setup-apptainer@v2
@@ -23,4 +25,4 @@ jobs:
         run: |
            echo ${{ secrets.GITHUB_TOKEN }} | apptainer remote login -u ${{ secrets.GHCR_USERNAME }} --password-stdin docker://ghcr.io
            apptainer build container.sif docker://${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-           apptainer push container.sif oras://ghcr.io/${GITHUB_REPOSITORY}:${tag}
+           apptainer push container.sif oras://${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-sif
