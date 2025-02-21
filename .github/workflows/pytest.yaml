@@ -9,8 +9,8 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  runs-on: ubuntu-latest
   pytest:
+    runs-on: ubuntu-latest
     container:
       image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
       credentials:
