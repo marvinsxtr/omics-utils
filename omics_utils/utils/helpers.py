@@ -45,6 +45,24 @@ def densify_matrix(sparse_matrix: sparse.spmatrix) -> np.ndarray:
     return dense
 
 
+def sparsify_matrix(dense_matrix: np.ndarray) -> sparse.csr_matrix:
+    """Convert a dense matrix to a sparse matrix where `np.nan` are not explicitly stored.
+
+    Args:
+    ----
+      dense_matrix: Matrix to sparsify.
+
+    Returns:
+    -------
+    The sparse matrix storing zeros explicitly and not storing `np.nan`.
+    """
+    mask = ~np.isnan(dense_matrix)
+    rows, cols = np.nonzero(mask)
+    values = dense_matrix[mask]
+    sparse_matrix = sparse.csr_matrix((values, (rows, cols)), shape=dense_matrix.shape)
+    return sparse_matrix
+
+
 def global_reset_index(df: dd.DataFrame, index_name: str = None) -> dd.DataFrame:
     """Resets the index of a dask `DataFrame` globally instead of per partition.
 

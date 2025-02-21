@@ -41,7 +41,7 @@ class CellXGenePreprocessing(PreprocessingStep):
     @property
     def metadata_columns(self) -> list[str]:
         """Return the columns in `AnnData.obs` that are considered metadata."""
-        return ["donor_id", "sex", "tissue", "disease", "assay"]
+        return ["sex", "tissue", "disease", "assay"]
 
     def read(self) -> dd.DataFrame:
         """Read and transform the data from the the input data.

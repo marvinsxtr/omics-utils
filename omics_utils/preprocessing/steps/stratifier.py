@@ -1,15 +1,15 @@
 from pathlib import Path
+from typing import Any
 
 import anndata as ad
 import dask.dataframe as dd
 import pandas as pd
-import scipy.sparse as sp
 import yaml
 
 from omics_utils.preprocessing.steps.step import PreprocessingStep
 from omics_utils.splitting.splitter import Splitter
 from omics_utils.utils.columns import ColumnNames
-from omics_utils.utils.helpers import global_reset_index
+from omics_utils.utils.helpers import global_reset_index, sparsify_matrix
 
 
 class Stratifier(PreprocessingStep):
@@ -75,7 +75,7 @@ class Stratifier(PreprocessingStep):
 
         folds = {}
         for fold_idx in range(self.splitter.num_folds):
-            fold_df: dd.DataFrame = joined_df[joined_df[ColumnNames.FOLD] == fold_idx].sample(
+            fold_df = joined_df[joined_df[ColumnNames.FOLD] == fold_idx].sample(
                 frac=1, random_state=self.splitter.seed
             )
             fold_df = global_reset_index(fold_df).compute_current_divisions(set_divisions=True)
@@ -84,12 +84,20 @@ class Stratifier(PreprocessingStep):
         return folds, metadata_df
 
     def df_to_anndata(
-        self, df: pd.DataFrame, output_dir: Path, fold_idx: int, partition_info: dict | None = None
+        self, df: pd.DataFrame, output_dir: Path, fold_idx: int, partition_info: dict[str, Any] | None = None
     ) -> None:
-        """Write a `DataFrame` to an anndata file."""
+        """Write a `DataFrame` to an anndata file.
+
+        Args:
+        ----
+          df: Partition as a pandas `DataFrame` to save as an anndata file.
+          output_dir: Folder to save the anndata file in.
+          fold_idx: Index of the fold the partition belongs to.
+          partition_info: Dictionary containing metadata about the partition.
+        """
         part = partition_info["number"]
-        gene_cols = list(set(df.columns) - set(self.metadata_columns) - set(ColumnNames.FOLD))
-        x_matrix = sp.csr_matrix(df[gene_cols].to_numpy())
+        gene_cols = list(set(df.columns) - set(self.metadata_columns) - {ColumnNames.CASE_ID, ColumnNames.FOLD})
+        x_matrix = sparsify_matrix(df[gene_cols].to_numpy(dtype=float))
         adata = ad.AnnData(X=x_matrix, obs=df[self.metadata_columns])
         adata.write_h5ad(output_dir / f"fold_{fold_idx}_part_{part}.h5ad")
 
@@ -108,9 +116,7 @@ class Stratifier(PreprocessingStep):
         limits = {}
         for fold_idx, fold_df in folds.items():
             limits[fold_idx] = list(fold_df.divisions)[1:]
-
             fold_df.map_partitions(self.df_to_anndata, self.split_path, fold_idx, meta=fold_df.head()).compute()
-            # fold_df.to_parquet(self.split_path, name_function=name_function)
 
         with Path.open(self.output_path / "limits.yaml", "w") as outfile:
             yaml.dump(limits, outfile, default_flow_style=False)

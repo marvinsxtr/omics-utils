@@ -23,5 +23,5 @@ CellXGenePreprocessingConfig = builds(
         ),
     ],
     cluster=ClusterConfig,
-    output_dir=None,
+    output_dir="/home/marvinsxtr/Projects/omics-utils/outputs/2025-02-21/10-06-08",
 )
