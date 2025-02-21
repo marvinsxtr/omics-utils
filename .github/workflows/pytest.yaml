@@ -2,22 +2,20 @@ name: Pytest
 
 on: [push]
 
+env:
+  # Use docker.io for Docker Hub if empty
+  REGISTRY: ghcr.io
+  # github.repository as <account>/<repo>
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
+  runs-on: ubuntu-latest
   pytest:
-    name: python
-    runs-on: ubuntu-latest
-
+    container:
+      image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+      credentials:
+        username: ${{ secrets.GHCR_USERNAME }}
+        password: ${{ secrets.ghcr_password }}
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: true
-          cache-dependency-glob: "uv.lock"
-
-      - name: Install the project
-        run: uv sync --all-extras --dev
-
-      - name: Run tests
-        run: uv run pytest
+      - name: Run pytest
+        run: pytest
