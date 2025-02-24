@@ -14,4 +14,4 @@ ClusterConfig = builds(
     log_directory=builds(get_hydra_output_dir),
 )
 
-LocalClusterConfig = builds(LocalCluster)
+LocalClusterConfig = builds(LocalCluster, n_workers=1)

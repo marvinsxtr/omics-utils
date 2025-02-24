@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from dask.distributed import Client
+from dask.distributed import Client, LocalCluster
 from dask_jobqueue import JobQueueCluster
 from hydra_zen.typing import Partial
 from ml_project_template.common.logging.logger import logger
@@ -22,7 +22,7 @@ class PreprocessingPipeline:
         steps: list[Partial[PreprocessingStep]],
         output_dir: str | None = None,
         force_recompute: bool = False,
-        cluster: JobQueueCluster | None = None,
+        cluster: JobQueueCluster | LocalCluster | None = None,
         scale: int = 10,
     ) -> None:
         """Args:
@@ -42,18 +42,24 @@ class PreprocessingPipeline:
         self.force_recompute = force_recompute
 
         if cluster is not None:
-            cluster.scale(jobs=scale)
+            if not isinstance(cluster, LocalCluster):
+                cluster.scale(jobs=scale)
             self._setup_cluster(cluster)
 
-    def _setup_cluster(self, cluster: JobQueueCluster) -> None:
+    def _setup_cluster(self, cluster: JobQueueCluster | LocalCluster) -> None:
         """Configures the Slurm cluster for multi-node processing using dask.
 
         Args:
         ----
           cluster: The dask jobqueue cluster to use.
         """
-        logger.info(f"Running the following job script:\n{cluster.job_script()}")
+        if isinstance(cluster, LocalCluster):
+            logger.info("Running locally...")
+        else:
+            logger.info(f"Running the following job script:\n{cluster.job_script()}")
+
         client = Client(cluster)
+
         logger.info(f"View dask dashboard at {client.dashboard_link}")
 
     def run(self) -> None:

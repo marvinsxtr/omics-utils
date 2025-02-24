@@ -150,7 +150,7 @@ class CellXGenePreprocessing(PreprocessingStep):
         obs[ColumnNames.CASE_ID] = (
             obs["donor_id"].map({donor_id: str(uuid.uuid4()) for donor_id in obs["donor_id"].unique()}).astype(str)
         )
-        obs = obs.set_index(ColumnNames.SAMPLE_ID, drop=False)
+        obs = obs.set_index(ColumnNames.SAMPLE_ID, drop=False).rename_axis(None)
 
         adata.obs = obs
 

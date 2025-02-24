@@ -101,7 +101,13 @@ class Stratifier(PreprocessingStep):
         obs_cols = list(set(self.metadata_columns) | {ColumnNames.CASE_ID, ColumnNames.FOLD, ColumnNames.SAMPLE_ID})
 
         gene_df = df[gene_cols].set_index(ColumnNames.SAMPLE_ID)
-        obs_df = df[obs_cols].set_index(ColumnNames.SAMPLE_ID)
+        obs_df = df[obs_cols]
+
+        for name, dtype in obs_df.dtypes.items():
+            if dtype == "string":
+                obs_df[name] = obs_df[name].astype(object)
+
+        obs_df = obs_df.set_index(ColumnNames.SAMPLE_ID)
 
         x_matrix = sparsify_matrix(gene_df.to_numpy(dtype=float))
 
