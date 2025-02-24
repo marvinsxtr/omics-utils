@@ -43,3 +43,39 @@ def densify_matrix(sparse_matrix: sparse.spmatrix) -> np.ndarray:
     coo = sparse_matrix.tocoo()
     dense[coo.row, coo.col] = coo.data
     return dense
+
+
+def sparsify_matrix(dense_matrix: np.ndarray) -> sparse.csr_matrix:
+    """Convert a dense matrix to a sparse matrix where `np.nan` are not explicitly stored.
+
+    Args:
+    ----
+      dense_matrix: Matrix to sparsify.
+
+    Returns:
+    -------
+    The sparse matrix storing zeros explicitly and not storing `np.nan`.
+    """
+    mask = ~np.isnan(dense_matrix)
+    rows, cols = np.nonzero(mask)
+    values = dense_matrix[mask]
+    sparse_matrix = sparse.csr_matrix((values, (rows, cols)), shape=dense_matrix.shape)
+    return sparse_matrix
+
+
+def global_reset_index(df: dd.DataFrame) -> dd.DataFrame:
+    """Resets the index of a dask `DataFrame` globally instead of per partition.
+
+    Args:
+    ----
+      df: Dask `DataFrame` to reset the index of.
+
+    Returns:
+    -------
+    Dask `DataFrame` with a globally reset index.
+    """
+    index_name = "__tmp_idx"
+    df = df.assign(**{index_name: 1})
+    df = df.set_index((df[index_name].cumsum() - 1).rename(None))
+    df = df.drop(columns=index_name)
+    return df
