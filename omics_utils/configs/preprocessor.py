@@ -12,7 +12,8 @@ CellXGenePreprocessingConfig = builds(
         builds(
             CellXGenePreprocessing,
             input_dir="/home/space/omics/datasets/cellxgene/h5ads",
-            gene_vocab_path="/home/space/omics/datasets/vocabulary/gene_vocabulary.csv",
+            gene_vocab_file="/home/space/omics/datasets/vocabulary/gene_vocabulary.csv",
+            n_debug=None,
             zen_partial=True,
         ),
         builds(
@@ -23,5 +24,5 @@ CellXGenePreprocessingConfig = builds(
         ),
     ],
     cluster=ClusterConfig,
-    output_dir="/home/marvinsxtr/Projects/omics-utils/outputs/2025-02-21/10-06-08",
+    output_dir=None,
 )

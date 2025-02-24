@@ -14,19 +14,30 @@ from omics_utils.utils.helpers import densify_matrix, remove_empty_partitions
 class CellXGenePreprocessing(PreprocessingStep):
     """Preprocessing of CellXGene `AnnData` files."""
 
-    def __init__(self, *args, input_dir: str, gene_vocab_path: str, **kwargs) -> None:
+    def __init__(self, *args, input_dir: str, gene_vocab_file: str, n_debug: int | None = None, **kwargs) -> None:
         """Args:
         ----
           input_dir: Folder where the input CellXGene `AnnData` files are saved.
-          gene_vocab_path: Path to the gene vocabulary to filter by.
+          gene_vocab_file: Path to the gene vocabulary to filter by.
+          n_debug: Take the first n input files only for debugging purposes.
         """
         super().__init__(*args, **kwargs)
+
+        input_path = Path(input_dir)
+        gene_vocab_path = Path(gene_vocab_file)
+
+        if not input_path.exists():
+            raise ValueError("Input path does not exist.")
+
+        if not gene_vocab_path.exists():
+            raise ValueError("Gene vocab path does not exist.")
 
         self.gene_vocab = (
             pd.read_csv(gene_vocab_path, header=None, index_col=None, names=["name"])["name"].to_numpy().tolist()
         )
-        self.gene_vocab_path = Path(gene_vocab_path)
-        self.input_path = Path(input_dir)
+        self.gene_vocab_path = gene_vocab_path
+        self.input_path = input_path
+        self.n_debug = n_debug
 
     @property
     def input_step(self) -> str | None:
@@ -52,7 +63,11 @@ class CellXGenePreprocessing(PreprocessingStep):
         -------
         The data ready for transformation.
         """
-        input_files = list(self.input_path.glob("*.h5ad"))[:10]
+        input_files = list(self.input_path.glob("*.h5ad"))
+
+        if self.n_debug is not None:
+            input_files = input_files[: self.n_debug]
+
         data_df = dd.from_map(self.transform, input_files)
         data_df = remove_empty_partitions(data_df)
         return data_df
@@ -135,7 +150,7 @@ class CellXGenePreprocessing(PreprocessingStep):
         obs[ColumnNames.CASE_ID] = (
             obs["donor_id"].map({donor_id: str(uuid.uuid4()) for donor_id in obs["donor_id"].unique()}).astype(str)
         )
-        obs = obs.set_index(ColumnNames.SAMPLE_ID)
+        obs = obs.set_index(ColumnNames.SAMPLE_ID, drop=False)
 
         adata.obs = obs
 
@@ -143,7 +158,7 @@ class CellXGenePreprocessing(PreprocessingStep):
 
         df = pd.DataFrame(X, index=adata.obs_names, columns=adata.var_names)
         df = df.reindex(columns=self.gene_vocab).astype(float)
-        df = df.join(obs[[ColumnNames.CASE_ID, *self.metadata_columns]].astype(str))
+        df = df.join(obs[[ColumnNames.CASE_ID, ColumnNames.SAMPLE_ID, *self.metadata_columns]].astype(str))
 
         return df
 

@@ -98,7 +98,7 @@ class Stratifier(PreprocessingStep):
         part = partition_info["number"]
 
         gene_cols = list(set(df.columns) - set(self.metadata_columns) - {ColumnNames.CASE_ID, ColumnNames.FOLD})
-        obs_cols = list(set(self.metadata_columns) + {ColumnNames.CASE_ID, ColumnNames.FOLD, ColumnNames.SAMPLE_ID})
+        obs_cols = list(set(self.metadata_columns) | {ColumnNames.CASE_ID, ColumnNames.FOLD, ColumnNames.SAMPLE_ID})
 
         gene_df = df[gene_cols].set_index(ColumnNames.SAMPLE_ID)
         obs_df = df[obs_cols].set_index(ColumnNames.SAMPLE_ID)
