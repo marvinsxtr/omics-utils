@@ -1,5 +1,6 @@
 import dask.dataframe as dd
 import numpy as np
+import pandas as pd
 from scipy import sparse
 
 
@@ -78,4 +79,21 @@ def global_reset_index(df: dd.DataFrame) -> dd.DataFrame:
     df = df.assign(**{index_name: 1})
     df = df.set_index((df[index_name].cumsum() - 1).rename(None))
     df = df.drop(columns=index_name)
+    return df
+
+
+def sanitize_dtypes(df: pd.DataFrame) -> pd.DataFrame:
+    """Sanitize the dtypes of a `DataFrame` for compatibility with anndata.
+
+    Args:
+    ----
+      df: The `DataFrame` to sanitize.
+
+    Returns:
+    -------
+    The `DataFrame` with sanitized dtypes.
+    """
+    for name, dtype in df.dtypes.items():
+        if dtype == "string":
+            df[name] = df[name].astype(object)
     return df
