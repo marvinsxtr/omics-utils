@@ -34,7 +34,7 @@ MethylationPreprocessingConfig = builds(
     steps=[
         builds(
             Preprocessing,
-            input_dir="/home/space/methyl_group/datasets/leitheiser_classification/pp_anndata/brain",
+            input_dir="/home/space/methyl_group/datasets/leitheiser_classification/pp_anndata/lung",
             n_debug=2,
             metadata_columns=["organ", "category"],
             zen_partial=True,

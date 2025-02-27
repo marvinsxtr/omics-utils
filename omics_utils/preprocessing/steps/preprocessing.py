@@ -60,10 +60,7 @@ class Preprocessing(PreprocessingStep):
         if self.n_debug is not None:
             input_files = input_files[: self.n_debug]
 
-        # Define metadata for the resulting DataFrame
-        meta = pd.DataFrame(columns=[ColumnNames.CASE_ID, ColumnNames.SAMPLE_ID, *self.metadata_columns], dtype=str)
-
-        data_df = dd.from_map(self.transform, input_files, meta=meta)
+        data_df = dd.from_map(self.transform, input_files)
         data_df = remove_empty_partitions(data_df)
         return data_df
 
@@ -102,16 +99,16 @@ class Preprocessing(PreprocessingStep):
 
         return df
 
-    def anndata_to_df(self, adata: ad.AnnData) -> pd.DataFrame:
-        """Convert an `AnnData` file to a pandas `DataFrame` containing `X` and the metadata.
+    def _prepare_metadata(self, adata: ad.AnnData) -> pd.DataFrame:
+        """Prepare the metadata by renaming the columns and adding additional identifiers.
 
         Args:
         ----
-          adata: The already preprocessed `AnnData` object to be converted.
+          adata: The `AnnData` object to extract the metadata from.
 
         Returns:
         -------
-        A `DataFrame` containing the patient/donor metadata and the matrix `X`.
+        The metadata as a `DataFrame`.
         """
         obs = adata.obs
 
@@ -125,9 +122,13 @@ class Preprocessing(PreprocessingStep):
         obs[ColumnNames.SAMPLE_ID] = [str(uuid.uuid4()) for _ in range(len(adata.obs))]
         obs[ColumnNames.SAMPLE_ID] = obs[ColumnNames.SAMPLE_ID].astype(str)
 
-        # If data does not contain a case_id, set it to sample_id
+        # If data does not contain a case_id, generate it from sample_id
         if ColumnNames.CASE_ID not in obs.columns:
-            obs[ColumnNames.CASE_ID] = obs[ColumnNames.SAMPLE_ID]
+            obs[ColumnNames.CASE_ID] = (
+                obs[ColumnNames.SAMPLE_ID]
+                .map({sample_id: str(uuid.uuid4()) for sample_id in obs[ColumnNames.SAMPLE_ID].unique()})
+                .astype(str)
+            )
         else:
             obs[ColumnNames.CASE_ID] = (
                 obs[ColumnNames.CASE_ID]
@@ -137,10 +138,23 @@ class Preprocessing(PreprocessingStep):
 
         obs = obs.set_index(ColumnNames.SAMPLE_ID, drop=False).rename_axis(None)
 
-        adata.obs = obs
+        return obs
+
+    def anndata_to_df(self, adata: ad.AnnData) -> pd.DataFrame:
+        """Convert an `AnnData` file to a pandas `DataFrame` containing `X` and the metadata.
+
+        Args:
+        ----
+          adata: The already preprocessed `AnnData` object to be converted.
+
+        Returns:
+        -------
+        A `DataFrame` containing the patient/donor metadata and the matrix `X`.
+        """
+        adata.obs = self._prepare_metadata(adata)
 
         df = pd.DataFrame(adata.X, index=adata.obs_names, columns=adata.var_names)
-        df = df.join(obs[[ColumnNames.CASE_ID, ColumnNames.SAMPLE_ID, *self.metadata_columns]].astype(str))
+        df = df.join(adata.obs[[ColumnNames.CASE_ID, ColumnNames.SAMPLE_ID, *self.metadata_columns]].astype(str))
 
         return df
 
@@ -151,8 +165,6 @@ class Preprocessing(PreprocessingStep):
         ----
           data_df: A `DataFrame` containing the patient/donor metadata and the matrix `X`.
         """
-        # TODO (wero): Try getting this to work without reseting the index  # noqa: TD003
-        data_df = data_df.reset_index(drop=True)
         data_df.to_parquet(self.output_path, filesystem="arrow", name_function=lambda part: f"part_{part}.parquet")
 
     def run(self) -> None:

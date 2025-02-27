@@ -1,8 +1,6 @@
-import uuid
 from pathlib import Path
 
 import anndata as ad
-import dask.dataframe as dd
 import pandas as pd
 import scanpy as sc
 
@@ -113,31 +111,12 @@ class CellXGenePreprocessing(Preprocessing):
         -------
         A `DataFrame` containing the patient/donor metadata and the matrix `X`.
         """
-        obs = adata.obs
-
-        # Assign case and sample identifiers
-        obs[ColumnNames.SAMPLE_ID] = [str(uuid.uuid4()) for _ in range(len(adata.obs))]
-        obs[ColumnNames.SAMPLE_ID] = obs[ColumnNames.SAMPLE_ID].astype(str)
-        obs[ColumnNames.CASE_ID] = (
-            obs["donor_id"].map({donor_id: str(uuid.uuid4()) for donor_id in obs["donor_id"].unique()}).astype(str)
-        )
-        obs = obs.set_index(ColumnNames.SAMPLE_ID, drop=False).rename_axis(None)
-
-        adata.obs = obs
+        adata.obs = self._prepare_metadata(adata)
 
         X = densify_matrix(adata.X)
 
         df = pd.DataFrame(X, index=adata.obs_names, columns=adata.var_names)
         df = df.reindex(columns=self.gene_vocab).astype(float)
-        df = df.join(obs[[ColumnNames.CASE_ID, ColumnNames.SAMPLE_ID, *self.metadata_columns]].astype(str))
+        df = df.join(adata.obs[[ColumnNames.CASE_ID, ColumnNames.SAMPLE_ID, *self.metadata_columns]].astype(str))
 
         return df
-
-    def write(self, data_df: dd.DataFrame) -> None:
-        """Load/save the result of the transformation.
-
-        Args:
-        ----
-          data_df: A `DataFrame` containing the patient/donor metadata and the matrix `X`.
-        """
-        data_df.to_parquet(self.output_path, filesystem="arrow", name_function=lambda part: f"part_{part}.parquet")
