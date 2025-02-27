@@ -118,9 +118,13 @@ class Preprocessing(PreprocessingStep):
         obs = self.correct_column_spelling(obs, possible_misspellings.CASE_ID, ColumnNames.CASE_ID)
 
         # Assign additional sample identifiers
-        obs["original_sample_id"] = obs[ColumnNames.SAMPLE_ID]
-        obs[ColumnNames.SAMPLE_ID] = [str(uuid.uuid4()) for _ in range(len(adata.obs))]
-        obs[ColumnNames.SAMPLE_ID] = obs[ColumnNames.SAMPLE_ID].astype(str)
+        if ColumnNames.SAMPLE_ID not in obs.columns:
+            obs[ColumnNames.SAMPLE_ID] = [str(uuid.uuid4()) for _ in range(len(adata.obs))]
+            obs[ColumnNames.SAMPLE_ID] = obs[ColumnNames.SAMPLE_ID].astype(str)
+        else:
+            obs["original_sample_id"] = obs[ColumnNames.SAMPLE_ID]
+            obs[ColumnNames.SAMPLE_ID] = [str(uuid.uuid4()) for _ in range(len(adata.obs))]
+            obs[ColumnNames.SAMPLE_ID] = obs[ColumnNames.SAMPLE_ID].astype(str)
 
         # If data does not contain a case_id, generate it from sample_id
         if ColumnNames.CASE_ID not in obs.columns:
