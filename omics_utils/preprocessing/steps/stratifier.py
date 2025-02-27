@@ -37,7 +37,7 @@ class Stratifier(PreprocessingStep):
 
     @property
     def input_step(self) -> str:
-        """Name of the prceding preprocessing step."""
+        """Name of the preceding preprocessing step."""
         return "data"
 
     @property
