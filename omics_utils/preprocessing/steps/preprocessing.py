@@ -151,6 +151,8 @@ class Preprocessing(PreprocessingStep):
         ----
           data_df: A `DataFrame` containing the patient/donor metadata and the matrix `X`.
         """
+        # TODO (wero): Try getting this to work without reseting the index  # noqa: TD003
+        data_df = data_df.reset_index(drop=True)
         data_df.to_parquet(self.output_path, filesystem="arrow", name_function=lambda part: f"part_{part}.parquet")
 
     def run(self) -> None:

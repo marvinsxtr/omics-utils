@@ -2,6 +2,7 @@ import uuid
 from pathlib import Path
 
 import anndata as ad
+import dask.dataframe as dd
 import pandas as pd
 import scanpy as sc
 
@@ -131,3 +132,12 @@ class CellXGenePreprocessing(Preprocessing):
         df = df.join(obs[[ColumnNames.CASE_ID, ColumnNames.SAMPLE_ID, *self.metadata_columns]].astype(str))
 
         return df
+
+    def write(self, data_df: dd.DataFrame) -> None:
+        """Load/save the result of the transformation.
+
+        Args:
+        ----
+          data_df: A `DataFrame` containing the patient/donor metadata and the matrix `X`.
+        """
+        data_df.to_parquet(self.output_path, filesystem="arrow", name_function=lambda part: f"part_{part}.parquet")
