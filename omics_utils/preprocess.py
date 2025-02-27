@@ -10,6 +10,6 @@ def main(cfg: Run, preprocessor: PreprocessingPipeline) -> None:  # noqa: ARG001
 
 
 if __name__ == "__main__":
-    import omics_utils.configs.stores.preprocess  # noqa: F401
+    import omics_utils.configs.stores.preprocess_methyl  # noqa: F401
 
     run(main)
