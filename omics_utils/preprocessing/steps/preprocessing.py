@@ -126,11 +126,8 @@ class Preprocessing(PreprocessingStep):
 
         # If data does not contain a case_id, generate it from sample_id
         if ColumnNames.CASE_ID not in obs.columns:
-            obs[ColumnNames.CASE_ID] = (
-                obs[ColumnNames.SAMPLE_ID]
-                .map({sample_id: str(uuid.uuid4()) for sample_id in obs[ColumnNames.SAMPLE_ID].unique()})
-                .astype(str)
-            )
+            obs[ColumnNames.CASE_ID] = [str(uuid.uuid4()) for _ in range(len(obs))]
+            obs[ColumnNames.CASE_ID] = obs[ColumnNames.CASE_ID].astype(str)
         else:
             obs[ColumnNames.CASE_ID] = (
                 obs[ColumnNames.CASE_ID]
