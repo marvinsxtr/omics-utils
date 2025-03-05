@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Any
 
 
-class PreprocessingStep(ABC):
+class Step(ABC):
     """Base preprocessing step in a modular ETL pipeline. Also see `PreprocessingPipeline`."""
 
     def __init__(self, base_dir: str) -> None:

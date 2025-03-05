@@ -6,13 +6,13 @@ import dask.dataframe as dd
 import pandas as pd
 import yaml
 
-from omics_utils.preprocessing.steps.step import PreprocessingStep
+from omics_utils.preprocessing.steps.step import Step
 from omics_utils.splitting.splitter import Splitter
 from omics_utils.utils.columns import ColumnNames
 from omics_utils.utils.helpers import global_reset_index, sanitize_dtypes, sparsify_matrix
 
 
-class Stratifier(PreprocessingStep):
+class Stratifier(Step):
     """Preprocessing step which reads case metadata, performs stratification and splits the data accordingly."""
 
     def __init__(
