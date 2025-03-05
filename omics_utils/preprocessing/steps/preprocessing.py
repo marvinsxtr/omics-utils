@@ -120,7 +120,7 @@ class Preprocessing(PreprocessingStep):
         # Assign additional sample identifiers
         if ColumnNames.SAMPLE_ID in obs.columns:
             obs["original_sample_id"] = obs[ColumnNames.SAMPLE_ID]
-  
+
         obs[ColumnNames.SAMPLE_ID] = [str(uuid.uuid4()) for _ in range(len(adata.obs))]
         obs[ColumnNames.SAMPLE_ID] = obs[ColumnNames.SAMPLE_ID].astype(str)
 
