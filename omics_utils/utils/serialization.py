@@ -5,30 +5,30 @@ import numpy as np
 import scipy.sparse as sp
 
 
-def serialize_sparse_row(row: sp.spmatrix) -> bytes:
+def serialize_sparse_matrix(sparse_matrix: sp.csr_matrix) -> str:
     """Serialize a sparse matrix row to bytes.
 
     Args:
     ----
-      row: A scipy sparse matrix (typically a single row)
+      sparse_matrix: A scipy sparse matrix (typically a single row)
 
     Returns:
     -------
-    Serialized bytes representation
+    Serialized representation
     """
-    if not sp.isspmatrix_csr(row):
-        row = row.tocsr()
-
     buffer = io.BytesIO()
 
-    np.savez(buffer, data=row.data, indices=row.indices, indptr=row.indptr, shape=row.shape)
+    np.lib.format.write_array(buffer, np.array(sparse_matrix.shape))
+    np.lib.format.write_array(buffer, sparse_matrix.data)
+    np.lib.format.write_array(buffer, sparse_matrix.indices)
+    np.lib.format.write_array(buffer, sparse_matrix.indptr)
 
     buffer.seek(0)
-    return base64.b64encode(buffer.getvalue())
+    return base64.b64encode(buffer.getvalue()).decode("ascii")
 
 
-def deserialize_sparse_row(serialized_str: str) -> sp.csr_matrix:
-    """Deserialize bytes back to a sparse matrix row.
+def deserialize_sparse_matrix(serialized_str: str) -> sp.csr_matrix:
+    """Deserialize string back to a sparse matrix row.
 
     Args:
     ----
@@ -38,9 +38,11 @@ def deserialize_sparse_row(serialized_str: str) -> sp.csr_matrix:
     -------
     Reconstructed sparse matrix
     """
-    serialized_bytes = base64.b64decode(serialized_str)
+    buffer = io.BytesIO(base64.b64decode(serialized_str))
 
-    buffer = io.BytesIO(serialized_bytes)
-    loaded = np.load(buffer)
+    shape = np.lib.format.read_array(buffer)
+    data_array = np.lib.format.read_array(buffer)
+    indices_array = np.lib.format.read_array(buffer)
+    indptr_array = np.lib.format.read_array(buffer)
 
-    return sp.csr_matrix((loaded["data"], loaded["indices"], loaded["indptr"]), shape=tuple(loaded["shape"]))
+    return sp.csr_matrix((data_array, indices_array, indptr_array), shape=tuple(shape))
