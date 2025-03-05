@@ -54,6 +54,9 @@ class CellXGenePreprocessing(Preprocessing):
         """
         adata = ad.read_h5ad(file_path)
 
+        # Correct column spelling
+        adata.obs = adata.obs.rename(columns={"donor_id": ColumnNames.CASE_ID})
+
         # Define X to be the raw counts
         if hasattr(adata, "raw") and hasattr(adata.raw, "X"):
             if adata.var.shape[0] != adata.raw.var.shape[0]:

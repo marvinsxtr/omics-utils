@@ -1,4 +1,5 @@
 import uuid
+from abc import ABC, abstractmethod
 from pathlib import Path
 
 import anndata as ad
@@ -6,11 +7,11 @@ import dask.dataframe as dd
 import pandas as pd
 
 from omics_utils.preprocessing.steps.step import Step
-from omics_utils.utils.columns import ColumnNames, PossibleColumnNames
+from omics_utils.utils.columns import ColumnNames
 from omics_utils.utils.helpers import remove_empty_partitions
 
 
-class Preprocessing(Step):
+class Preprocessing(Step, ABC):
     """Base class for preprocessing of `AnnData` files."""
 
     def __init__(
@@ -64,8 +65,9 @@ class Preprocessing(Step):
         data_df = remove_empty_partitions(data_df)
         return data_df
 
+    @abstractmethod
     def transform(self, file_path: Path) -> pd.DataFrame:
-        """Transform a single `AnnData` file without any dataset-specific preprocessing.
+        """Transform a single `AnnData` file.
 
         Args:
         ----
@@ -75,29 +77,7 @@ class Preprocessing(Step):
         -------
         The data as a pandas `DataFrame`.
         """
-        adata = ad.read_h5ad(file_path)
-
-        return self.anndata_to_df(adata)
-
-    def correct_column_spelling(self, df: pd.DataFrame, possible_names: list[str], correct_name: str) -> pd.DataFrame:
-        """Replace any of the possible misspellings with the correct column name.
-
-        Args:
-        ----
-          df: The DataFrame to correct.
-          possible_names: List of possible misspellings.
-          correct_name: The correct column name to replace with.
-
-        Returns:
-        -------
-        The corrected DataFrame.
-        """
-        for name in possible_names:
-            if name in df.columns:
-                df[correct_name] = df.pop(name)
-                break
-
-        return df
+        ...
 
     def _prepare_metadata(self, adata: ad.AnnData) -> pd.DataFrame:
         """Prepare the metadata by renaming the columns and adding additional identifiers.
@@ -111,11 +91,6 @@ class Preprocessing(Step):
         The metadata as a `DataFrame`.
         """
         obs = adata.obs
-
-        # Correct column spellings
-        possible_misspellings = PossibleColumnNames()
-        obs = self.correct_column_spelling(obs, possible_misspellings.SAMPLE_ID, ColumnNames.SAMPLE_ID)
-        obs = self.correct_column_spelling(obs, possible_misspellings.CASE_ID, ColumnNames.CASE_ID)
 
         # Assign additional sample identifiers
         if ColumnNames.SAMPLE_ID in obs.columns:
