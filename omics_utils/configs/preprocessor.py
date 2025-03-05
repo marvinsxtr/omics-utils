@@ -4,7 +4,7 @@ from omics_utils.configs.cluster import ClusterConfig
 from omics_utils.configs.splitter import CellXGeneStratifiedSplitterConfig, MethylationStratifiedSplitterConfig
 from omics_utils.preprocessing.pipeline import Pipeline
 from omics_utils.preprocessing.steps.cellxgene import CellXGenePreprocessing
-from omics_utils.preprocessing.steps.preprocessing import Preprocessing
+from omics_utils.preprocessing.steps.methylation import MethylationPreprocessing
 from omics_utils.preprocessing.steps.stratifier import Stratifier
 
 CellXGenePreprocessingConfig = builds(
@@ -14,6 +14,7 @@ CellXGenePreprocessingConfig = builds(
             CellXGenePreprocessing,
             input_dir="/home/space/omics/datasets/cellxgene/h5ads",
             gene_vocab_file="/home/space/omics/datasets/vocabulary/gene_vocabulary.csv",
+            metadata_columns=["sex", "tissue", "disease", "assay"],
             n_debug=None,
             zen_partial=True,
         ),
@@ -34,10 +35,10 @@ MethylationPreprocessingConfig = builds(
     Pipeline,
     steps=[
         builds(
-            Preprocessing,
+            MethylationPreprocessing,
             input_dir="/home/space/methyl_group/datasets/leitheiser_classification/pp_anndata/lung",
-            n_debug=2,
             metadata_columns=["organ", "category"],
+            n_debug=2,
             zen_partial=True,
         ),
         builds(

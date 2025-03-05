@@ -15,14 +15,13 @@ class Preprocessing(Step, ABC):
     """Base class for preprocessing of `AnnData` files."""
 
     def __init__(
-        self, *args, input_dir: str, n_debug: int | None = None, metadata_columns: list[str] | None = None, **kwargs
+        self, *args, input_dir: str, metadata_columns: list[str], n_debug: int | None = None, **kwargs
     ) -> None:
         """Args:
         ----
           input_dir: Folder where the input `AnnData` files are saved.
-          n_debug: Take the first n input files only for debugging purposes.
           metadata_columns: List of columns in `AnnData.obs` that are considered metadata.
-                           If None, defaults to ["sex", "tissue", "disease", "assay"].
+          n_debug: Take the first n input files only for debugging purposes.
         """
         super().__init__(*args, **kwargs)
 
@@ -33,9 +32,7 @@ class Preprocessing(Step, ABC):
 
         self.input_path = input_path
         self.n_debug = n_debug
-        self.metadata_columns = (
-            metadata_columns if metadata_columns is not None else ["sex", "tissue", "disease", "assay"]
-        )
+        self.metadata_columns = metadata_columns
 
     @property
     def input_step(self) -> str | None:
