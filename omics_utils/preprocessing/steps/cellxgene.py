@@ -55,8 +55,6 @@ class CellXGenePreprocessing(Preprocessing):
         adata = ad.read_h5ad(file_path)
 
         # Define X to be the raw counts
-        # TODO(marvin): Add more sanity checks for scRNA-seq data.
-        # https://github.com/bifold-pathomics/omics-utils/issues/3
         if hasattr(adata, "raw") and hasattr(adata.raw, "X"):
             if adata.var.shape[0] != adata.raw.var.shape[0]:
                 raise ValueError("Number of raw variables has to match the number of preprocessed variables.")

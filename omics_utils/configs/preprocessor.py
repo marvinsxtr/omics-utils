@@ -21,6 +21,7 @@ CellXGenePreprocessingConfig = builds(
             Stratifier,
             splitter=CellXGeneStratifiedSplitterConfig,
             metadata_columns=["sex", "tissue", "disease", "assay"],
+            seed=42,
             zen_partial=True,
         ),
     ],

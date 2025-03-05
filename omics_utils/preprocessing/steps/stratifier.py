@@ -9,19 +9,26 @@ import yaml
 from omics_utils.preprocessing.steps.step import PreprocessingStep
 from omics_utils.splitting.splitter import Splitter
 from omics_utils.utils.columns import ColumnNames
-from omics_utils.utils.helpers import global_reset_index, sparsify_matrix
+from omics_utils.utils.helpers import global_reset_index, sanitize_dtypes, sparsify_matrix
 
 
 class Stratifier(PreprocessingStep):
     """Preprocessing step which reads case metadata, performs stratification and splits the data accordingly."""
 
     def __init__(
-        self, *args, splitter: Splitter, metadata_columns: list[str], partition_size: str = "10GB", **kwargs
+        self,
+        *args,
+        splitter: Splitter,
+        metadata_columns: list[str],
+        seed: int,
+        partition_size: str = "10GB",
+        **kwargs,
     ) -> None:
         """Args:
         ----
           splitter: Splitter to use for stratification, grouping and shuffling among folds.
           metadata_columns: List of columns that should be extracted as metadata from the `DataFrame`.
+          seed: Seed to use for shuffling of the dataset.
           partition_size: The size of the resulting partitions in MB/GB. Should not be larger than memory.
         """
         super().__init__(*args, **kwargs)
@@ -31,13 +38,14 @@ class Stratifier(PreprocessingStep):
 
         self.splitter = splitter
         self.metadata_columns = metadata_columns
+        self.seed = seed
         self.partition_size = partition_size
         self.metadata_path = metadata_path
         self.split_path = split_path
 
     @property
     def input_step(self) -> str:
-        """Name of the prceding preprocessing step."""
+        """Name of the preceding preprocessing step."""
         return "data"
 
     @property
@@ -74,10 +82,8 @@ class Stratifier(PreprocessingStep):
         joined_df: dd.DataFrame = data_df.join(metadata_df[[ColumnNames.FOLD]], on=ColumnNames.CASE_ID)
 
         folds = {}
-        for fold_idx in range(self.splitter.num_folds):
-            fold_df = joined_df[joined_df[ColumnNames.FOLD] == fold_idx].sample(
-                frac=1, random_state=self.splitter.seed
-            )
+        for fold_idx in range(self.splitter.n_splits):
+            fold_df = joined_df[joined_df[ColumnNames.FOLD] == fold_idx].sample(frac=1, random_state=self.seed)
             fold_df = global_reset_index(fold_df).compute_current_divisions(set_divisions=True)
             folds[fold_idx] = fold_df
 
@@ -101,13 +107,7 @@ class Stratifier(PreprocessingStep):
         obs_cols = list(set(self.metadata_columns) | {ColumnNames.CASE_ID, ColumnNames.FOLD, ColumnNames.SAMPLE_ID})
 
         gene_df = df[gene_cols].set_index(ColumnNames.SAMPLE_ID)
-        obs_df = df[obs_cols]
-
-        for name, dtype in obs_df.dtypes.items():
-            if dtype == "string":
-                obs_df[name] = obs_df[name].astype(object)
-
-        obs_df = obs_df.set_index(ColumnNames.SAMPLE_ID)
+        obs_df = sanitize_dtypes(df[obs_cols]).set_index(ColumnNames.SAMPLE_ID)
 
         x_matrix = sparsify_matrix(gene_df.to_numpy(dtype=float))
 
