@@ -1,7 +1,8 @@
+import anndata as ad
 import dask.dataframe as dd
 import numpy as np
 import pandas as pd
-from scipy import sparse
+import scipy.sparse as sp
 
 
 def remove_empty_partitions(df: dd.DataFrame) -> dd.DataFrame:
@@ -29,7 +30,7 @@ def remove_empty_partitions(df: dd.DataFrame) -> dd.DataFrame:
     return df
 
 
-def densify_matrix(sparse_matrix: sparse.spmatrix) -> np.ndarray:
+def densify_matrix(sparse_matrix: sp.spmatrix) -> np.ndarray:
     """Replaces missing values with `np.nan` while preserving zeros.
 
     Args:
@@ -46,7 +47,7 @@ def densify_matrix(sparse_matrix: sparse.spmatrix) -> np.ndarray:
     return dense
 
 
-def sparsify_matrix(dense_matrix: np.ndarray) -> sparse.csr_matrix:
+def sparsify_matrix(dense_matrix: np.ndarray) -> sp.csr_matrix:
     """Convert a dense matrix to a sparse matrix where `np.nan` are not explicitly stored.
 
     Args:
@@ -60,7 +61,7 @@ def sparsify_matrix(dense_matrix: np.ndarray) -> sparse.csr_matrix:
     mask = ~np.isnan(dense_matrix)
     rows, cols = np.nonzero(mask)
     values = dense_matrix[mask]
-    sparse_matrix = sparse.csr_matrix((values, (rows, cols)), shape=dense_matrix.shape)
+    sparse_matrix = sp.csr_matrix((values, (rows, cols)), shape=dense_matrix.shape)
     return sparse_matrix
 
 
@@ -97,3 +98,33 @@ def sanitize_dtypes(df: pd.DataFrame) -> pd.DataFrame:
         if dtype == "string":
             df[name] = df[name].astype(object)
     return df
+
+
+def reindex_anndata_genes(adata: ad.AnnData, genes: list[str]) -> ad.AnnData:
+    """Reindex AnnData to exactly match a gene list while preserving sparsity.
+
+    Args:
+    ----
+      adata: AnnData object to reindex
+      genes: List of gene names to enforce
+
+    Returns:
+    -------
+    New AnnData with exactly the genes specified, in the specified order.
+    """
+    n_cells = adata.n_obs
+    n_genes = len(genes)
+    new_X = sp.csr_matrix((n_cells, n_genes), dtype=adata.X.dtype)
+
+    common_genes = list(set(genes) & set(adata.var_names))
+    new_indices = [genes.index(g) for g in common_genes]
+    old_indices = [adata.var_names.get_loc(g) for g in common_genes]
+
+    if common_genes:
+        new_X[:, new_indices] = adata.X[:, old_indices]
+
+    return ad.AnnData(
+        X=new_X,
+        obs=adata.obs,
+        var=adata.var.reindex(genes),
+    )

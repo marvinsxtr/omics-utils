@@ -9,7 +9,7 @@ ClusterConfig = builds(
     queue="cpu-5h",
     cores=8,
     processes=1,
-    memory="256GiB",
+    memory="128GiB",
     python="apptainer exec docker://ghcr.io/bifold-pathomics/omics-utils:latest python",
     log_directory=builds(get_hydra_output_dir),
 )

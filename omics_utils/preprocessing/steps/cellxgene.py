@@ -8,7 +8,8 @@ import scanpy as sc
 
 from omics_utils.preprocessing.steps.step import PreprocessingStep
 from omics_utils.utils.columns import ColumnNames
-from omics_utils.utils.helpers import densify_matrix, remove_empty_partitions
+from omics_utils.utils.helpers import densify_matrix, reindex_anndata_genes, remove_empty_partitions
+from omics_utils.utils.serialization import serialize_sparse_row
 
 
 class CellXGenePreprocessing(PreprocessingStep):
@@ -152,10 +153,10 @@ class CellXGenePreprocessing(PreprocessingStep):
 
         adata.obs = obs
 
-        X = densify_matrix(adata.X)
+        adata = reindex_anndata_genes(adata, self.gene_vocab)
+        serialized_cells = [serialize_sparse_row(x) for x in adata.X]
 
-        df = pd.DataFrame(X, index=adata.obs_names, columns=adata.var_names)
-        df = df.reindex(columns=self.gene_vocab).astype(float)
+        df = pd.DataFrame({"cells": serialized_cells}, index=adata.obs_names).astype(str)
         df = df.join(obs[[ColumnNames.CASE_ID, ColumnNames.SAMPLE_ID, *self.metadata_columns]].astype(str))
 
         return df
