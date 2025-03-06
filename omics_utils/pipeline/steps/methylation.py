@@ -27,4 +27,4 @@ class MethylationPreprocessing(Preprocessing):
         # Correct column spelling
         adata.obs = adata.obs.rename(columns={"sample_ID": ColumnNames.SAMPLE_ID})
 
-        return self.anndata_to_df(adata)
+        return self.converter.anndata_to_dataframe(adata)

@@ -98,33 +98,3 @@ def sanitize_dtypes(df: pd.DataFrame) -> pd.DataFrame:
         if dtype == "string":
             df[name] = df[name].astype(object)
     return df
-
-
-def reindex_anndata_genes(adata: ad.AnnData, genes: list[str]) -> ad.AnnData:
-    """Reindex AnnData to exactly match a gene list while preserving sparsity.
-
-    Args:
-    ----
-      adata: AnnData object to reindex
-      genes: List of gene names to enforce
-
-    Returns:
-    -------
-    New AnnData with exactly the genes specified, in the specified order.
-    """
-    n_cells = adata.n_obs
-    n_genes = len(genes)
-    new_X = sp.csr_matrix((n_cells, n_genes), dtype=adata.X.dtype)
-
-    common_genes = list(set(genes) & set(adata.var_names))
-    new_indices = [genes.index(g) for g in common_genes]
-    old_indices = [adata.var_names.get_loc(g) for g in common_genes]
-
-    if common_genes:
-        new_X[:, new_indices] = adata.X[:, old_indices]
-
-    return ad.AnnData(
-        X=new_X,
-        obs=adata.obs,
-        var=adata.var.reindex(genes),
-    )

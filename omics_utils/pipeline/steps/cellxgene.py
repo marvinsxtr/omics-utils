@@ -4,10 +4,9 @@ import anndata as ad
 import pandas as pd
 import scanpy as sc
 
+from omics_utils.converter.anndata_converter import AnndataConverter
 from omics_utils.pipeline.steps.preprocessing import Preprocessing
 from omics_utils.utils.columns import ColumnNames
-from omics_utils.utils.helpers import densify_matrix, reindex_anndata_genes
-from omics_utils.utils.serialization import serialize_sparse_matrix
 
 
 class CellXGenePreprocessing(Preprocessing):
@@ -17,30 +16,18 @@ class CellXGenePreprocessing(Preprocessing):
         self,
         *args,
         input_dir: str,
-        gene_vocab_file: str,
+        converter: AnndataConverter,
         n_debug: int | None = None,
-        metadata_columns: list[str] | None = None,
         **kwargs,
     ) -> None:
         """Args:
         ----
           input_dir: Folder where the input CellXGene `AnnData` files are saved.
+          converter: Converter to convert `AnnData` into a `DataFrame` format.
           gene_vocab_file: Path to the gene vocabulary to filter by.
           n_debug: Take the first n input files only for debugging purposes.
-          metadata_columns: List of columns in `AnnData.obs` that are considered metadata.
-                            If None, defaults to ["sex", "tissue", "disease", "assay"].
         """
-        super().__init__(*args, input_dir=input_dir, metadata_columns=metadata_columns, n_debug=n_debug, **kwargs)
-
-        gene_vocab_path = Path(gene_vocab_file)
-
-        if not gene_vocab_path.exists():
-            raise ValueError("Gene vocab path does not exist.")
-
-        self.gene_vocab = (
-            pd.read_csv(gene_vocab_path, header=None, index_col=None, names=["name"])["name"].to_numpy().tolist()
-        )
-        self.gene_vocab_path = gene_vocab_path
+        super().__init__(*args, converter=converter, input_dir=input_dir, n_debug=n_debug, **kwargs)
 
     def transform(self, file_path: Path) -> pd.DataFrame:
         """Preprocess a single `AnnData` file.
@@ -87,43 +74,17 @@ class CellXGenePreprocessing(Preprocessing):
         )
 
         # Only use genes in vocabulary
-        gene_filter = adata.var.index.isin(self.gene_vocab)
+        gene_filter = adata.var.index.isin(self.converter.var_cols)
 
         # Filter cells and genes
         adata = adata[cell_filter, gene_filter].copy()
 
         # Check if all cells/genes were filtered out
         if adata.n_obs == 0 or adata.n_vars == 0:
-            return self.anndata_to_df(adata)
+            return self.converter.anndata_to_dataframe(adata)
 
         # Preprocessing
         sc.pp.normalize_total(adata, target_sum=1e4)
         sc.pp.log1p(adata)
 
-        return self.anndata_to_df(adata)
-
-    def anndata_to_df(self, adata: ad.AnnData) -> pd.DataFrame:
-        """Convert a CellXGene `AnnData` file to a pandas `DataFrame` containing `X` and the metadata.
-
-        Args:
-        ----
-          adata: The already preprocessed `AnnData` object to be converted.
-
-        Returns:
-        -------
-        A `DataFrame` containing the patient/donor metadata and the matrix `X`.
-        """
-        adata.obs = self._prepare_metadata(adata)
-
-        adata = reindex_anndata_genes(adata, self.gene_vocab)
-
-        # X = densify_matrix(adata.X)
-        # df = pd.DataFrame(X, index=adata.obs_names, columns=adata.var_names)
-        # df = df.reindex(columns=self.gene_vocab).astype(float)
-
-        serialized_cells = [serialize_sparse_matrix(x) for x in adata.X]
-        df = pd.DataFrame({"cells": serialized_cells}, index=adata.obs_names).astype(str)
-
-        df = df.join(adata.obs[[ColumnNames.CASE_ID, ColumnNames.SAMPLE_ID, *self.metadata_columns]].astype(str))
-
-        return df
+        return self.converter.anndata_to_dataframe(adata)

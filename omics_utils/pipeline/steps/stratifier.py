@@ -1,17 +1,15 @@
 from pathlib import Path
 from typing import Any
 
-import anndata as ad
 import dask.dataframe as dd
 import pandas as pd
-import scipy.sparse as sp
 import yaml
 
+from omics_utils.converter.anndata_converter import AnndataConverter
 from omics_utils.pipeline.step import Step
 from omics_utils.splitting.splitter import Splitter
 from omics_utils.utils.columns import ColumnNames
-from omics_utils.utils.helpers import global_reset_index, sanitize_dtypes
-from omics_utils.utils.serialization import deserialize_sparse_matrix
+from omics_utils.utils.helpers import global_reset_index
 
 
 class Stratifier(Step):
@@ -21,7 +19,7 @@ class Stratifier(Step):
         self,
         *args,
         splitter: Splitter,
-        metadata_columns: list[str],
+        converter: AnndataConverter,
         seed: int,
         partition_size: str = "10GB",
         **kwargs,
@@ -29,7 +27,7 @@ class Stratifier(Step):
         """Args:
         ----
           splitter: Splitter to use for stratification, grouping and shuffling among folds.
-          metadata_columns: List of columns that should be extracted as metadata from the `DataFrame`.
+          converter: Converter used to convert the `DataFrame` format back to `AnnData`.
           seed: Seed to use for shuffling of the dataset.
           partition_size: The size of the resulting partitions in MB/GB. Should not be larger than memory.
         """
@@ -39,7 +37,7 @@ class Stratifier(Step):
         split_path = self.output_path / "split"
 
         self.splitter = splitter
-        self.metadata_columns = metadata_columns
+        self.converter = converter
         self.seed = seed
         self.partition_size = partition_size
         self.metadata_path = metadata_path
@@ -76,7 +74,7 @@ class Stratifier(Step):
         A tuple of a dict containing a mapping of the fold index to the data split and the metadata `DataFrame`.
         """
         metadata_df: pd.DataFrame = (
-            data_df[[ColumnNames.CASE_ID, *self.metadata_columns]].drop_duplicates().reset_index(drop=True).compute()
+            data_df[[ColumnNames.CASE_ID, *self.converter.obs_cols]].drop_duplicates().reset_index(drop=True).compute()
         )
         metadata_df = metadata_df.set_index(ColumnNames.CASE_ID)
         metadata_df = self.splitter.split(metadata_df)
@@ -104,17 +102,7 @@ class Stratifier(Step):
           partition_info: Dictionary containing metadata about the partition.
         """
         part = partition_info["number"]
-
-        gene_cols = list(set(df.columns) - set(self.metadata_columns) - {ColumnNames.CASE_ID, ColumnNames.FOLD})
-        obs_cols = list(set(self.metadata_columns) | {ColumnNames.CASE_ID, ColumnNames.FOLD, ColumnNames.SAMPLE_ID})
-
-        gene_df = df[gene_cols].set_index(ColumnNames.SAMPLE_ID)
-        obs_df = sanitize_dtypes(df[obs_cols]).set_index(ColumnNames.SAMPLE_ID)
-
-        x_matrix = sp.vstack([deserialize_sparse_matrix(r) for r in gene_df["cells"]], format="csr")
-        # x_matrix = sparsify_matrix(gene_df.to_numpy(dtype=float))
-
-        adata = ad.AnnData(X=x_matrix, obs=obs_df)
+        adata = self.converter.dataframe_to_anndata(df)
         adata.write_h5ad(output_dir / f"fold_{fold_idx}_part_{part}.h5ad")
 
     def write(self, folds: dict[int, dd.DataFrame], metadata_df: pd.DataFrame) -> None:
