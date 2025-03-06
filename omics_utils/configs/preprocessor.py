@@ -2,10 +2,10 @@ from hydra_zen import builds
 
 from omics_utils.configs.cluster import ClusterConfig
 from omics_utils.configs.splitter import CellXGeneStratifiedSplitterConfig, MethylationStratifiedSplitterConfig
-from omics_utils.preprocessing.pipeline import Pipeline
-from omics_utils.preprocessing.steps.cellxgene import CellXGenePreprocessing
-from omics_utils.preprocessing.steps.methylation import MethylationPreprocessing
-from omics_utils.preprocessing.steps.stratifier import Stratifier
+from omics_utils.pipeline.pipeline import Pipeline
+from omics_utils.pipeline.steps.cellxgene import CellXGenePreprocessing
+from omics_utils.pipeline.steps.methylation import MethylationPreprocessing
+from omics_utils.pipeline.steps.stratifier import Stratifier
 
 CellXGenePreprocessingConfig = builds(
     Pipeline,

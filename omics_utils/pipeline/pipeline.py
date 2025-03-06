@@ -6,7 +6,7 @@ from hydra_zen.typing import Partial
 from ml_project_template.common.logging.logger import logger
 from ml_project_template.common.utils.config import get_hydra_output_dir
 
-from omics_utils.preprocessing.steps.step import Step
+from omics_utils.pipeline.step import Step
 
 
 # TODO(marvin): Write documentation of the input schema this class expects.

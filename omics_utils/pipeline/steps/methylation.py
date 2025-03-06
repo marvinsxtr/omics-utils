@@ -3,7 +3,7 @@ from pathlib import Path
 import anndata as ad
 import pandas as pd
 
-from omics_utils.preprocessing.steps.preprocessing import Preprocessing
+from omics_utils.pipeline.steps.preprocessing import Preprocessing
 from omics_utils.utils.columns import ColumnNames
 
 

@@ -7,7 +7,7 @@ import pandas as pd
 import scipy.sparse as sp
 import yaml
 
-from omics_utils.preprocessing.steps.step import Step
+from omics_utils.pipeline.step import Step
 from omics_utils.splitting.splitter import Splitter
 from omics_utils.utils.columns import ColumnNames
 from omics_utils.utils.helpers import global_reset_index, sanitize_dtypes

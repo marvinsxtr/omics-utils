@@ -6,7 +6,7 @@ import anndata as ad
 import dask.dataframe as dd
 import pandas as pd
 
-from omics_utils.preprocessing.steps.step import Step
+from omics_utils.pipeline.step import Step
 from omics_utils.utils.columns import ColumnNames
 from omics_utils.utils.helpers import remove_empty_partitions
 
