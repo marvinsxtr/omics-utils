@@ -4,12 +4,16 @@ from typing import Any
 
 
 class Step(ABC):
-    """Base preprocessing step in a modular ETL pipeline. Also see `PreprocessingPipeline`."""
+    """Base preprocessing step in a modular ETL pipeline. Also see ``PreprocessingPipeline``."""
 
     def __init__(self, base_dir: str) -> None:
-        """Args:
-        ----
-          base_dir: Folder where a subfolder is created for each preprocessing step.
+        """
+        Initializes an instance of a base preprocessing step.
+        
+        Parameters
+        ----------
+        base_dir: str 
+            Folder where a subfolder is created for each preprocessing step.
         """
         base_path = Path(base_dir)
 
@@ -23,7 +27,7 @@ class Step(ABC):
     @property
     @abstractmethod
     def input_step(self) -> str | None:
-        """Name of the preprocessing step preceding this one or `None` if this is the first."""
+        """Name of the preprocessing step preceding this one or ``None`` if this is the first."""
         ...
 
     @property
@@ -34,7 +38,8 @@ class Step(ABC):
 
     @abstractmethod
     def read(self) -> Any:
-        """Read the data from the previous step or the input data.
+        """
+        Read the data from the previous step or the input data.
 
         Returns
         -------
@@ -44,13 +49,15 @@ class Step(ABC):
 
     @abstractmethod
     def transform(self, *args: Any) -> Any:
-        """Transform the data.
+        """
+        Transform the data.
 
-        Args:
-        ----
-          args: The input data.
+        Parameters
+        ----------
+        args: Any 
+            The input data.
 
-        Returns:
+        Returns
         -------
         The transformed output.
         """
@@ -58,11 +65,13 @@ class Step(ABC):
 
     @abstractmethod
     def write(self, *args: Any) -> None:
-        """Save the result of the transformation.
+        """
+        Save the result of the transformation.
 
-        Args:
-        ----
-          args: The transformed data.
+        Parameters
+        ----------
+        args: Any 
+            The transformed data.
         """
         ...
 
