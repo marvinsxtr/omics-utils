@@ -17,7 +17,7 @@ RUN apt clean && \
 RUN apt-get update && apt-get upgrade -y
 RUN apt-get install -y --no-install-recommends build-essential \
     sudo curl git htop less rsync screen vim nano wget ca-certificates \
-    clang openssh-client zsh graphviz
+    clang openssh-client zsh graphviz dbus-run-session
 
 # Download and install VS Code Server CLI
 RUN wget -O /tmp/vscode-server-cli.tar.gz "https://update.code.visualstudio.com/latest/cli-linux-x64/stable" && \
