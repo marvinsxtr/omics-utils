@@ -6,12 +6,12 @@ from hydra_zen.typing import Partial
 from ml_project_template.common.logging.logger import logger
 from ml_project_template.common.utils.config import get_hydra_output_dir
 
-from omics_utils.preprocessing.steps.step import PreprocessingStep
+from omics_utils.preprocessing.steps.step import Step
 
 
 # TODO(marvin): Write documentation of the input schema this class expects.
 # https://github.com/bifold-pathomics/omics-utils/issues/1
-class PreprocessingPipeline:
+class Pipeline:
     """Handles a sequence of preprocessing steps in an ETL style pipeline.
 
     Can be used for the preprocessing, concatenation, stratification, splitting and saving of tabular omics datasets.
@@ -19,7 +19,7 @@ class PreprocessingPipeline:
 
     def __init__(
         self,
-        steps: list[Partial[PreprocessingStep]],
+        steps: list[Partial[Step]],
         output_dir: str | None = None,
         force_recompute: bool = False,
         cluster: JobQueueCluster | LocalCluster | None = None,

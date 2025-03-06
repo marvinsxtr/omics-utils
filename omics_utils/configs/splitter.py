@@ -15,3 +15,10 @@ CellXGeneStratifiedSplitterConfig = builds(
     sklearn_splitter=StratifiedTrainTestSplitConfig,
     stratification_columns=["sex", "tissue", "disease", "assay"],
 )
+
+
+MethylationStratifiedSplitterConfig = builds(
+    StratifiedSplitter,
+    sklearn_splitter=StratifiedTrainTestSplitConfig,
+    stratification_columns=["organ"],
+)

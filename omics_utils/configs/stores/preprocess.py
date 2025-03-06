@@ -2,7 +2,7 @@ from hydra_zen import builds, store
 from ml_project_template.configs.logging.wandb import WandBConfig
 from ml_project_template.configs.runs.base import JobConfig, RunConfig
 
-from omics_utils.configs.preprocessor import CellXGenePreprocessingConfig
+from omics_utils.configs.preprocessor import CellXGenePreprocessingConfig, MethylationPreprocessingConfig
 from omics_utils.preprocess import main
 
 main_config = builds(main, cfg=RunConfig, populate_full_signature=True)
@@ -20,3 +20,4 @@ job_store(JobConfig, name="base")
 
 preproc_store = store(group="preprocessor")
 preproc_store(CellXGenePreprocessingConfig, name="cellxgene")
+preproc_store(MethylationPreprocessingConfig, name="methylation")
