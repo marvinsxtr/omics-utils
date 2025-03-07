@@ -1,7 +1,7 @@
 from hydra_zen import builds
 
 from omics_utils.configs.cluster import ClusterConfig
-from omics_utils.configs.converter import CellXGeneConverterConfig
+from omics_utils.configs.converter import CellXGeneConverterConfig, MethylationConverterConfig
 from omics_utils.configs.splitter import CellXGeneStratifiedSplitterConfig, MethylationStratifiedSplitterConfig
 from omics_utils.pipeline.pipeline import Pipeline
 from omics_utils.pipeline.steps.cellxgene import CellXGenePreprocessing
@@ -38,14 +38,15 @@ MethylationPreprocessingConfig = builds(
         builds(
             MethylationPreprocessing,
             input_dir="/home/space/methyl_group/datasets/leitheiser_classification/pp_anndata/lung",
-            converter=CellXGeneConverterConfig,
+            converter=MethylationConverterConfig,
             n_debug=2,
             zen_partial=True,
         ),
         builds(
             Stratifier,
             splitter=MethylationStratifiedSplitterConfig,
-            converter=CellXGeneConverterConfig,
+            converter=MethylationConverterConfig,
+            seed=42,
             zen_partial=True,
         ),
     ],

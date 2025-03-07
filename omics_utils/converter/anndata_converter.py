@@ -75,9 +75,7 @@ class AnndataConverter:
             sparse_vectors = [serialize_sparse_matrix(x) for x in adata.X]
             df = pd.DataFrame({ColumnNames.SPARSE_VECTOR: sparse_vectors}, index=adata.obs_names).astype(str)
         else:
-            if isinstance(adata.X, sp.spmatrix):
-                X = densify_matrix(adata.X)
-
+            X = densify_matrix(adata.X) if isinstance(adata.X, sp.spmatrix) else adata.X
             df = pd.DataFrame(X, index=adata.obs_names, columns=adata.var_names)
 
             if self.var_cols is not None:

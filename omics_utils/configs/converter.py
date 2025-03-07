@@ -11,4 +11,5 @@ CellXGeneConverterConfig = builds(
 MethylationConverterConfig = builds(
     AnndataConverter,
     obs_cols=["organ", "category"],
+    sparse=False,
 )
