@@ -8,9 +8,10 @@ ClusterConfig = builds(
     SLURMCluster,
     n_workers=10,
     queue="cpu-2h",
-    cores=8,
-    processes=1,
+    cores=16,
+    processes=4,
     memory="128GiB",
+    worker_extra_args=["--nthreads", "1"],
     python="apptainer exec oras://ghcr.io/bifold-pathomics/omics-utils:latest-sif python",
     log_directory=builds(get_output_dir),
 )

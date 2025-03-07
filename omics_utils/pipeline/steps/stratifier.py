@@ -9,6 +9,7 @@ from omics_utils.converter.anndata_converter import AnndataConverter
 from omics_utils.pipeline.step import Step
 from omics_utils.splitting.splitter import Splitter
 from omics_utils.utils.columns import ColumnNames
+from omics_utils.utils.compat import write_h5ad
 from omics_utils.utils.helpers import global_reset_index
 
 
@@ -103,7 +104,7 @@ class Stratifier(Step):
         """
         part = partition_info["number"]
         adata = self.converter.dataframe_to_anndata(df)
-        adata.write_h5ad(output_dir / f"fold_{fold_idx}_part_{part}.h5ad")
+        write_h5ad(output_dir / f"fold_{fold_idx}_part_{part}.h5ad", adata, convert_strings_to_categoricals=False)
 
     def write(self, folds: dict[int, dd.DataFrame], metadata_df: pd.DataFrame) -> None:
         """Save the folds and the case metadata separately.
