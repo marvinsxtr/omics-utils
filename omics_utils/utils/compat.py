@@ -28,7 +28,7 @@ def write_h5ad(  # noqa: C901, D103
     if any(val not in {"X", "raw/X"} for val in as_dense):
         raise NotImplementedError("Currently, only `X` and `raw/X` are supported values in `as_dense`")
     if "raw/X" in as_dense and adata.raw is None:
-        raise ValueError("Cannot specify writing `raw/X` to dense if it doesn’t exist.")
+        raise ValueError("Cannot specify writing `raw/X` to dense if it doesn't exist.")
 
     if convert_strings_to_categoricals:
         adata.strings_to_categoricals()
@@ -41,7 +41,7 @@ def write_h5ad(  # noqa: C901, D103
         adata.file.close()
 
     with h5py.File(filepath, mode) as f:
-        # TODO: Use spec writing system for this  # noqa: TD002
+        # TODO: Use spec writing system for this  # noqa: TD002, TD003
         # Currently can't use write_dispatched here because this function is also called to do an
         # inplace update of a backed object, which would delete "/"
         f = f["/"]  # noqa: PLW2901
