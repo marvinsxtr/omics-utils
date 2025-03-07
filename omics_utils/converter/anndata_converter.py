@@ -3,6 +3,7 @@ from pathlib import Path
 
 import anndata
 import anndata as ad
+import numpy as np
 import pandas as pd
 import scipy.sparse as sp
 
@@ -167,14 +168,25 @@ class AnndataConverter:
         """
         n_cells = adata.n_obs
         n_genes = len(genes)
-        new_X = sp.csr_matrix((n_cells, n_genes), dtype=adata.X.dtype)
 
         common_genes = list(set(genes) & set(adata.var_names))
-        new_indices = [genes.index(g) for g in common_genes]
         old_indices = [adata.var_names.get_loc(g) for g in common_genes]
+        new_indices = [genes.index(g) for g in common_genes]
 
-        if common_genes:
-            new_X[:, new_indices] = adata.X[:, old_indices]
+        if not common_genes:
+            new_X = sp.csr_matrix((n_cells, n_genes), dtype=adata.X.dtype)
+        else:
+            coo = adata.X.tocoo()
+
+            mask = np.isin(coo.col, old_indices)
+            data = coo.data[mask]
+            rows = coo.row[mask]
+            cols = coo.col[mask]
+
+            old_to_new = dict(zip(old_indices, new_indices, strict=True))
+            mapped_cols = np.array([old_to_new[col] for col in cols])
+
+            new_X = sp.csr_matrix((data, (rows, mapped_cols)), shape=(n_cells, n_genes))
 
         return ad.AnnData(
             X=new_X,
