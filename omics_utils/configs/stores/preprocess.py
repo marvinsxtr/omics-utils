@@ -5,9 +5,9 @@ from ml_project_template.configs.runs.base import JobConfig, RunConfig
 from omics_utils.configs.preprocessor import CellXGenePreprocessingConfig, MethylationPreprocessingConfig
 from omics_utils.preprocess import main
 
-main_config = builds(main, cfg=RunConfig, populate_full_signature=True)
+MainConfig = builds(main, cfg=RunConfig, populate_full_signature=True)
 store(
-    main_config,
+    MainConfig,
     name="root",
     hydra_defaults=["_self_", {"cfg/wandb": None}, {"cfg/job": None}, {"preprocessor": "cellxgene"}],
 )

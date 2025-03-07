@@ -1,7 +1,25 @@
+from pathlib import Path
+
 import dask.dataframe as dd
 import numpy as np
 import pandas as pd
-from scipy import sparse
+import scipy.sparse as sp
+from ml_project_template.common.utils.config import get_hydra_output_dir
+
+
+def get_output_dir() -> Path:
+    """Get the current output directory.
+
+    Returns
+    -------
+    Output path of the current run.
+    """
+    try:
+        output_dir = get_hydra_output_dir()
+    except ValueError:
+        output_dir = Path("/tmp/outputs")
+        output_dir.mkdir(exist_ok=True, parents=True)
+    return output_dir
 
 
 def remove_empty_partitions(df: dd.DataFrame) -> dd.DataFrame:
@@ -29,7 +47,7 @@ def remove_empty_partitions(df: dd.DataFrame) -> dd.DataFrame:
     return df
 
 
-def densify_matrix(sparse_matrix: sparse.spmatrix) -> np.ndarray:
+def densify_matrix(sparse_matrix: sp.spmatrix) -> np.ndarray:
     """Replaces missing values with `np.nan` while preserving zeros.
 
     Args:
@@ -46,7 +64,7 @@ def densify_matrix(sparse_matrix: sparse.spmatrix) -> np.ndarray:
     return dense
 
 
-def sparsify_matrix(dense_matrix: np.ndarray) -> sparse.csr_matrix:
+def sparsify_matrix(dense_matrix: np.ndarray) -> sp.csr_matrix:
     """Convert a dense matrix to a sparse matrix where `np.nan` are not explicitly stored.
 
     Args:
@@ -60,7 +78,7 @@ def sparsify_matrix(dense_matrix: np.ndarray) -> sparse.csr_matrix:
     mask = ~np.isnan(dense_matrix)
     rows, cols = np.nonzero(mask)
     values = dense_matrix[mask]
-    sparse_matrix = sparse.csr_matrix((values, (rows, cols)), shape=dense_matrix.shape)
+    sparse_matrix = sp.csr_matrix((values, (rows, cols)), shape=dense_matrix.shape)
     return sparse_matrix
 
 

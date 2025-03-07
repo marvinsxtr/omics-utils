@@ -4,9 +4,9 @@ from dask.distributed import Client, LocalCluster
 from dask_jobqueue import JobQueueCluster
 from hydra_zen.typing import Partial
 from ml_project_template.common.logging.logger import logger
-from ml_project_template.common.utils.config import get_hydra_output_dir
 
-from omics_utils.preprocessing.steps.step import Step
+from omics_utils.pipeline.step import Step
+from omics_utils.utils.helpers import get_output_dir
 
 
 # TODO(marvin): Write documentation of the input schema this class expects.
@@ -34,17 +34,14 @@ class Pipeline:
           cluster: Configured cluster to use for distributed preprocessing using dask.
           scale: Number of jobs to start on the cluster. Defaults to 10.
         """
-        output_path = get_hydra_output_dir() if output_dir is None else Path(output_dir)
+        output_path = get_output_dir() if output_dir is None else Path(output_dir)
         output_path.mkdir(parents=True, exist_ok=True)
 
         self.steps = [step(base_dir=output_path) for step in steps]
         self.output_path = output_path
         self.force_recompute = force_recompute
-
-        if cluster is not None:
-            if not isinstance(cluster, LocalCluster):
-                cluster.scale(jobs=scale)
-            self._setup_cluster(cluster)
+        self.cluster = cluster
+        self.scale = scale
 
     def _setup_cluster(self, cluster: JobQueueCluster | LocalCluster) -> None:
         """Configures the Slurm cluster for multi-node processing using dask.
@@ -64,6 +61,11 @@ class Pipeline:
 
     def run(self) -> None:
         """Run the preprocessing pipeline on the data."""
+        if self.cluster is not None:
+            if not isinstance(self.cluster, LocalCluster):
+                self.cluster.scale(jobs=self.scale)
+            self._setup_cluster(self.cluster)
+
         for step in self.steps:
             if step.output_path.exists() and not self.force_recompute:
                 logger.info(f"Skipping step {step.output_step}...")

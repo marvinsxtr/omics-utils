@@ -3,7 +3,7 @@ from pathlib import Path
 import anndata as ad
 import pandas as pd
 
-from omics_utils.preprocessing.steps.preprocessing import Preprocessing
+from omics_utils.pipeline.steps.preprocessing import Preprocessing
 from omics_utils.utils.columns import ColumnNames
 
 
@@ -27,4 +27,4 @@ class MethylationPreprocessing(Preprocessing):
         # Correct column spelling
         adata.obs = adata.obs.rename(columns={"sample_ID": ColumnNames.SAMPLE_ID})
 
-        return self.anndata_to_df(adata)
+        return self.converter.anndata_to_dataframe(adata)
