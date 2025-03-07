@@ -31,7 +31,6 @@ CellXGenePreprocessingConfig = builds(
     output_dir=None,
 )
 
-
 MethylationPreprocessingConfig = builds(
     Pipeline,
     steps=[

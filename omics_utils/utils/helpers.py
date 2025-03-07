@@ -1,7 +1,25 @@
+from pathlib import Path
+
 import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
+from ml_project_template.common.utils.config import get_hydra_output_dir
+
+
+def get_output_dir() -> Path:
+    """Get the current output directory.
+
+    Returns
+    -------
+    Output path of the current run.
+    """
+    try:
+        output_dir = get_hydra_output_dir()
+    except ValueError:
+        output_dir = Path("/tmp/outputs")
+        output_dir.mkdir(exist_ok=True, parents=True)
+    return output_dir
 
 
 def remove_empty_partitions(df: dd.DataFrame) -> dd.DataFrame:
