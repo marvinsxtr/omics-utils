@@ -92,6 +92,8 @@ jobs:
         # against the sigstore community Fulcio instance.
         run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
 
+      - name: Clean up disk space
+        uses: jlumbroso/free-disk-space@main
       - name: Setup Apptainer
         uses: eWaterCycle/setup-apptainer@v2
       - name: Build and push Apptainer
