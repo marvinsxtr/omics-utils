@@ -1,1 +1,6 @@
 scikit-learn
+pandas
+ml_project_template
+dask
+hydra_zen
+pandas
