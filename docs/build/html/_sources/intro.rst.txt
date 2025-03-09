@@ -13,7 +13,7 @@ Contains utilities for handling larger-than-memory datasets for multiple omics m
     * Sharding of the folds across multiple smaller-than-memory files
 
 
-Quick start
+Quick Start
 ***********
 
 To start preprocessing (CellXGene by default), run:

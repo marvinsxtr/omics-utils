@@ -4,7 +4,7 @@ from typing import Final
 
 @dataclass
 class ColumnNames:
-    """Common column names in ``DataFrame``s."""
+    """Common column names in a ``DataFrame``."""
 
     FOLD: Final[str] = "fold"
     CASE_ID: Final[str] = "case_id"

@@ -20,13 +20,13 @@ omics\_utils.preprocess module
 
 .. automodule:: omics_utils.preprocess
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------
 
 .. automodule:: omics_utils
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:

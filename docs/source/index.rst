@@ -11,14 +11,12 @@ Welcome to Omics Utils's documentation!
    :caption: Contents:
 
    intro
-   omics_utils  
-   preprocess
-   modules
+   modules.rst
+   preprocess.rst  
 
 
 Indices and tables
 ==================
 
-* :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
