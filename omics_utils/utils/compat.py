@@ -35,8 +35,7 @@ def write_h5ad(  # noqa: C901, D103
 	Whether to transform string annotations to categorical variables, if there exist less unique string annotations than values.
 	If the number of values equals the number of categories, all remains unchanged.  
     dataset_kwargs: Mapping[str, Any] = MappingProxyType({})
-	
-
+    """	
      
     if isinstance(as_dense, str):
         as_dense = [as_dense]
