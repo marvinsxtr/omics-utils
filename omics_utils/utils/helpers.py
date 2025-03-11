@@ -21,6 +21,20 @@ def get_output_dir() -> Path:
         output_dir.mkdir(exist_ok=True, parents=True)
     return output_dir
 
+def get_output_dir() -> Path:
+    """Get the current output directory.
+
+    Returns
+    -------
+    Output path of the current run.
+    """
+    try:
+        output_dir = get_hydra_output_dir()
+    except ValueError:
+        output_dir = Path("/tmp/outputs")
+        output_dir.mkdir(exist_ok=True, parents=True)
+    return output_dir
+
 
 def remove_empty_partitions(df: dd.DataFrame) -> dd.DataFrame:
     """
