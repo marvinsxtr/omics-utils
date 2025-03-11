@@ -84,8 +84,5 @@ class Preprocessing(Step, ABC):
     def run(self) -> None:
         """Run the whole preprocessing step by sequentially running `read` and `write`."""
         data_df = self.read()
-        self.write(data_df)
-<<<<<<< HEAD
-=======
-      
->>>>>>> be26beb (Rebase on main)
+        self.write(data_df)      
+
