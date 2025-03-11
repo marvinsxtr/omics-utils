@@ -1,37 +1,35 @@
-omics\_utils.configs package
-============================
+Configs
+=======
 
-Submodules
-----------
 
-omics\_utils.configs.cluster module
------------------------------------
+omics\_utils.configs.cluster
+----------------------------
 
 .. automodule:: omics_utils.configs.cluster
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
-omics\_utils.configs.preprocessor module
-----------------------------------------
+omics\_utils.configs.converter
+------------------------------
+
+.. automodule:: omics_utils.configs.converter
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+omics\_utils.configs.preprocessor
+---------------------------------
 
 .. automodule:: omics_utils.configs.preprocessor
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
-omics\_utils.configs.splitter module
-------------------------------------
+omics\_utils.configs.splitter
+-----------------------------
 
 .. automodule:: omics_utils.configs.splitter
    :members:
-   :undoc-members:
    :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: omics_utils.configs
-   :members:
    :undoc-members:
-   :show-inheritance:

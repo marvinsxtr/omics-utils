@@ -2,6 +2,9 @@ omics_utils
 ===========
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
-   omics_utils
+   Configs <omics_utils.configs>
+   Converter <omics_utils.converter>
+   Splitting <omics_utils.splitting>
+   Utils <omics_utils.utils>

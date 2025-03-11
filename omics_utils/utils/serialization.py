@@ -6,15 +6,17 @@ import scipy.sparse as sp
 
 
 def serialize_sparse_matrix(sparse_matrix: sp.csr_matrix) -> str:
-    """Serialize a sparse matrix row to bytes.
+    """
+    Serialize a sparse matrix row to bytes.
 
-    Args:
-    ----
-      sparse_matrix: A scipy sparse matrix (typically a single row)
+    Parameters
+    ----------
+    sparse_matrix: sp.csr_matrix 
+	A scipy sparse matrix (typically a single row).
 
-    Returns:
+    Returns
     -------
-    Serialized representation
+    Serialized representation.
     """
     buffer = io.BytesIO()
 
@@ -28,13 +30,15 @@ def serialize_sparse_matrix(sparse_matrix: sp.csr_matrix) -> str:
 
 
 def deserialize_sparse_matrix(serialized_str: str) -> sp.csr_matrix:
-    """Deserialize string back to a sparse matrix row.
+    """
+    Deserialize string back to a sparse matrix row.
 
-    Args:
-    ----
-      serialized_str: String representation of a sparse matrix
+    Parameters
+    ----------
+    serialized_str: str 
+	String representation of a sparse matrix
 
-    Returns:
+    Returns
     -------
     Reconstructed sparse matrix
     """

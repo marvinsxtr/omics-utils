@@ -1,21 +1,11 @@
-omics\_utils.splitting package
-==============================
+Splitting
+=========
 
-Submodules
-----------
 
-omics\_utils.splitting.splitter module
---------------------------------------
+omics\_utils.splitting.splitter
+-------------------------------
 
 .. automodule:: omics_utils.splitting.splitter
    :members:
-   :undoc-members:
    :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: omics_utils.splitting
-   :members:
    :undoc-members:
-   :show-inheritance:

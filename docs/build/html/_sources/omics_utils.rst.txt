@@ -8,7 +8,7 @@ Subpackages
    :maxdepth: 4
 
    omics_utils.configs
-   omics_utils.preprocessing
+   omics_utils.converter
    omics_utils.splitting
    omics_utils.utils
 
@@ -20,13 +20,13 @@ omics\_utils.preprocess module
 
 .. automodule:: omics_utils.preprocess
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Module contents
 ---------------
 
 .. automodule:: omics_utils
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

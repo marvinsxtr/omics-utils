@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Welcome to Omics Utils’s documentation! &mdash; Omics Utils v0.0.13 documentation</title>
+  <title>Welcome to Omics Utils’s Documentation! &mdash; Omics Utils v0.0.13 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
@@ -44,8 +44,8 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">omics_utils</a></li>
-<li class="toctree-l1"><a class="reference internal" href="preprocess.html">preprocess module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">API Reference</a></li>
 </ul>
 
         </div>
@@ -62,7 +62,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Welcome to Omics Utils’s documentation!</li>
+      <li class="breadcrumb-item active">Welcome to Omics Utils’s Documentation!</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -73,7 +73,7 @@
            <div itemprop="articleBody">
              
   <section id="welcome-to-omics-utils-s-documentation">
-<h1>Welcome to Omics Utils’s documentation!<a class="headerlink" href="#welcome-to-omics-utils-s-documentation" title="Link to this heading"></a></h1>
+<h1>Welcome to Omics Utils’s Documentation!<a class="headerlink" href="#welcome-to-omics-utils-s-documentation" title="Link to this heading"></a></h1>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
@@ -82,25 +82,41 @@
 <li class="toctree-l2"><a class="reference internal" href="intro.html#quick-start">Quick Start</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">omics_utils</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="omics_utils.html">omics_utils package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="omics_utils.html#subpackages">Subpackages</a></li>
-<li class="toctree-l3"><a class="reference internal" href="omics_utils.html#submodules">Submodules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="omics_utils.html#module-omics_utils.preprocess">omics_utils.preprocess module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="omics_utils.html#module-omics_utils">Module contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#virtual-conda-environment-using-pip">Virtual/Conda Environment using <code class="docutils literal notranslate"><span class="pre">Pip</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#docker-container">Docker Container</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="omics_utils.configs.html">Configs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="omics_utils.configs.html#module-omics_utils.configs.cluster">omics_utils.configs.cluster</a></li>
+<li class="toctree-l3"><a class="reference internal" href="omics_utils.configs.html#module-omics_utils.configs.converter">omics_utils.configs.converter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="omics_utils.configs.html#module-omics_utils.configs.preprocessor">omics_utils.configs.preprocessor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="omics_utils.configs.html#module-omics_utils.configs.splitter">omics_utils.configs.splitter</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="preprocess.html">preprocess module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="preprocess.html#preprocess.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="omics_utils.converter.html">Converter</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="omics_utils.converter.html#module-omics_utils.converter.anndata_converter">omics_utils.converter.anndata_converter</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="omics_utils.splitting.html">Splitting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="omics_utils.splitting.html#module-omics_utils.splitting.splitter">omics_utils.splitting.splitter</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="omics_utils.utils.html">Utils</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="omics_utils.utils.html#module-omics_utils.utils.columns">omics_utils.utils.columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="omics_utils.utils.html#module-omics_utils.utils.compat">omics_utils.utils.compat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="omics_utils.utils.html#module-omics_utils.utils.helpers">omics_utils.utils.helpers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="omics_utils.utils.html#module-omics_utils.utils.serialization">omics_utils.utils.serialization</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 </div>
 </section>
 <section id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading"></a></h1>
+<h1>Indices and Tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading"></a></h1>
 <ul class="simple">
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
 <li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>

@@ -19,8 +19,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="omics_utils package" href="omics_utils.html" />
-    <link rel="prev" title="Introduction" href="intro.html" /> 
+    <link rel="next" title="Configs" href="omics_utils.configs.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -45,11 +45,14 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">omics_utils</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="omics_utils.html">omics_utils package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="omics_utils.configs.html">Configs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="omics_utils.converter.html">Converter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="omics_utils.splitting.html">Splitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="omics_utils.utils.html">Utils</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="preprocess.html">preprocess module</a></li>
 </ul>
 
         </div>
@@ -80,43 +83,26 @@
 <h1>omics_utils<a class="headerlink" href="#omics-utils" title="Link to this heading"></a></h1>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="omics_utils.html">omics_utils package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="omics_utils.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="omics_utils.configs.html">omics_utils.configs package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="omics_utils.configs.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="omics_utils.configs.html#module-omics_utils.configs.cluster">omics_utils.configs.cluster module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="omics_utils.configs.html#omics-utils-configs-preprocessor-module">omics_utils.configs.preprocessor module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="omics_utils.configs.html#module-omics_utils.configs.splitter">omics_utils.configs.splitter module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="omics_utils.configs.html#module-omics_utils.configs">Module contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="omics_utils.configs.html">Configs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="omics_utils.configs.html#module-omics_utils.configs.cluster">omics_utils.configs.cluster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="omics_utils.configs.html#module-omics_utils.configs.converter">omics_utils.configs.converter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="omics_utils.configs.html#module-omics_utils.configs.preprocessor">omics_utils.configs.preprocessor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="omics_utils.configs.html#module-omics_utils.configs.splitter">omics_utils.configs.splitter</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="omics_utils.preprocessing.html">omics_utils.preprocessing package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="omics_utils.preprocessing.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="omics_utils.preprocessing.html#omics-utils-preprocessing-pipeline-module">omics_utils.preprocessing.pipeline module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="omics_utils.preprocessing.html#module-contents">Module contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="omics_utils.converter.html">Converter</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="omics_utils.converter.html#module-omics_utils.converter.anndata_converter">omics_utils.converter.anndata_converter</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="omics_utils.splitting.html">omics_utils.splitting package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="omics_utils.splitting.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="omics_utils.splitting.html#module-omics_utils.splitting.splitter">omics_utils.splitting.splitter module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="omics_utils.splitting.html#module-omics_utils.splitting">Module contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="omics_utils.splitting.html">Splitting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="omics_utils.splitting.html#module-omics_utils.splitting.splitter">omics_utils.splitting.splitter</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="omics_utils.utils.html">omics_utils.utils package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="omics_utils.utils.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="omics_utils.utils.html#module-omics_utils.utils.columns">omics_utils.utils.columns module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="omics_utils.utils.html#module-omics_utils.utils.helpers">omics_utils.utils.helpers module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="omics_utils.utils.html#module-omics_utils.utils">Module contents</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="omics_utils.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="omics_utils.html#module-omics_utils.preprocess">omics_utils.preprocess module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="omics_utils.html#omics_utils.preprocess.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="omics_utils.html#module-omics_utils">Module contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="omics_utils.utils.html">Utils</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="omics_utils.utils.html#module-omics_utils.utils.columns">omics_utils.utils.columns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="omics_utils.utils.html#module-omics_utils.utils.compat">omics_utils.utils.compat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="omics_utils.utils.html#module-omics_utils.utils.helpers">omics_utils.utils.helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="omics_utils.utils.html#module-omics_utils.utils.serialization">omics_utils.utils.serialization</a></li>
 </ul>
 </li>
 </ul>
@@ -127,8 +113,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="intro.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="omics_utils.html" class="btn btn-neutral float-right" title="omics_utils package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="omics_utils.configs.html" class="btn btn-neutral float-right" title="Configs" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

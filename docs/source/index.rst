@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Omics Utils's documentation!
+Welcome to Omics Utils's Documentation!
 =======================================
 
 .. toctree::
@@ -11,11 +11,11 @@ Welcome to Omics Utils's documentation!
    :caption: Contents:
 
    intro
-   modules.rst
-   preprocess.rst  
+   installation
+   API Reference <modules> 
 
 
-Indices and tables
+Indices and Tables
 ==================
 
 * :ref:`modindex`
