@@ -67,3 +67,7 @@ def write_h5ad(  # noqa: C901, D103
         write_elem(f, "varp", dict(adata.varp), dataset_kwargs=dataset_kwargs)
         write_elem(f, "layers", dict(adata.layers), dataset_kwargs=dataset_kwargs)
         write_elem(f, "uns", dict(adata.uns), dataset_kwargs=dataset_kwargs)
+<<<<<<< HEAD
+=======
+      
+>>>>>>> 03b8f3a (Rebase on main)
