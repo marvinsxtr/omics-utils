@@ -17,3 +17,4 @@ ClusterConfig = builds(
 )
 
 LocalClusterConfig = builds(LocalCluster, n_workers=1)
+
