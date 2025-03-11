@@ -77,5 +77,6 @@ class Step(ABC):
 
     @abstractmethod
     def run(self) -> None:
-        """Run the whole preprocessing step by sequentially running `read`, `transform` and `write`."""
+        """Run the whole preprocessing step by sequentially running ``read``, ``transform`` and ``write``."""
         ...
+
