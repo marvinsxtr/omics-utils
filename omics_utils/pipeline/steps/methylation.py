@@ -28,3 +28,7 @@ class MethylationPreprocessing(Preprocessing):
         adata.obs = adata.obs.rename(columns={"sample_ID": ColumnNames.SAMPLE_ID})
 
         return self.converter.anndata_to_dataframe(adata)
+<<<<<<< HEAD
+=======
+      
+>>>>>>> 85bfcca (Create methylation.py)
