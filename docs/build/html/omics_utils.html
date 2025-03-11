@@ -1,23 +1,21 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>omics_utils package &mdash; Omics Utils v0.0.13 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=92fd9be5" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=34eee1f6"></script>
-        <script src="_static/doctools.js?v=9a2dae69"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=34eee1f6"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -57,10 +55,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-omics_utils.preprocess">omics_utils.preprocess module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#omics_utils.preprocess.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="#omics-utils-preprocess-module">omics_utils.preprocess module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-omics_utils">Module contents</a></li>
 </ul>
 </li>
@@ -102,22 +97,16 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="omics_utils.configs.html">omics_utils.configs package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="omics_utils.configs.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="omics_utils.configs.html#module-omics_utils.configs.cluster">omics_utils.configs.cluster module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="omics_utils.configs.html#module-omics_utils.configs.preprocessor">omics_utils.configs.preprocessor module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="omics_utils.configs.html#omics-utils-configs-cluster-module">omics_utils.configs.cluster module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="omics_utils.configs.html#omics-utils-configs-preprocessor-module">omics_utils.configs.preprocessor module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="omics_utils.configs.html#module-omics_utils.configs.splitter">omics_utils.configs.splitter module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="omics_utils.configs.html#module-omics_utils.configs">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="omics_utils.preprocessing.html">omics_utils.preprocessing package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="omics_utils.preprocessing.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="omics_utils.preprocessing.html#module-omics_utils.preprocessing.pipeline">omics_utils.preprocessing.pipeline module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="omics_utils.preprocessing.html#omics_utils.preprocessing.pipeline.PreprocessingPipeline"><code class="docutils literal notranslate"><span class="pre">PreprocessingPipeline</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="omics_utils.preprocessing.html#omics_utils.preprocessing.pipeline.PreprocessingPipeline.run"><code class="docutils literal notranslate"><span class="pre">PreprocessingPipeline.run()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="omics_utils.preprocessing.html#module-omics_utils.preprocessing">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="omics_utils.preprocessing.html#omics-utils-preprocessing-pipeline-module">omics_utils.preprocessing.pipeline module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="omics_utils.preprocessing.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="omics_utils.splitting.html">omics_utils.splitting package</a><ul>
@@ -143,18 +132,12 @@
 <li class="toctree-l4"><a class="reference internal" href="omics_utils.utils.html#omics_utils.utils.columns.ColumnNames.CASE_ID"><code class="docutils literal notranslate"><span class="pre">ColumnNames.CASE_ID</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="omics_utils.utils.html#omics_utils.utils.columns.ColumnNames.FOLD"><code class="docutils literal notranslate"><span class="pre">ColumnNames.FOLD</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="omics_utils.utils.html#omics_utils.utils.columns.ColumnNames.SAMPLE_ID"><code class="docutils literal notranslate"><span class="pre">ColumnNames.SAMPLE_ID</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="omics_utils.utils.html#omics_utils.utils.columns.ColumnNames.SPARSE_VECTOR"><code class="docutils literal notranslate"><span class="pre">ColumnNames.SPARSE_VECTOR</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="omics_utils.utils.html#module-omics_utils.utils.helpers">omics_utils.utils.helpers module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="omics_utils.utils.html#omics_utils.utils.helpers.densify_matrix"><code class="docutils literal notranslate"><span class="pre">densify_matrix()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="omics_utils.utils.html#omics_utils.utils.helpers.global_reset_index"><code class="docutils literal notranslate"><span class="pre">global_reset_index()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="omics_utils.utils.html#omics_utils.utils.helpers.remove_empty_partitions"><code class="docutils literal notranslate"><span class="pre">remove_empty_partitions()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="omics_utils.utils.html#omics_utils.utils.helpers.sanitize_dtypes"><code class="docutils literal notranslate"><span class="pre">sanitize_dtypes()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="omics_utils.utils.html#omics_utils.utils.helpers.sparsify_matrix"><code class="docutils literal notranslate"><span class="pre">sparsify_matrix()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="omics_utils.utils.html#omics-utils-utils-helpers-module">omics_utils.utils.helpers module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="omics_utils.utils.html#module-omics_utils.utils">Module contents</a></li>
 </ul>
 </li>
@@ -164,14 +147,8 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
 </section>
-<section id="module-omics_utils.preprocess">
-<span id="omics-utils-preprocess-module"></span><h2>omics_utils.preprocess module<a class="headerlink" href="#module-omics_utils.preprocess" title="Link to this heading"></a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="omics_utils.preprocess.main">
-<span class="sig-prename descclassname"><span class="pre">omics_utils.preprocess.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Run</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preprocessor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="omics_utils.preprocessing.html#omics_utils.preprocessing.pipeline.PreprocessingPipeline" title="omics_utils.preprocessing.pipeline.PreprocessingPipeline"><span class="pre">PreprocessingPipeline</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#omics_utils.preprocess.main" title="Link to this definition"></a></dt>
-<dd><p>Run the preprocessing pipeline.</p>
-</dd></dl>
-
+<section id="omics-utils-preprocess-module">
+<h2>omics_utils.preprocess module<a class="headerlink" href="#omics-utils-preprocess-module" title="Link to this heading"></a></h2>
 </section>
 <section id="module-omics_utils">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-omics_utils" title="Link to this heading"></a></h2>

@@ -1,23 +1,21 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>omics_utils.utils package &mdash; Omics Utils v0.0.13 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=92fd9be5" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=34eee1f6"></script>
-        <script src="_static/doctools.js?v=9a2dae69"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=34eee1f6"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -57,7 +55,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="omics_utils.html#submodules">Submodules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="omics_utils.html#module-omics_utils.preprocess">omics_utils.preprocess module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="omics_utils.html#omics-utils-preprocess-module">omics_utils.preprocess module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="omics_utils.html#module-omics_utils">Module contents</a></li>
 </ul>
 </li>
@@ -101,7 +99,7 @@
 <span id="omics-utils-utils-columns-module"></span><h2>omics_utils.utils.columns module<a class="headerlink" href="#module-omics_utils.utils.columns" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="omics_utils.utils.columns.ColumnNames">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">omics_utils.utils.columns.</span></span><span class="sig-name descname"><span class="pre">ColumnNames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">FOLD</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Final</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'fold'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">CASE_ID</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Final</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'case_id'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SAMPLE_ID</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Final</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sample_id'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#omics_utils.utils.columns.ColumnNames" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">omics_utils.utils.columns.</span></span><span class="sig-name descname"><span class="pre">ColumnNames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">FOLD</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Final</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'fold'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">CASE_ID</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Final</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'case_id'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SAMPLE_ID</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Final</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sample_id'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SPARSE_VECTOR</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Final</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sparse_vector'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#omics_utils.utils.columns.ColumnNames" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Common column names in a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>.</p>
 <dl class="py attribute">
@@ -119,83 +117,16 @@
 <span class="sig-name descname"><span class="pre">SAMPLE_ID</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Final</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sample_id'</span></em><a class="headerlink" href="#omics_utils.utils.columns.ColumnNames.SAMPLE_ID" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="omics_utils.utils.columns.ColumnNames.SPARSE_VECTOR">
+<span class="sig-name descname"><span class="pre">SPARSE_VECTOR</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Final</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sparse_vector'</span></em><a class="headerlink" href="#omics_utils.utils.columns.ColumnNames.SPARSE_VECTOR" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </section>
-<section id="module-omics_utils.utils.helpers">
-<span id="omics-utils-utils-helpers-module"></span><h2>omics_utils.utils.helpers module<a class="headerlink" href="#module-omics_utils.utils.helpers" title="Link to this heading"></a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="omics_utils.utils.helpers.densify_matrix">
-<span class="sig-prename descclassname"><span class="pre">omics_utils.utils.helpers.</span></span><span class="sig-name descname"><span class="pre">densify_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sparse_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">spmatrix</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#omics_utils.utils.helpers.densify_matrix" title="Link to this definition"></a></dt>
-<dd><p>Replaces missing values with <code class="docutils literal notranslate"><span class="pre">np.nan</span></code> while preserving zeros.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sparse_matrix</strong> (<em>sparse.spmatrix</em>) – The sparse matrix to densify, e.g. in csr format.</p></li>
-<li><p><strong>Returns</strong></p></li>
-<li><p><strong>-------</strong></p></li>
-<li><p><strong>matrix.</strong> (<em>The densified</em>)</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="omics_utils.utils.helpers.global_reset_index">
-<span class="sig-prename descclassname"><span class="pre">omics_utils.utils.helpers.</span></span><span class="sig-name descname"><span class="pre">global_reset_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#omics_utils.utils.helpers.global_reset_index" title="Link to this definition"></a></dt>
-<dd><p>Resets the index of a dask <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> globally instead of per partition.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>df</strong> (<em>dd.DataFrame</em>) – Dask <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> to reset the index of.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Dask <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> with a globally reset index.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="omics_utils.utils.helpers.remove_empty_partitions">
-<span class="sig-prename descclassname"><span class="pre">omics_utils.utils.helpers.</span></span><span class="sig-name descname"><span class="pre">remove_empty_partitions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#omics_utils.utils.helpers.remove_empty_partitions" title="Link to this definition"></a></dt>
-<dd><p>Removes empty partitions from a dask <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>df</strong> (<em>dd.DataFrame</em>) – Dask <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> to remove empty partitions from.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Dask <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> without empty partitions.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="omics_utils.utils.helpers.sanitize_dtypes">
-<span class="sig-prename descclassname"><span class="pre">omics_utils.utils.helpers.</span></span><span class="sig-name descname"><span class="pre">sanitize_dtypes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#omics_utils.utils.helpers.sanitize_dtypes" title="Link to this definition"></a></dt>
-<dd><p>Sanitize the dtypes of a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> for compatibility with anndata.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>df</strong> (<em>pd.DataFrame</em>) – The <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> to sanitize.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>The <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> with sanitized dtypes.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="omics_utils.utils.helpers.sparsify_matrix">
-<span class="sig-prename descclassname"><span class="pre">omics_utils.utils.helpers.</span></span><span class="sig-name descname"><span class="pre">sparsify_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dense_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">csr_matrix</span></span></span><a class="headerlink" href="#omics_utils.utils.helpers.sparsify_matrix" title="Link to this definition"></a></dt>
-<dd><p>Convert a dense matrix to a sparse matrix where <code class="docutils literal notranslate"><span class="pre">np.nan</span></code> are not explicitly stored.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>dense_matrix</strong> (<em>np.ndarray</em>) – Matrix to sparsify.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>The sparse matrix storing zeros explicitly and not storing <code class="docutils literal notranslate"><span class="pre">np.nan</span></code>.</p>
-</dd>
-</dl>
-</dd></dl>
-
+<section id="omics-utils-utils-helpers-module">
+<h2>omics_utils.utils.helpers module<a class="headerlink" href="#omics-utils-utils-helpers-module" title="Link to this heading"></a></h2>
 </section>
 <section id="module-omics_utils.utils">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-omics_utils.utils" title="Link to this heading"></a></h2>

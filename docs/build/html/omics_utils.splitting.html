@@ -1,23 +1,21 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>omics_utils.splitting package &mdash; Omics Utils v0.0.13 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=92fd9be5" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=34eee1f6"></script>
-        <script src="_static/doctools.js?v=9a2dae69"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=34eee1f6"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -57,7 +55,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="omics_utils.html#submodules">Submodules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="omics_utils.html#module-omics_utils.preprocess">omics_utils.preprocess module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="omics_utils.html#omics-utils-preprocess-module">omics_utils.preprocess module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="omics_utils.html#module-omics_utils">Module contents</a></li>
 </ul>
 </li>
@@ -101,42 +99,46 @@
 <span id="omics-utils-splitting-splitter-module"></span><h2>omics_utils.splitting.splitter module<a class="headerlink" href="#module-omics_utils.splitting.splitter" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="omics_utils.splitting.splitter.Splitter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">omics_utils.splitting.splitter.</span></span><span class="sig-name descname"><span class="pre">Splitter</span></span><a class="headerlink" href="#omics_utils.splitting.splitter.Splitter" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">omics_utils.splitting.splitter.</span></span><span class="sig-name descname"><span class="pre">Splitter</span></span><a class="headerlink" href="#omics_utils.splitting.splitter.Splitter" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
 <p>Facilitates splitting of datasets into multiple folds.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="omics_utils.splitting.splitter.Splitter.split">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#omics_utils.splitting.splitter.Splitter.split" title="Link to this definition"></a></dt>
-<dd><p>Generate a new split of a metadata <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> into folds.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>df</strong> (<em>pd.DataFrame</em>) – <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> to be split into folds.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> containing the fold indices in a new <code class="docutils literal notranslate"><span class="pre">ColumnNames.FOLD</span></code> column.</p>
-</dd>
-</dl>
+<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#omics_utils.splitting.splitter.Splitter.split" title="Link to this definition"></a></dt>
+<dd><p>Generate a new split of a metadata <cite>DataFrame</cite> into folds.</p>
+<section id="args">
+<h3>Args:<a class="headerlink" href="#args" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>df: <cite>DataFrame</cite> to be split into folds.</p>
+</div></blockquote>
+</section>
+<section id="returns">
+<h3>Returns:<a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
+<p><cite>DataFrame</cite> containing the fold indices in a new <cite>ColumnNames.FOLD</cite> column.</p>
+</section>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="omics_utils.splitting.splitter.StratifiedSplitter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">omics_utils.splitting.splitter.</span></span><span class="sig-name descname"><span class="pre">StratifiedSplitter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sklearn_splitter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">StratifiedKFold</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">StratifiedShuffleSplit</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">StratifiedGroupKFold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stratification_columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grouping_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#omics_utils.splitting.splitter.StratifiedSplitter" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">omics_utils.splitting.splitter.</span></span><span class="sig-name descname"><span class="pre">StratifiedSplitter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sklearn_splitter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">StratifiedKFold</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">StratifiedShuffleSplit</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">StratifiedGroupKFold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stratification_columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grouping_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#omics_utils.splitting.splitter.StratifiedSplitter" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#omics_utils.splitting.splitter.Splitter" title="omics_utils.splitting.splitter.Splitter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Splitter</span></code></a></p>
 <p>Split a dataset into stratified folds according to a subset of metadata columns.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="omics_utils.splitting.splitter.StratifiedSplitter.split">
 <span class="sig-name descname"><span class="pre">split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#omics_utils.splitting.splitter.StratifiedSplitter.split" title="Link to this definition"></a></dt>
-<dd><p>Perform a stratified split of a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> into folds.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>df</strong> (<em>pd.DataFrame</em>) – A <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> containing metadata to stratify by.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> containing the fold indices in the <code class="docutils literal notranslate"><span class="pre">ColumnNames.FOLD</span></code> column.</p>
-</dd>
-</dl>
+<dd><p>Perform a stratified split of a <cite>DataFrame</cite> into folds.</p>
+<section id="id1">
+<h3>Args:<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>df: A <cite>DataFrame</cite> containing metadata to stratify by.</p>
+</div></blockquote>
+</section>
+<section id="id2">
+<h3>Returns:<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>A <cite>DataFrame</cite> containing the fold indices in the <cite>ColumnNames.FOLD</cite> column.</p>
+</section>
 </dd></dl>
 
 </dd></dl>
