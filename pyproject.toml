@@ -128,3 +128,6 @@ ignore = [
     "ARG",
     "FBT",
 ]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
