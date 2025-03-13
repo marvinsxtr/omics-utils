@@ -1,23 +1,10 @@
-FROM --platform=$BUILDPLATFORM ubuntu:22.04 AS linux-base
-
-# Environment variables
-ENV UV_PROJECT_ENVIRONMENT="/venv"
-ENV UV_PYTHON_INSTALL_DIR="/python"
-ENV UV_COMPILE_BYTECODE=1
-ENV UV_PYTHON=python3.12
-ENV PATH="$UV_PROJECT_ENVIRONMENT/bin:$PATH"
-
-# Clean up
-RUN apt clean && \
-    rm -f /etc/apt/sources.list.d/*.list && \
-    rm -rf /var/lib/apt/lists/* && \
-    apt update
+FROM --platform=linux/amd64 python:3.12-slim AS linux-base
 
 # Utilities
 RUN apt-get update && apt-get upgrade -y
 RUN apt-get install -y --no-install-recommends build-essential \
     sudo curl git htop less rsync screen vim nano wget ca-certificates \
-    clang openssh-client zsh graphviz dbus
+    openssh-client zsh clang graphviz
 
 # Download and install VS Code Server CLI
 RUN wget -O /tmp/vscode-server-cli.tar.gz "https://update.code.visualstudio.com/latest/cli-linux-x64/stable" && \
@@ -26,23 +13,30 @@ RUN wget -O /tmp/vscode-server-cli.tar.gz "https://update.code.visualstudio.com/
     rm /tmp/vscode-server-cli.tar.gz
 
 # Slurm
-RUN groupadd -g 12067 slurm
-RUN useradd  -m -d /tmp -u 13504 -g slurm -s /bin/false slurm
-RUN groupadd -g 119 munge
-RUN useradd  -m -d /nonexistent -u 114 -g munge -s /usr/sbin/nologin munge
+RUN COMMANDS="sacct sacctmgr salloc sattach sbatch sbcast scancel scontrol sdiag sgather sinfo smap sprio squeue sreport srun sshare sstat strigger sview" \
+    && for CMD in $COMMANDS; do echo '#!/bin/bash' > "/usr/local/bin/$CMD" \
+    && echo 'ssh $USER@$SLURM_CLUSTER_NAME "bash -l -c '\'''"$CMD"' \"$@\"'\''"' >> "/usr/local/bin/$CMD" \
+    && chmod +x "/usr/local/bin/$CMD"; done
 
 FROM linux-base AS python-base
 
+# Workdir
+WORKDIR /srv/repo
+
+# Environment variables
+ENV UV_PROJECT_ENVIRONMENT="/venv"
+ENV UV_PYTHON_INSTALL_DIR="/python"
+ENV UV_COMPILE_BYTECODE=1
+ENV UV_LINK_MODE=copy
+ENV UV_PYTHON=python3.12
+ENV PATH="$UV_PROJECT_ENVIRONMENT/bin:$PATH"
+ENV PYTHONPATH="/srv/repo:$PYTHONPATH"
+
 # Install uv
-COPY --from=ghcr.io/astral-sh/uv:0.5.4@sha256:49934a7a2d0a2ddfda9ddb566d6ac2449cdf31c7ebfb56fe599e04057fddca58 /uv /usr/local/bin/uv
+COPY --from=ghcr.io/astral-sh/uv:0.6.6 /uv /usr/local/bin/uv
 
 # Environment
-COPY pyproject.toml ./
-COPY uv.lock ./
-RUN uv sync --frozen --no-install-project
-
-# Workdir
-RUN mkdir /srv/repo/ && chmod 777 /srv/repo
-ENV PATH="/venv/bin:$PATH"
-ENV PYTHONPATH=$PYTHONPATH:/srv/repo
-WORKDIR /srv/repo
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    uv sync --frozen --no-install-project --no-dev
