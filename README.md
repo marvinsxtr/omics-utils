@@ -1,6 +1,6 @@
 # 🧬 Omics Utils
 
-A modern toolkit for handling larger-than-memory datasets across multiple omics modalities using **dask**, **hydra-zen** and **wandb** on a Slurm cluster with Docker/Apptainer containerization.
+A modern toolkit for handling larger-than-memory datasets across multiple omics modalities using **hydra-zen** and **dask** on a Slurm cluster with Docker/Apptainer containerization.
 
 <div align="center">
 
@@ -22,12 +22,36 @@ A modern toolkit for handling larger-than-memory datasets across multiple omics 
 
 ## 📋 Table of Contents
 
-- [🧬 Running Preprocessing](#-running-preprocessing)
+- [🔑 Container Registry Authentication](#-container-registry-authentication)
 - [🐳 Container Setup](#-container-setup)
   - [Option 1: Apptainer (Cluster)](#option-1-apptainer-cluster)
   - [Option 2: Docker (Local Machine)](#option-2-docker-local-machine)
+- [🧬 Running Preprocessing](#-running-preprocessing)
 - [📦 Package Management](#-package-management)
+- [🔄 Updating the Docker Image](#-updating-the-docker-image)
 - [👥 Contributions](#-contributions)
+
+## 🔑 Container Registry Authentication
+
+### Generate Token
+
+1. Create a new GitHub token at [Settings → Developer settings → Personal access tokens](https://github.com/settings/tokens) with:
+   - `read:packages` permission
+   - `write:packages` permission
+
+### Log In
+
+With Apptainer:
+```bash
+apptainer remote login --username <your GitHub username> docker://ghcr.io
+```
+
+With Docker:
+```bash
+docker login ghcr.io -u <your GitHub username>
+```
+
+When prompted, enter your token as the password.
 
 ## 🐳 Container Setup
 
@@ -55,15 +79,19 @@ Choose one of the following methods to set up your environment:
 
    To open a tunnel to connect your local VSCode to the container on the cluster:
    ```bash
-   apptainer run --nv --writable-tmpfs oras://ghcr.io/yourusername/omics-utils:latest-sif code tunnel
+   apptainer run --nv --writable-tmpfs oras://ghcr.io/bifold-pathomics/omics-utils:latest-sif code tunnel
    ```
+
+   > 💡 You can specify a version tag (e.g., `v0.0.1-sif`) instead of `latest-sif`. Available versions are listed at [GitHub Container Registry](https://github.com/bifold-pathomics/omics-utils/pkgs/container/omics-utils).
 
    In VSCode press `Shift+Alt+P` (Windows/Linux) or `Shift+Cmd+P` (Mac), type "connect to tunnel", select GitHub and select your named node on the cluster. Your IDE is now connected to the cluster.
 
    To open a shell in the container on the cluster:
    ```bash
-   apptainer run --nv --writable-tmpfs oras://ghcr.io/yourusername/omics-utils:latest-sif /bin/bash
+   apptainer run --nv --writable-tmpfs oras://ghcr.io/bifold-pathomics/omics-utils:latest-sif /bin/bash
    ```
+
+   > 💡 This may take a few minutes on the first run as the container image is downloaded.
 
 ### Option 2: Docker (Local Machine)
 
@@ -77,29 +105,16 @@ Choose one of the following methods to set up your environment:
 
    Alternatively, open the command palette in VSCode by pressing `Shift+Alt+P` (Windows/Linux) or `Shift+Cmd+P` (Mac), and type `Dev Containers: Reopen in Container`.
 
-## 📦 Package Management
-
-This project uses [uv](https://docs.astral.sh/uv/) for Python dependency management.
-
-### Adding or Updating Dependencies
-
-Inside the container:
-```bash
-# Add a specific package
-uv add <package-name>
-
-# Update all dependencies from pyproject.toml
-uv sync
-```
-
 ## 🧬 Running Preprocessing
+
+> Make sure you followed the previous sections beforehand and run these commands in the container.
 
 The preprocessing pipeline supports multiple omics modalities:
 
 ### CellXGene Preprocessing
 
 ```bash
-python omics_utils/preprocess.py preprocessor=cellxgene
+python omics_utils/preprocess.py
 ```
 
 ### Methylation Preprocessing
@@ -107,6 +122,46 @@ python omics_utils/preprocess.py preprocessor=cellxgene
 ```bash
 python omics_utils/preprocess.py preprocessor=methylation
 ```
+
+## 📦 Package Management
+
+1. **Update dependencies**
+
+   This project uses [uv](https://docs.astral.sh/uv/) for Python dependency management.
+
+   Inside the container:
+   ```bash
+   # Add a specific package
+   uv add <package-name>
+
+   # Update all dependencies from pyproject.toml
+   uv sync
+   ```
+
+2. **Commit changes** to the repository:
+
+   Use tags for versioning:
+
+   ```bash
+   git add pyproject.toml uv.lock 
+   git commit -m "Updated dependencies"
+   git tag v0.0.1
+   git push && git push --tags
+   ```
+
+3. **Use the updated image**:
+
+   The GitHub Actions workflow automatically builds a new image when changes are pushed.
+
+   With Apptainer:
+   ```bash
+   apptainer run --nv --writable-tmpfs oras://ghcr.io/bifold-pathomics/omics-utils:v0.0.1-sif /bin/bash
+   ```
+
+   With Docker:
+   ```bash
+   docker run -it --rm --platform=linux/amd64 ghcr.io/bifold-pathomics/omics-utils:v0.0.1 /bin/bash
+   ```
 
 ## 👥 Contributions
 
