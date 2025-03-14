@@ -129,7 +129,7 @@ python omics_utils/preprocess.py preprocessor=methylation
 
    This project uses [uv](https://docs.astral.sh/uv/) for Python dependency management.
 
-   Inside the container:
+   Inside the container (!):
    ```bash
    # Add a specific package
    uv add <package-name>
