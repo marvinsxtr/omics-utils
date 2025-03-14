@@ -28,7 +28,6 @@ A modern toolkit for handling larger-than-memory datasets across multiple omics 
   - [Option 2: Docker (Local Machine)](#option-2-docker-local-machine)
 - [🧬 Running Preprocessing](#-running-preprocessing)
 - [📦 Package Management](#-package-management)
-- [🔄 Updating the Docker Image](#-updating-the-docker-image)
 - [👥 Contributions](#-contributions)
 
 ## 🔑 Container Registry Authentication
@@ -82,7 +81,7 @@ Choose one of the following methods to set up your environment:
    apptainer run --nv --writable-tmpfs oras://ghcr.io/bifold-pathomics/omics-utils:latest-sif code tunnel
    ```
 
-   > 💡 You can specify a version tag (e.g., `v0.0.1-sif`) instead of `latest-sif`. Available versions are listed at [GitHub Container Registry](https://github.com/bifold-pathomics/omics-utils/pkgs/container/omics-utils).
+   > 💡 You can specify a version tag (e.g., `v0.0.1`) instead of `latest`. Available versions are listed at [GitHub Container Registry](https://github.com/bifold-pathomics/omics-utils/pkgs/container/omics-utils).
 
    In VSCode press `Shift+Alt+P` (Windows/Linux) or `Shift+Cmd+P` (Mac), type "connect to tunnel", select GitHub and select your named node on the cluster. Your IDE is now connected to the cluster.
 
