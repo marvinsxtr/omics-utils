@@ -15,8 +15,8 @@ class Preprocessing(Step, ABC):
     def __init__(
         self, *args, converter: AnndataConverter, input_dir: str, n_debug: int | None = None, **kwargs
     ) -> None:
-        """Args:
-        ----
+        """
+	Args:
           input_dir: Folder where the input `AnnData` files are saved.
           n_debug: Take the first n input files only for debugging purposes.
         """
@@ -41,14 +41,15 @@ class Preprocessing(Step, ABC):
         return "data"
 
     def read(self) -> dd.DataFrame:
-        """Read and transform the data from the the input data.
+	"""
+	Read and transform the data from the the input data.
 
-        NOTE: In this case the read step contains the transform step for compatibility with dask.
+	NOTE: In this case the read step contains the transform step for compatibility with dask.
 
-        Returns
-        -------
-        The data ready for transformation.
-        """
+
+	Returns:
+            The data ready for transformation.: None
+	"""
         input_files = list(self.input_path.glob("*.h5ad"))
 
         if self.n_debug is not None:
@@ -60,25 +61,22 @@ class Preprocessing(Step, ABC):
 
     @abstractmethod
     def transform(self, file_path: Path) -> pd.DataFrame:
-        """Transform a single `AnnData` file.
+	"""
+	Transform a single `AnnData` file.
 
-        Args:
-        ----
-          file_path: Path to the `AnnData` file to be transformed.
 
-        Returns:
-        -------
-        The data as a pandas `DataFrame`.
-        """
+	Returns:
+    	    The data as a pandas `DataFrame`.: None
+	"""
         ...
 
     def write(self, data_df: dd.DataFrame) -> None:
-        """Load/save the result of the transformation.
+	"""
+	Load/save the result of the transformation.
 
-        Args:
-        ----
-          data_df: A `DataFrame` containing the patient/donor metadata and the matrix `X`.
-        """
+	Args:
+   	    data_df (): A `DataFrame` containing the patient/donor metadata and the matrix `X`.
+	"""
         data_df.to_parquet(self.output_path, filesystem="arrow", name_function=lambda part: f"part_{part}.parquet")
 
     def run(self) -> None:

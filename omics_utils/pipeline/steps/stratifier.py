@@ -25,20 +25,15 @@ class Stratifier(Step):
         partition_size: str = "10GB",
         **kwargs,
     ) -> None:
-        """
-        Initializes an instance of a stratifier. 
-        
-        Parameters
-        ----------
-        splitter: Splitter
-            Splitter to use for stratification, grouping and shuffling among folds.
-        converter: AnndataConverter
-            Converter used to convert the ``DataFrame`` format back to ``AnnData``.
-        seed: int
-            Seed to use for shuffling of the dataset.
-        partition_size: str 
-            The size of the resulting partitions in MB/GB. Should not be larger than memory.
-        """
+	"""
+	Initializes an instance of a stratifier.
+
+	Args:
+    	    splitter (Splitter): Splitter to use for stratification, grouping and shuffling among folds.
+    	    converter (AnndataConverter): Converter used to convert the ``DataFrame`` format back to ``AnnData``.
+    	    seed (int): Seed to use for shuffling of the dataset.
+    	    partition_size (str ): The size of the resulting partitions in MB/GB. Should not be larger than memory.
+	"""
         super().__init__(*args, **kwargs)
 
         metadata_path = self.output_path / "metadata.parquet"
@@ -62,26 +57,23 @@ class Stratifier(Step):
         return "stratification"
 
     def read(self) -> dd.DataFrame:
-        """Read the data from the previous step.
+	"""
+	Read the data from the previous step.
 
-        Returns
-        -------
-        The data ready for transformation.
-        """
+
+	Returns:
+    	    The data ready for transformation.: None
+	"""
         return dd.from_map(pd.read_parquet, self.input_path.glob("*.parquet"))
 
     def transform(self, data_df: dd.DataFrame) -> tuple[dict[int, dd.DataFrame], pd.DataFrame]:
-        """
+	"""
 	Extract the metadata and perform splitting.
 
-        Parameters
-        ----------
-          data_df: The input ``DataFrame``.
 
-        Returns
-        -------
-        A tuple of a dict containing a mapping of the fold index to the data split and the metadata ``DataFrame``.
-        """
+	Returns:
+    	    A tuple of a dict containing a mapping of the fold index to the data split and the metadata ``DataFrame``.: None
+	"""
         metadata_df: pd.DataFrame = (
             data_df[[ColumnNames.CASE_ID, *self.converter.obs_cols]].drop_duplicates().reset_index(drop=True).compute()
         )
@@ -101,35 +93,27 @@ class Stratifier(Step):
     def df_to_anndata(
         self, df: pd.DataFrame, output_dir: Path, fold_idx: int, partition_info: dict[str, Any] | None = None
     ) -> None:
-        """
+	"""
 	Write a ``DataFrame`` to an anndata file.
 
-        Parameters
-        ----------
-        df: pd.DataFrame
-	    Partition as a pandas ``DataFrame`` to save as an AnnData ``.h5ad`` file.
-        output_dir: Path 
-	    Folder to save the anndata file in.
-        fold_idx: 
-	    Index of the fold the partition belongs to.
-        partition_info: 
-	    Dictionary containing metadata about the partition.
-        """
+	Args:
+    	    df (pd.DataFrame): Partition as a pandas ``DataFrame`` to save as an AnnData ``.h5ad`` file.
+            output_dir (Path ): Folder to save the anndata file in.
+            fold_idx (): Index of the fold the partition belongs to.
+            partition_info (): Dictionary containing metadata about the partition.
+	"""
         part = partition_info["number"]
         adata = self.converter.dataframe_to_anndata(df)
         write_h5ad(output_dir / f"fold_{fold_idx}_part_{part}.h5ad", adata, convert_strings_to_categoricals=False)
 
     def write(self, folds: dict[int, dd.DataFrame], metadata_df: pd.DataFrame) -> None:
-        """
+	"""
 	Save the folds and the case metadata separately.
 
-        Parameters
-        ----------
-        folds: dict[int, dd.DataFrame] 
-	    A dict containing a mapping of the fold index to the data split.
-        metadata_df: pd.DataFrame
-	    The metadata ``DataFrame``.
-        """
+	Args:
+    	    folds (dict[int, dd.DataFrame] ): A dict containing a mapping of the fold index to the data split.
+    	    metadata_df (pd.DataFrame): The metadata ``DataFrame``.
+	"""
         metadata_df.to_parquet(self.metadata_path)
 
         self.split_path.mkdir(exist_ok=True)

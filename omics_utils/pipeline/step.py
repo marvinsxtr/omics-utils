@@ -8,13 +8,10 @@ class Step(ABC):
 
     def __init__(self, base_dir: str) -> None:
         """
-        Initializes an instance of a base preprocessing step.
-        
-        Parameters
-        ----------
-        base_dir: str 
-            Folder where a subfolder is created for each preprocessing step.
-        
+	Initializes an instance of a base preprocessing step.
+
+	Args:
+    	    base_dir (str): Folder where a subfolder is created for each preprocessing step.
 	"""
         base_path = Path(base_dir)
 
@@ -39,44 +36,36 @@ class Step(ABC):
 
     @abstractmethod
     def read(self) -> Any:
-        """
-        Read the data from the previous step or the input data.
+	"""
+	Read the data from the previous step or the input data.
 
-        Returns
-        -------
-        The data ready for transformation.
-        
+
+	Returns:
+    	    The data ready for transformation.: None
 	"""
         ...
 
     @abstractmethod
     def transform(self, *args: Any) -> Any:
-        """
-        Transform the data.
+	"""
+	Transform the data.
 
-        Parameters
-        ----------
-        args: Any 
-            The input data.
+	Args:
+    	    args (Any ): The input data.
 
-        Returns
-        -------
-        The transformed output.
-        
-        """
+	Returns:
+    	    The transformed output.: None
+ 	"""
         ...
 
     @abstractmethod
     def write(self, *args: Any) -> None:
-        """
-        Save the result of the transformation.
+	"""
+	Save the result of the transformation.
 
-        Parameters
-        ----------
-        args: Any 
-            The transformed data.
-        
-        """
+	Args:
+   	    args (Any ): The transformed data.
+	"""
         ...
 
     @abstractmethod
