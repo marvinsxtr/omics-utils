@@ -32,7 +32,7 @@ class AnndataConverter:
         Parameters
         ----------
         obs_cols: list[str] 
-	    Columns to retain from the ``obs`` ``DataFrame``. E.g. sample-level metadata.
+	         Columns to retain from the ``obs`` ``DataFrame``. E.g. sample-level metadata.
         var_cols: list[str]
 	    Data columns to retain from the ``X`` array. E.g. genes. Inserts columns which are in this list but
             not in the data as empty columns.
@@ -40,7 +40,7 @@ class AnndataConverter:
 	    Path to a csv file to load the column names from. The file should contain the names
             separated by new lines.
         sparse: bool
-	    Whether to save the samples in a sparse format or as a dense ``DataFrame``
+	        Whether to save the samples in a sparse format or as a dense ``DataFrame``
         """
         if var_cols is not None and var_cols_file is not None:
             raise ValueError(

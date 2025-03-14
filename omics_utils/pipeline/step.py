@@ -14,7 +14,8 @@ class Step(ABC):
         ----------
         base_dir: str 
             Folder where a subfolder is created for each preprocessing step.
-        """
+        
+	"""
         base_path = Path(base_dir)
 
         input_path = base_path / self.input_step if self.input_step is not None else None
@@ -44,7 +45,8 @@ class Step(ABC):
         Returns
         -------
         The data ready for transformation.
-        """
+        
+	"""
         ...
 
     @abstractmethod
@@ -60,6 +62,7 @@ class Step(ABC):
         Returns
         -------
         The transformed output.
+        
         """
         ...
 
@@ -72,6 +75,7 @@ class Step(ABC):
         ----------
         args: Any 
             The transformed data.
+        
         """
         ...
 

@@ -43,7 +43,8 @@ class Pipeline:
             Configured cluster to use for distributed preprocessing using dask.
         scale: int
             Number of jobs to start on the cluster. Defaults to 10.
-        """
+        
+	"""
         output_path = get_output_dir() if output_dir is None else Path(output_dir)
         output_path.mkdir(parents=True, exist_ok=True)
 

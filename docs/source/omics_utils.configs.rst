@@ -1,5 +1,5 @@
-Configs
-=======
+omics\_utils.configs package
+============================
 
 
 omics\_utils.configs.cluster

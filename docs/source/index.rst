@@ -5,13 +5,11 @@
 
 Welcome to Omics Utils's Documentation!
 =======================================
-
 .. toctree::
    :maxdepth: 3
    :caption: Contents:
 
-   intro
-   installation
+   README
    API Reference <modules> 
 
 

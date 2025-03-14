@@ -21,10 +21,10 @@ release = 'v0.0.13'
 
 extensions = [
     'sphinx.ext.autodoc',	
-    'sphinx.ext.napoleon',	
+    'sphinx.ext.napoleon',
+    'myst_parser'	
 ]
 
-# autodoc_mock_imports = ['numpy', 'dask', 'dask_jobqueue', 'scikit-learn', 'ml_project_template', 'hydra_zen']
 templates_path = ['_templates']
 exclude_patterns = []
 
@@ -33,5 +33,5 @@ exclude_patterns = []
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = 'sphinx_rtd_theme'
+html_theme = 'pydata_sphinx_theme'
 html_static_path = ['_static']
