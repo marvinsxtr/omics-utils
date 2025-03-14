@@ -24,7 +24,7 @@ A modern toolkit for handling larger-than-memory datasets across multiple omics 
 
 - [🔑 Container Registry Authentication](#-container-registry-authentication)
 - [🐳 Container Setup](#-container-setup)
-  - [Option 1: Apptainer (Cluster)](#option-1-apptainer-cluster)
+  - [Option 1: Apptainer (Slurm Cluster)](#option-1-apptainer-slurm-cluster)
   - [Option 2: Docker (Local Machine)](#option-2-docker-local-machine)
 - [🧬 Running Preprocessing](#-running-preprocessing)
 - [📦 Package Management](#-package-management)
@@ -57,7 +57,7 @@ When prompted, enter your token as the password.
 
 Choose one of the following methods to set up your environment:
 
-### Option 1: Apptainer (Cluster)
+### Option 1: Apptainer (Slurm Cluster)
 
 1. **Install VSCode Remote Tunnels Extension**
 
