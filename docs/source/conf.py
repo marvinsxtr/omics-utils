@@ -1,6 +1,7 @@
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../omics_utils'))
+
+sys.path.insert(0, str(Path('../../omics_utils').resolve()))
 
 
 # Configuration file for the Sphinx documentation builder.
@@ -12,7 +13,7 @@ sys.path.insert(0, os.path.abspath('../../omics_utils'))
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'Omics Utils'
-copyright = '2025, The Omics Team'
+copyright = '2025, The Omics Team' # noqa: A001 
 author = 'The Omics Team'
 release = 'v0.0.13'
 
@@ -20,10 +21,9 @@ release = 'v0.0.13'
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-    'sphinx.ext.autodoc',	
+    'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
-    'myst_parser'	
-]
+    'myst_parser']
 
 templates_path = ['_templates']
 exclude_patterns = []
