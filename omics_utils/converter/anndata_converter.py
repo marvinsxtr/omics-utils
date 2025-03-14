@@ -33,15 +33,16 @@ class AnndataConverter:
 
         Args:
             obs_cols (list[str]): Columns to retain from the ``obs`` ``DataFrame``. E.g. sample-level metadata.
-            var_cols (list[str]): Data columns to retain from the ``X`` array. E.g. genes. Inserts columns which are in 
-this list but not in the data as empty columns.
-            var_cols_file (str): Path to a csv file to load the column names from. The file should contain the names 
-separated by new lines.
-    	    sparse (bool): Whether to save the samples in a sparse format or as a dense ``DataFrame``
+            var_cols (list[str]): Data columns to retain from the ``X`` array. E.g. genes. Inserts columns which are 
+                in this list but not in the data as empty columns.
+            var_cols_file (str): Path to a csv file to load the column names from. The file should contain the names
+                separated by new lines.
+            sparse (bool): Whether to save the samples in a sparse format or as a dense ``DataFrame``
 	"""
         if var_cols is not None and var_cols_file is not None:
             raise ValueError(
-                "Cannot provide the ``var_cols`` and load ``var_cols_file`` at the same time. One option has to be None."
+                "Cannot provide the ``var_cols`` and load ``var_cols_file`` at the same time. One option has to be 
+		None."
             )
 
         if var_cols_file is not None:
@@ -57,14 +58,14 @@ separated by new lines.
         self.var_cols = var_cols
 
     def anndata_to_dataframe(self, adata: anndata.AnnData) -> pd.DataFrame:
-	"""
+        """
 	Convert an AnnData object to a DataFrame.
 
 	The result will have all obs metadata plus a 'sparse_vector' column
 	containing the serialized expression data for each cell.
 
 	Args:
-    	    adata (): AnnData object to convert
+            adata (): AnnData object to convert
 
 	Returns:
     	    ``DataFrame`` with cell metadata and serialized expression data: None
