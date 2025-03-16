@@ -26,10 +26,15 @@ dependencies = [
   "dask-jobqueue>=0.9.0",
   "ml-project-template",
   "bokeh>=3.6.3",
+<<<<<<< HEAD
   "sphinx>=7.3.7",
   "pydata-sphinx-theme>=0.16.1",
   "myst-parser>=4.0.1", 
   "sphinx-autodoc-typehints>=3.1.0"
+=======
+  "sphinx=7.3.7",
+  "pydata-sphinx-theme"=0.16.1"
+>>>>>>> 56f1bdd (Add Sphinx to pyproject.toml and minor bugfixes)
 ]
 
 [dependency-groups]

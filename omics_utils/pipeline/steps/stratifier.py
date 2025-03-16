@@ -28,10 +28,19 @@ class Stratifier(Step):
         """Initializes an instance of a stratifier.
 
         Args:
+<<<<<<< HEAD
             splitter: Splitter to use for stratification, grouping and shuffling among folds
             converter: Converter used to convert the `DataFrame` format back to `AnnData`
             seed: Seed to use for shuffling of the dataset
             partition_size: The size of the resulting partitions in MB/GB. Should not be larger than memory.
+=======
+            *args: TODO
+            splitter (Splitter): Splitter to use for stratification, grouping and shuffling among folds.
+            converter (AnndataConverter): Converter used to convert the ``DataFrame`` format back to ``AnnData``.
+            seed (int): Seed to use for shuffling of the dataset.
+            partition_size (str ): The size of the resulting partitions in MB/GB. Should not be larger than memory.
+            **kwargs: TODO
+>>>>>>> 56f1bdd (Add Sphinx to pyproject.toml and minor bugfixes)
         """
         super().__init__(*args, **kwargs)
 
