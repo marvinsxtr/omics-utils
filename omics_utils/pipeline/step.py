@@ -46,12 +46,12 @@ class Step(ABC):
     def transform(self, *args: Any) -> Any:
         """Transform the data.
 
-	    Args:
-    	    args (Any ): The input data.
+        Args:
+            args (Any ): The input data.
 
-	    Returns:
-    	    The transformed output.
- 	    """
+        Returns:
+            The transformed output.
+        """
         ...
 
     @abstractmethod

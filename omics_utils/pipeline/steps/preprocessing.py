@@ -16,10 +16,13 @@ class Preprocessing(Step, ABC):
         self, *args, converter: AnndataConverter, input_dir: str, n_debug: int | None = None, **kwargs
     ) -> None:
         """Initializes an instance of a preprocessing object with custom-chosen steps.
-        
+
         Args:
+            *args: TODO
+            converter: TODO
             input_dir: Folder where the input ``AnnData`` files are saved.
             n_debug: Take the first n input files only for debugging purposes.
+            **kwargs: TODO
         """
         super().__init__(*args, **kwargs)
         input_path = Path(input_dir)
@@ -75,5 +78,4 @@ class Preprocessing(Step, ABC):
     def run(self) -> None:
         """Run the whole preprocessing step by sequentially running ``read`` and ``write``."""
         data_df = self.read()
-        self.write(data_df)      
-
+        self.write(data_df)

@@ -51,7 +51,7 @@ def densify_matrix(sparse_matrix: sp.spmatrix) -> np.ndarray:
         sparse_matrix (sparse.spmatrix): The sparse matrix to densify, e.g. in csr format.
 
     Returns:
-    	The densified matrix.
+        The densified matrix.
     """
     dense = np.full(sparse_matrix.shape, np.nan)
     coo = sparse_matrix.tocoo()

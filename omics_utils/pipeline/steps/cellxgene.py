@@ -20,24 +20,23 @@ class CellXGenePreprocessing(Preprocessing):
         n_debug: int | None = None,
         **kwargs,
     ) -> None:
-        """
-        Initializes an instance of a preprocessing step for CellXGene files.
+        """Initializes an instance of a preprocessing step for CellXGene files.
 
         Args:
             *args: TODO
             input_dir (str ): Folder where the input CellXGene ``AnnData`` files are saved.
             converter (AnndataConverter): Converter to convert ``AnnData`` into a ``DataFrame`` format.
             n_debug (): Take the first n input files only for debugging purposes.
-            *kwargs: TODO
+            **kwargs: TODO
         """
-        super().__init__(*args, converter=converter, input_dir=input_dir, n_debug=n_debug, **kwargs)
+        super().__init__(*args, converter=converter,
+                         input_dir=input_dir, n_debug=n_debug, **kwargs)
 
     def transform(self, file_path: Path) -> pd.DataFrame:
-        """
-        Preprocess a single ``AnnData`` file.
+        """Preprocess a single ``AnnData`` file.
 
         Args:
-            file_path (Path ): Path to the ``AnnData`` file to be transformed.
+            file_path (Path): Path to the ``AnnData`` file to be transformed.
 
         Returns:
             The preprocessed data as a pandas ``DataFrame``.
@@ -50,7 +49,8 @@ class CellXGenePreprocessing(Preprocessing):
         # Define X to be the raw counts
         if hasattr(adata, "raw") and hasattr(adata.raw, "X"):
             if adata.var.shape[0] != adata.raw.var.shape[0]:
-                raise ValueError("Number of raw variables has to match the number of preprocessed variables.")
+                raise ValueError(
+                    "Number of raw variables has to match the number of preprocessed variables.")
             adata.X = adata.raw.X
         elif ((adata.X.astype("int") != adata.X).nnz != 0) and ((adata.X < 0).nnz == 0):
             raise ValueError("X has to contain raw expression counts.")

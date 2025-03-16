@@ -11,7 +11,8 @@ class MethylationPreprocessing(Preprocessing):
     """Preprocessing of DNA methylation array ``AnnData`` files."""
 
     def transform(self, file_path: Path) -> pd.DataFrame:
-        """Preprocess a single ``AnnData`` file. Since the methylation array data are already preprocessed this only adjusts column spelling.
+        """Preprocess a single ``AnnData`` file. Since the methylation array data are already preprocessed, this only
+        adjusts column spelling.
 
         Returns:
             The preprocessed data as a pandas ``DataFrame``.
@@ -22,5 +23,3 @@ class MethylationPreprocessing(Preprocessing):
         adata.obs = adata.obs.rename(columns={"sample_ID": ColumnNames.SAMPLE_ID})
 
         return self.converter.anndata_to_dataframe(adata)
-      
-

@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path('../../omics_utils').resolve()))
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'Omics Utils'
-copyright = '2025, The Omics Team' # noqa: A001 
+copyright = '2025, The Omics Team' # noqa: A001
 author = 'The Omics Team'
 release = 'v0.0.13'
 

@@ -124,4 +124,3 @@ class Stratifier(Step):
         data_df = self.read()
         folds, metadata_df = self.transform(data_df)
         self.write(folds, metadata_df)
-        
