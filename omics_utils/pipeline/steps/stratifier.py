@@ -28,10 +28,12 @@ class Stratifier(Step):
         """Initializes an instance of a stratifier.
 
         Args:
+            *args: TODO
             splitter (Splitter): Splitter to use for stratification, grouping and shuffling among folds.
             converter (AnndataConverter): Converter used to convert the ``DataFrame`` format back to ``AnnData``.
             seed (int): Seed to use for shuffling of the dataset.
             partition_size (str ): The size of the resulting partitions in MB/GB. Should not be larger than memory.
+            **kwargs: TODO
         """
         super().__init__(*args, **kwargs)
 
