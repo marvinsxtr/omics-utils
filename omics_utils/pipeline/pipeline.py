@@ -4,8 +4,9 @@ from dask.distributed import Client, LocalCluster
 from dask_jobqueue import JobQueueCluster
 from hydra_zen.typing import Partial
 from ml_project_template.common.logging.logger import logger
-from omics_utils.utils.helpers import get_output_dir
+
 from omics_utils.pipeline.step import Step
+from omics_utils.utils.helpers import get_output_dir
 
 
 # TODO(marvin): Write documentation of the input schema this class expects.
