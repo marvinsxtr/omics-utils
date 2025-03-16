@@ -8,11 +8,10 @@ from ml_project_template.common.utils.config import get_hydra_output_dir
 
 
 def get_output_dir() -> Path:
-    """
-    Get the current output directory.
+    """Get the current output directory.
 
     Returns:
-        Output path of the current run.: None
+        Output path of the current run.
     """
     try:
         output_dir = get_hydra_output_dir()
@@ -23,14 +22,13 @@ def get_output_dir() -> Path:
 
 
 def remove_empty_partitions(df: dd.DataFrame) -> dd.DataFrame:
-    """
-    Removes empty partitions from a dask ``DataFrame``.
+    """Removes empty partitions from a dask ``DataFrame``.
 
     Args:
-            df (dd.DataFrame): Dask ``DataFrame`` to remove empty partitions from.
+        df (dd.DataFrame): Dask ``DataFrame`` to remove empty partitions from.
 
     Returns:
-            Dask ``DataFrame`` without empty partitions.: None
+        Dask ``DataFrame`` without empty partitions.: None
     """
     ll = list(df.map_partitions(len).compute())
     df_delayed = df.to_delayed()
@@ -47,11 +45,10 @@ def remove_empty_partitions(df: dd.DataFrame) -> dd.DataFrame:
 
 
 def densify_matrix(sparse_matrix: sp.spmatrix) -> np.ndarray:
-    """
-    Replaces missing values with ``np.nan`` while preserving zeros.
+    """Replaces missing values with ``np.nan`` while preserving zeros.
 
     Args:
-        sparse_matrix (sparse.spmatrix ): The sparse matrix to densify, e.g. in csr format.
+        sparse_matrix (sparse.spmatrix): The sparse matrix to densify, e.g. in csr format.
 
     Returns:
     	The densified matrix.
@@ -63,14 +60,13 @@ def densify_matrix(sparse_matrix: sp.spmatrix) -> np.ndarray:
 
 
 def sparsify_matrix(dense_matrix: np.ndarray) -> sp.csr_matrix:
-    """
-    Convert a dense matrix to a sparse matrix where ``np.nan`` are not explicitly stored.
+    """Convert a dense matrix to a sparse matrix where ``np.nan`` are not explicitly stored.
 
     Args:
-        dense_matrix (np.ndarray  ): Matrix to sparsify.
+        dense_matrix (np.ndarray): Matrix to sparsify.
 
     Returns:
-        The sparse matrix storing zeros explicitly and not storing ``np.nan``.: None
+        The sparse matrix storing zeros explicitly and not storing ``np.nan``.
     """
     mask = ~np.isnan(dense_matrix)
     rows, cols = np.nonzero(mask)
@@ -80,14 +76,13 @@ def sparsify_matrix(dense_matrix: np.ndarray) -> sp.csr_matrix:
 
 
 def global_reset_index(df: dd.DataFrame) -> dd.DataFrame:
-    """
-    Resets the index of a dask ``DataFrame`` globally instead of per partition.
+    """Resets the index of a dask ``DataFrame`` globally instead of per partition.
 
     Args:
         df (dd.DataFrame ): Dask ``DataFrame`` to reset the index of.
 
     Returns:
-        Dask ``DataFrame`` with a globally reset index.: None
+        Dask ``DataFrame`` with a globally reset index.
     """
     index_name = "__tmp_idx"
     df = df.assign(**{index_name: 1})
@@ -97,14 +92,13 @@ def global_reset_index(df: dd.DataFrame) -> dd.DataFrame:
 
 
 def sanitize_dtypes(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Sanitize the dtypes of a ``DataFrame`` for compatibility with anndata.
+    """Sanitize the dtypes of a ``DataFrame`` for compatibility with anndata.
 
     Args:
         df (pd.DataFrame): The ``DataFrame`` to sanitize.
 
     Returns:
-        The ``DataFrame`` with sanitized dtypes.: None
+        The ``DataFrame`` with sanitized dtypes.
     """
     for name, dtype in df.dtypes.items():
         if dtype == "string":

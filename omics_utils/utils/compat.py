@@ -20,8 +20,7 @@ def write_h5ad(  # noqa: C901, D103
     dataset_kwargs: Mapping[str, Any] = MappingProxyType({}),
     **kwargs,
 ) -> None:
-    """
-    Writes ``AnnData`` object to ``.h5ad`` file.
+    """Writes ``AnnData`` object to ``.h5ad`` file.
 
     Args:
         filepath (Path | str): The path to write to.
@@ -29,6 +28,7 @@ def write_h5ad(  # noqa: C901, D103
         as_dense (Sequence[str]): Whether to write array in dense form.
         convert_strings_to_categoricals (bool): Whether to transform string annotations to categorical variables, if there exist less unique string annotations than values. If the number of values equals the number of categories, all remains unchanged.
         dataset_kwargs (Mapping[str, Any] = MappingProxyType({})): None
+        **kwargs: TODO
     """
     if isinstance(as_dense, str):
         as_dense = [as_dense]
@@ -36,9 +36,9 @@ def write_h5ad(  # noqa: C901, D103
         as_dense = list(as_dense)
         as_dense[as_dense.index("raw.X")] = "raw/X"
     if any(val not in {"X", "raw/X"} for val in as_dense):
-        raise NotImplementedError("Currently, only `X` and `raw/X` are supported values in `as_dense`")
+        raise NotImplementedError("Currently, only ``X`` and ``raw/X`` are supported values in ``as_dense``")
     if "raw/X" in as_dense and adata.raw is None:
-        raise ValueError("Cannot specify writing `raw/X` to dense if it doesn't exist.")
+        raise ValueError("Cannot specify writing ``raw/X`` to dense if it doesn't exist.")
 
     if convert_strings_to_categoricals:
         adata.strings_to_categoricals()

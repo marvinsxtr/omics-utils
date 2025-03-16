@@ -24,9 +24,11 @@ class CellXGenePreprocessing(Preprocessing):
         Initializes an instance of a preprocessing step for CellXGene files.
 
         Args:
+            *args: TODO
             input_dir (str ): Folder where the input CellXGene ``AnnData`` files are saved.
             converter (AnndataConverter): Converter to convert ``AnnData`` into a ``DataFrame`` format.
             n_debug (): Take the first n input files only for debugging purposes.
+            *kwargs: TODO
         """
         super().__init__(*args, converter=converter, input_dir=input_dir, n_debug=n_debug, **kwargs)
 
@@ -35,10 +37,10 @@ class CellXGenePreprocessing(Preprocessing):
         Preprocess a single ``AnnData`` file.
 
         Args:
-                file_path (Path ): Path to the ``AnnData`` file to be transformed.
+            file_path (Path ): Path to the ``AnnData`` file to be transformed.
 
         Returns:
-                The preprocessed data as a pandas ``DataFrame``.: None
+            The preprocessed data as a pandas ``DataFrame``.
         """
         adata = ad.read_h5ad(file_path)
 

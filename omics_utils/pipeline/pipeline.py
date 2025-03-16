@@ -4,7 +4,6 @@ from dask.distributed import Client, LocalCluster
 from dask_jobqueue import JobQueueCluster
 from hydra_zen.typing import Partial
 from ml_project_template.common.logging.logger import logger
-
 from omics_utils.pipeline.step import Step
 from omics_utils.utils.helpers import get_output_dir
 
@@ -13,8 +12,7 @@ from omics_utils.utils.helpers import get_output_dir
 # https://github.com/bifold-pathomics/omics-utils/issues/1
 
 class Pipeline:
-    """
-    Handles a sequence of preprocessing steps in an ETL style pipeline.
+    """Handles a sequence of preprocessing steps in an ETL style pipeline.
 
     Can be used for the preprocessing, concatenation, stratification, splitting and saving of tabular omics datasets.
     """
@@ -27,12 +25,11 @@ class Pipeline:
         cluster: JobQueueCluster | LocalCluster | None = None,
         scale: int = 10,
         ) -> None:
-        """
-        Initializes an instance of a preprocessing pipeline.
+        """Initializes an instance of a preprocessing pipeline.
 
         Args:
             steps (list[Partial[PreprocessingStep]]): Preprocessing steps to perform in sequence.
-            output_dir (str | None): Output path to save intermediate and final preprocessing outputs in. By default 
+            output_dir (str | None): Output path to save intermediate and final preprocessing outputs in. By default,
                 this is the hydra output directory (`outputs`).
             force_recompute (bool): Whether to recompute already existing intermediate results.
             cluster (JobQueueCluster | LocalCluster | None ): Configured cluster to use for distributed preprocessing
@@ -49,8 +46,7 @@ class Pipeline:
         self.scale = scale
 
     def _setup_cluster(self, cluster: JobQueueCluster | LocalCluster) -> None:
-        """
-        Configures the Slurm cluster for multi-node processing using dask.
+        """Configures the Slurm cluster for multi-node processing using dask.
 
         Args:
             cluster (JobQueueCluster | LocalCluster): The dask jobqueue cluster to use.

@@ -11,8 +11,7 @@ class Splitter(ABC):
 
     @abstractmethod
     def split(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Generate a new split of a metadata `DataFrame` into folds.
+        """Generate a new split of a metadata ``DataFrame`` into folds.
 
         Args:
             df (pd.DataFrame): ``DataFrame`` to be split into folds.
@@ -36,8 +35,10 @@ class StratifiedSplitter(Splitter):
         Creates an instance of a stratified splitter.
 
         Args:
-                sklearn_splitter (StratifiedKFold | StratifiedShuffleSplit | StratifiedGroupKFold ): Sklearn splitter to use for the split.
-                stratification_columns (list[str] | None = None ): Subset of columns defining the metadata subset to stratify by.
+                sklearn_splitter (StratifiedKFold | StratifiedShuffleSplit | StratifiedGroupKFold ): Sklearn splitter
+                    to use for the split.
+                stratification_columns (list[str] | None = None ): Subset of columns defining the metadata subset to
+                    stratify by.
                 grouping_column (list[str] | None = None): Column containing the metadata to group by.
         """
         self.sklearn_splitter = sklearn_splitter
@@ -49,11 +50,11 @@ class StratifiedSplitter(Splitter):
         """Validate the input ``DataFrame`` column data types and subset."""
         strat_cols = self.stratification_columns
         if strat_cols is not None and (not set(strat_cols).issubset(df.columns)):
-            raise ValueError(f"The `stratification_columns` have to be all in `df`. Got {strat_cols}.")
+            raise ValueError(f"The ``stratification_columns`` have to be all in ``f``. Got {strat_cols}.")
 
         group_col = self.grouping_column
         if group_col is not None and (not set(group_col).issubset(df.columns)):
-            raise ValueError(f"The `grouping_column` has to be in `df`. Got {group_col}.")
+            raise ValueError(f"The ``grouping_column`` has to be in ``df``. Got {group_col}.")
 
     def split(self, df: pd.DataFrame) -> pd.DataFrame:
         """

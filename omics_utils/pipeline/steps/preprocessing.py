@@ -10,14 +10,15 @@ from omics_utils.utils.helpers import remove_empty_partitions
 
 
 class Preprocessing(Step, ABC):
-    """Base class for preprocessing of `AnnData` files."""
+    """Base class for preprocessing of ``AnnData`` files."""
 
     def __init__(
         self, *args, converter: AnndataConverter, input_dir: str, n_debug: int | None = None, **kwargs
     ) -> None:
-        """
-	    Args:
-            input_dir: Folder where the input `AnnData` files are saved.
+        """Initializes an instance of a preprocessing object with custom-chosen steps.
+        
+        Args:
+            input_dir: Folder where the input ``AnnData`` files are saved.
             n_debug: Take the first n input files only for debugging purposes.
         """
         super().__init__(*args, **kwargs)
@@ -41,8 +42,7 @@ class Preprocessing(Step, ABC):
         return "data"
 
     def read(self) -> dd.DataFrame:
-        """
-        Read and transform the data from the the input data.
+        """Read and transform the data from the the input data.
 
         NOTE: In this case the read step contains the transform step for compatibility with dask.
 
@@ -61,25 +61,19 @@ class Preprocessing(Step, ABC):
 
     @abstractmethod
     def transform(self, file_path: Path) -> pd.DataFrame:
-        """
-        Transform a single `AnnData` file.
-
-
-        Returns:
-        """
+        """Transform a single ``AnnData`` file."""
         ...
 
     def write(self, data_df: dd.DataFrame) -> None:
-        """
-        Load/save the result of the transformation.
+        """Load/save the result of the transformation.
 
         Args:
-            data_df (): A `DataFrame` containing the patient/donor metadata and the matrix `X`.
+            data_df (): A ``DataFrame`` containing the patient/donor metadata and the matrix ``X``.
         """
         data_df.to_parquet(self.output_path, filesystem="arrow", name_function=lambda part: f"part_{part}.parquet")
 
     def run(self) -> None:
-        """Run the whole preprocessing step by sequentially running `read` and `write`."""
+        """Run the whole preprocessing step by sequentially running ``read`` and ``write``."""
         data_df = self.read()
         self.write(data_df)      
 
