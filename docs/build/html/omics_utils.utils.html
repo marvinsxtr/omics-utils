@@ -125,7 +125,7 @@
     
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="README.html">
-    <no title>
+    🧬 Omics Utils
   </a>
 </li>
 
@@ -211,7 +211,7 @@
     
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="README.html">
-    <no title>
+    🧬 Omics Utils
   </a>
 </li>
 
@@ -252,7 +252,7 @@
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="omics_utils.html">omics_utils package</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="omics_utils.configs.html">omics_utils.configs package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="omics_utils.converter.html">Converter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="omics_utils.converter.html">omics_utils.converter package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="omics_utils.splitting.html">omics_utils.splitting package</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">omics_utils.utils package</a></li>
 </ul>
@@ -325,20 +325,98 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 </section>
-<section id="omics-utils-utils-columns-module">
-<h2>omics_utils.utils.columns module<a class="headerlink" href="#omics-utils-utils-columns-module" title="Link to this heading">#</a></h2>
+<section id="module-omics_utils.utils.columns">
+<span id="omics-utils-utils-columns-module"></span><h2>omics_utils.utils.columns module<a class="headerlink" href="#module-omics_utils.utils.columns" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="omics_utils.utils.columns.ColumnNames">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">omics_utils.utils.columns.</span></span><span class="sig-name descname"><span class="pre">ColumnNames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">FOLD</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Final</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'fold'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">CASE_ID</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Final</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'case_id'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SAMPLE_ID</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Final</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sample_id'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SPARSE_VECTOR</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Final</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sparse_vector'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#omics_utils.utils.columns.ColumnNames" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Common column names in a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="omics_utils.utils.columns.ColumnNames.CASE_ID">
+<span class="sig-name descname"><span class="pre">CASE_ID</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Final</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'case_id'</span></em><a class="headerlink" href="#omics_utils.utils.columns.ColumnNames.CASE_ID" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="omics_utils.utils.columns.ColumnNames.FOLD">
+<span class="sig-name descname"><span class="pre">FOLD</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Final</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'fold'</span></em><a class="headerlink" href="#omics_utils.utils.columns.ColumnNames.FOLD" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="omics_utils.utils.columns.ColumnNames.SAMPLE_ID">
+<span class="sig-name descname"><span class="pre">SAMPLE_ID</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Final</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sample_id'</span></em><a class="headerlink" href="#omics_utils.utils.columns.ColumnNames.SAMPLE_ID" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="omics_utils.utils.columns.ColumnNames.SPARSE_VECTOR">
+<span class="sig-name descname"><span class="pre">SPARSE_VECTOR</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Final</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sparse_vector'</span></em><a class="headerlink" href="#omics_utils.utils.columns.ColumnNames.SPARSE_VECTOR" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
-<section id="omics-utils-utils-compat-module">
-<h2>omics_utils.utils.compat module<a class="headerlink" href="#omics-utils-utils-compat-module" title="Link to this heading">#</a></h2>
+<section id="module-omics_utils.utils.compat">
+<span id="omics-utils-utils-compat-module"></span><h2>omics_utils.utils.compat module<a class="headerlink" href="#module-omics_utils.utils.compat" title="Link to this heading">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="omics_utils.utils.compat.write_h5ad">
+<span class="sig-prename descclassname"><span class="pre">omics_utils.utils.compat.</span></span><span class="sig-name descname"><span class="pre">write_h5ad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AnnData</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_dense</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convert_strings_to_categoricals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">mappingproxy({})</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#omics_utils.utils.compat.write_h5ad" title="Link to this definition">#</a></dt>
+<dd><p>Writes <code class="docutils literal notranslate"><span class="pre">AnnData</span></code> object to <code class="docutils literal notranslate"><span class="pre">.h5ad</span></code> file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filepath</strong> (<em>Path</em><em> | </em><em>str</em>) – The path to write to.</p></li>
+<li><p><strong>adata</strong> (<em>AnnData</em>) – The AnnData object to write.</p></li>
+<li><p><strong>as_dense</strong> (<em>Sequence</em><em>[</em><em>str</em><em>]</em>) – Whether to write array in dense form.</p></li>
+<li><p><strong>convert_strings_to_categoricals</strong> (<em>bool</em>) – Whether to transform string annotations to categorical variables, if
+there exist less unique string annotations than values. If the number of values equals the number of
+categories, all remains unchanged.</p></li>
+<li><p><strong>dataset_kwargs</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>= MappingProxyType</em><em>(</em><em>{}</em><em>)</em>) – None</p></li>
+<li><p><strong>**kwargs</strong> – TODO</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="omics-utils-utils-helpers-module">
 <h2>omics_utils.utils.helpers module<a class="headerlink" href="#omics-utils-utils-helpers-module" title="Link to this heading">#</a></h2>
 </section>
-<section id="omics-utils-utils-serialization-module">
-<h2>omics_utils.utils.serialization module<a class="headerlink" href="#omics-utils-utils-serialization-module" title="Link to this heading">#</a></h2>
+<section id="module-omics_utils.utils.serialization">
+<span id="omics-utils-utils-serialization-module"></span><h2>omics_utils.utils.serialization module<a class="headerlink" href="#module-omics_utils.utils.serialization" title="Link to this heading">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="omics_utils.utils.serialization.deserialize_sparse_matrix">
+<span class="sig-prename descclassname"><span class="pre">omics_utils.utils.serialization.</span></span><span class="sig-name descname"><span class="pre">deserialize_sparse_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">serialized_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">csr_matrix</span></span></span><a class="headerlink" href="#omics_utils.utils.serialization.deserialize_sparse_matrix" title="Link to this definition">#</a></dt>
+<dd><p>Deserialize string back to a sparse matrix row.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>serialized_str</strong> (<em>str</em>) – String representation of a sparse matrix</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Reconstructed sparse matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="omics_utils.utils.serialization.serialize_sparse_matrix">
+<span class="sig-prename descclassname"><span class="pre">omics_utils.utils.serialization.</span></span><span class="sig-name descname"><span class="pre">serialize_sparse_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sparse_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">csr_matrix</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#omics_utils.utils.serialization.serialize_sparse_matrix" title="Link to this definition">#</a></dt>
+<dd><p>Serialize a sparse matrix row to bytes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>sparse_matrix</strong> (<em>sp.csr_matrix</em>) – A scipy sparse matrix (typically a single row).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Serialized representation.</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
-<section id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
+<section id="module-omics_utils.utils">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-omics_utils.utils" title="Link to this heading">#</a></h2>
 </section>
 </section>
 
@@ -381,11 +459,27 @@
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#omics-utils-utils-columns-module">omics_utils.utils.columns module</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#omics-utils-utils-compat-module">omics_utils.utils.compat module</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-omics_utils.utils.columns">omics_utils.utils.columns module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#omics_utils.utils.columns.ColumnNames"><code class="docutils literal notranslate"><span class="pre">ColumnNames</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#omics_utils.utils.columns.ColumnNames.CASE_ID"><code class="docutils literal notranslate"><span class="pre">ColumnNames.CASE_ID</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#omics_utils.utils.columns.ColumnNames.FOLD"><code class="docutils literal notranslate"><span class="pre">ColumnNames.FOLD</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#omics_utils.utils.columns.ColumnNames.SAMPLE_ID"><code class="docutils literal notranslate"><span class="pre">ColumnNames.SAMPLE_ID</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#omics_utils.utils.columns.ColumnNames.SPARSE_VECTOR"><code class="docutils literal notranslate"><span class="pre">ColumnNames.SPARSE_VECTOR</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-omics_utils.utils.compat">omics_utils.utils.compat module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#omics_utils.utils.compat.write_h5ad"><code class="docutils literal notranslate"><span class="pre">write_h5ad()</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#omics-utils-utils-helpers-module">omics_utils.utils.helpers module</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#omics-utils-utils-serialization-module">omics_utils.utils.serialization module</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module contents</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-omics_utils.utils.serialization">omics_utils.utils.serialization module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#omics_utils.utils.serialization.deserialize_sparse_matrix"><code class="docutils literal notranslate"><span class="pre">deserialize_sparse_matrix()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#omics_utils.utils.serialization.serialize_sparse_matrix"><code class="docutils literal notranslate"><span class="pre">serialize_sparse_matrix()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-omics_utils.utils">Module contents</a></li>
 </ul>
   </nav></div>
 
