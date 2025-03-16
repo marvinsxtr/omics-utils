@@ -20,17 +20,16 @@ def write_h5ad(  # noqa: C901, D103
     dataset_kwargs: Mapping[str, Any] = MappingProxyType({}),
     **kwargs,
 ) -> None:
-	"""
-	Writes ``AnnData`` object to ``.h5ad`` file.
+    """
+    Writes ``AnnData`` object to ``.h5ad`` file.
 
-	Args:
-    	    filepath (Path | str): The path to write to.
-    	    adata (AnnData): The AnnData object to write.
-    	    as_dense (Sequence[str]): Whether to write array in dense form.
-    	    convert_strings_to_categoricals (bool): Whether to transform string annotations to categorical variables, if there exist less unique string annotations than values. If the number of values equals the number of categories, all remains unchanged.
-            dataset_kwargs (Mapping[str, Any] = MappingProxyType({})): None
-	"""
-     
+    Args:
+        filepath (Path | str): The path to write to.
+        adata (AnnData): The AnnData object to write.
+        as_dense (Sequence[str]): Whether to write array in dense form.
+        convert_strings_to_categoricals (bool): Whether to transform string annotations to categorical variables, if there exist less unique string annotations than values. If the number of values equals the number of categories, all remains unchanged.
+        dataset_kwargs (Mapping[str, Any] = MappingProxyType({})): None
+    """
     if isinstance(as_dense, str):
         as_dense = [as_dense]
     if "raw.X" in as_dense:
@@ -78,5 +77,3 @@ def write_h5ad(  # noqa: C901, D103
         write_elem(f, "varp", dict(adata.varp), dataset_kwargs=dataset_kwargs)
         write_elem(f, "layers", dict(adata.layers), dataset_kwargs=dataset_kwargs)
         write_elem(f, "uns", dict(adata.uns), dataset_kwargs=dataset_kwargs)
-
-

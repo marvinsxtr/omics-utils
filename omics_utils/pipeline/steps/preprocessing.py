@@ -16,9 +16,9 @@ class Preprocessing(Step, ABC):
         self, *args, converter: AnndataConverter, input_dir: str, n_debug: int | None = None, **kwargs
     ) -> None:
         """
-	Args:
-          input_dir: Folder where the input `AnnData` files are saved.
-          n_debug: Take the first n input files only for debugging purposes.
+	    Args:
+            input_dir: Folder where the input `AnnData` files are saved.
+            n_debug: Take the first n input files only for debugging purposes.
         """
         super().__init__(*args, **kwargs)
         input_path = Path(input_dir)
@@ -41,15 +41,15 @@ class Preprocessing(Step, ABC):
         return "data"
 
     def read(self) -> dd.DataFrame:
-	"""
-	Read and transform the data from the the input data.
+        """
+        Read and transform the data from the the input data.
 
-	NOTE: In this case the read step contains the transform step for compatibility with dask.
+        NOTE: In this case the read step contains the transform step for compatibility with dask.
 
 
-	Returns:
-            The data ready for transformation.: None
-	"""
+        Returns:
+            The data ready for transformation.
+        """
         input_files = list(self.input_path.glob("*.h5ad"))
 
         if self.n_debug is not None:
@@ -61,22 +61,21 @@ class Preprocessing(Step, ABC):
 
     @abstractmethod
     def transform(self, file_path: Path) -> pd.DataFrame:
-	"""
-	Transform a single `AnnData` file.
+        """
+        Transform a single `AnnData` file.
 
 
-	Returns:
-    	    The data as a pandas `DataFrame`.: None
-	"""
+        Returns:
+        """
         ...
 
     def write(self, data_df: dd.DataFrame) -> None:
-	"""
-	Load/save the result of the transformation.
+        """
+        Load/save the result of the transformation.
 
-	Args:
-   	    data_df (): A `DataFrame` containing the patient/donor metadata and the matrix `X`.
-	"""
+        Args:
+            data_df (): A `DataFrame` containing the patient/donor metadata and the matrix `X`.
+        """
         data_df.to_parquet(self.output_path, filesystem="arrow", name_function=lambda part: f"part_{part}.parquet")
 
     def run(self) -> None:

@@ -11,15 +11,15 @@ class Splitter(ABC):
 
     @abstractmethod
     def split(self, df: pd.DataFrame) -> pd.DataFrame:
-	"""
-	Generate a new split of a metadata `DataFrame` into folds.
+        """
+        Generate a new split of a metadata `DataFrame` into folds.
 
-	Args:
-    	    df (pd.DataFrame): ``DataFrame`` to be split into folds.
-	
-	Returns:
-    	    ``DataFrame`` containing the fold indices in a new ``ColumnNames.FOLD`` column.: None
-	"""
+        Args:
+            df (pd.DataFrame): ``DataFrame`` to be split into folds.
+        
+        Returns:
+            ``DataFrame`` containing the fold indices in a new ``ColumnNames.FOLD`` column.: None
+        """
         ...
 
 
@@ -32,14 +32,14 @@ class StratifiedSplitter(Splitter):
         stratification_columns: list[str] | None = None,
         grouping_column: list[str] | None = None,
     ) -> None:
-	"""
-	Creates an instance of a stratified splitter.
+        """
+        Creates an instance of a stratified splitter.
 
-	Args:
-    	    sklearn_splitter (StratifiedKFold | StratifiedShuffleSplit | StratifiedGroupKFold ): Sklearn splitter to use for the split.
-    	    stratification_columns (list[str] | None = None ): Subset of columns defining the metadata subset to stratify by.
-    	    grouping_column (list[str] | None = None): Column containing the metadata to group by.
-	"""
+        Args:
+                sklearn_splitter (StratifiedKFold | StratifiedShuffleSplit | StratifiedGroupKFold ): Sklearn splitter to use for the split.
+                stratification_columns (list[str] | None = None ): Subset of columns defining the metadata subset to stratify by.
+                grouping_column (list[str] | None = None): Column containing the metadata to group by.
+        """
         self.sklearn_splitter = sklearn_splitter
         self.n_splits = 2 if isinstance(sklearn_splitter, StratifiedShuffleSplit) else sklearn_splitter.get_n_splits()
         self.stratification_columns = stratification_columns
@@ -56,15 +56,15 @@ class StratifiedSplitter(Splitter):
             raise ValueError(f"The `grouping_column` has to be in `df`. Got {group_col}.")
 
     def split(self, df: pd.DataFrame) -> pd.DataFrame:
-	"""
-	Perform a stratified split of a ``DataFrame`` into folds.
+        """
+        Perform a stratified split of a ``DataFrame`` into folds.
 
-	Args:
-   	    df (pd.DataFrame ): A ``DataFrame`` containing metadata to stratify by.
+        Args:
+            df (pd.DataFrame ): A ``DataFrame`` containing metadata to stratify by.
 
- 	Returns:
-   	    A ``DataFrame`` containing the fold indices in the ``ColumnNames.FOLD`` column.
-	"""
+        Returns:
+            A ``DataFrame`` containing the fold indices in the ``ColumnNames.FOLD`` column.
+        """
         self._validate_input_df(df)
 
         strata_df = df[self.stratification_columns].copy() if self.stratification_columns is not None else df
@@ -84,4 +84,3 @@ class StratifiedSplitter(Splitter):
                 df.iloc[train_idx, fold_column_idx] = 1
 
         return df
-

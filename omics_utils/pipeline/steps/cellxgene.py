@@ -20,26 +20,26 @@ class CellXGenePreprocessing(Preprocessing):
         n_debug: int | None = None,
         **kwargs,
     ) -> None:
-	"""
-	Initializes an instance of a preprocessing step for CellXGene files.
+        """
+        Initializes an instance of a preprocessing step for CellXGene files.
 
-	Args:
-    	    input_dir (str ): Folder where the input CellXGene ``AnnData`` files are saved.
-    	    converter (AnndataConverter): Converter to convert ``AnnData`` into a ``DataFrame`` format.
-   	    n_debug (): Take the first n input files only for debugging purposes.
-	"""
+        Args:
+            input_dir (str ): Folder where the input CellXGene ``AnnData`` files are saved.
+            converter (AnndataConverter): Converter to convert ``AnnData`` into a ``DataFrame`` format.
+            n_debug (): Take the first n input files only for debugging purposes.
+        """
         super().__init__(*args, converter=converter, input_dir=input_dir, n_debug=n_debug, **kwargs)
 
     def transform(self, file_path: Path) -> pd.DataFrame:
-	"""
-	Preprocess a single ``AnnData`` file.
+        """
+        Preprocess a single ``AnnData`` file.
 
-	Args:
-    	    file_path (Path ): Path to the ``AnnData`` file to be transformed.
+        Args:
+                file_path (Path ): Path to the ``AnnData`` file to be transformed.
 
-	Returns:
-    	    The preprocessed data as a pandas ``DataFrame``.: None
-	"""
+        Returns:
+                The preprocessed data as a pandas ``DataFrame``.: None
+        """
         adata = ad.read_h5ad(file_path)
 
         # Correct column spelling
@@ -88,4 +88,3 @@ class CellXGenePreprocessing(Preprocessing):
         sc.pp.log1p(adata)
 
         return self.converter.anndata_to_dataframe(adata)
-

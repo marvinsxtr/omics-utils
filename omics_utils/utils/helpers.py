@@ -8,13 +8,12 @@ from ml_project_template.common.utils.config import get_hydra_output_dir
 
 
 def get_output_dir() -> Path:
-	"""
-	Get the current output directory.
+    """
+    Get the current output directory.
 
-
-	Returns:
-    	    Output path of the current run.: None
-	"""
+    Returns:
+        Output path of the current run.: None
+    """
     try:
         output_dir = get_hydra_output_dir()
     except ValueError:
@@ -24,15 +23,15 @@ def get_output_dir() -> Path:
 
 
 def remove_empty_partitions(df: dd.DataFrame) -> dd.DataFrame:
-	"""
-	Removes empty partitions from a dask ``DataFrame``.
+    """
+    Removes empty partitions from a dask ``DataFrame``.
 
-	Args:
-    	    df (dd.DataFrame): Dask ``DataFrame`` to remove empty partitions from.
+    Args:
+            df (dd.DataFrame): Dask ``DataFrame`` to remove empty partitions from.
 
-	Returns:
+    Returns:
             Dask ``DataFrame`` without empty partitions.: None
-	"""
+    """
     ll = list(df.map_partitions(len).compute())
     df_delayed = df.to_delayed()
     df_delayed_new = []

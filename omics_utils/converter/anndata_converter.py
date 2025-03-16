@@ -33,16 +33,16 @@ class AnndataConverter:
 
         Args:
             obs_cols (list[str]): Columns to retain from the ``obs`` ``DataFrame``. E.g. sample-level metadata.
-            var_cols (list[str]): Data columns to retain from the ``X`` array. E.g. genes. Inserts columns which are 
+            var_cols (list[str]): Data columns to retain from the ``X`` array. E.g. genes. Inserts columns which are
                 in this list but not in the data as empty columns.
             var_cols_file (str): Path to a csv file to load the column names from. The file should contain the names
                 separated by new lines.
             sparse (bool): Whether to save the samples in a sparse format or as a dense ``DataFrame``
-	"""
+        """
         if var_cols is not None and var_cols_file is not None:
             raise ValueError(
-                "Cannot provide the ``var_cols`` and load ``var_cols_file`` at the same time. One option has to be 
-		None."
+                "Cannot provide the ``var_cols`` and load ``var_cols_file`` at the same time. One option has to be"
+		        "None."
             )
 
         if var_cols_file is not None:
@@ -59,17 +59,17 @@ class AnndataConverter:
 
     def anndata_to_dataframe(self, adata: anndata.AnnData) -> pd.DataFrame:
         """
-	Convert an AnnData object to a DataFrame.
+        Convert an AnnData object to a DataFrame.
 
-	The result will have all obs metadata plus a 'sparse_vector' column
-	containing the serialized expression data for each cell.
+        The result will have all obs metadata plus a 'sparse_vector' column
+        containing the serialized expression data for each cell.
 
-	Args:
-            adata (): AnnData object to convert
+        Args:
+                adata (): AnnData object to convert
 
-	Returns:
-    	    ``DataFrame`` with cell metadata and serialized expression data: None
-	"""
+        Returns:
+                ``DataFrame`` with cell metadata and serialized expression data: None
+        """
         adata.obs = self._prepare_metadata(adata)
 
         if self.var_cols is not None:
@@ -90,15 +90,15 @@ class AnndataConverter:
         return df
 
     def dataframe_to_anndata(self, df: pd.DataFrame) -> anndata.AnnData:
-       	"""
- 	Convert a DataFrame back to an AnnData object.
+        """
+        Convert a DataFrame back to an AnnData object.
 
-	Args:
-    	    df (pd.DataFrame): DataFrame with serialized expression data
+        Args:
+            df (pd.DataFrame): DataFrame with serialized expression data
 
-	Returns:
-    	    Reconstructed AnnData object: None
-	"""
+        Returns:
+                Reconstructed AnnData object: None
+        """
         id_cols = {ColumnNames.CASE_ID, ColumnNames.FOLD, ColumnNames.SAMPLE_ID}
 
         var_cols = self.var_cols if self.var_cols is not None else list(set(df.columns) - set(self.obs_cols) - id_cols)
@@ -122,15 +122,15 @@ class AnndataConverter:
         return anndata.AnnData(X=X, obs=obs, var=var)
 
     def _prepare_metadata(self, adata: ad.AnnData) -> pd.DataFrame:
-	"""
-	Prepare the metadata by renaming the columns and adding additional identifiers.
+        """
+        Prepare the metadata by renaming the columns and adding additional identifiers.
 
-	Args:
-    	    adata (ad.AnnData): The ``AnnData`` object to extract the metadata from.
+        Args:
+                adata (ad.AnnData): The ``AnnData`` object to extract the metadata from.
 
-	Returns:
-    	    The metadata as a ``DataFrame``.: None
-	"""
+        Returns:
+                The metadata as a ``DataFrame``.
+        """
         obs = adata.obs
 
         # Assign additional sample identifiers
@@ -157,15 +157,15 @@ class AnndataConverter:
 
     def reindex_anndata_genes(self, adata: ad.AnnData, genes: list[str]) -> ad.AnnData:
         """
-	Reindex AnnData to exactly match a gene list while preserving sparsity.
+        Reindex AnnData to exactly match a gene list while preserving sparsity.
 
-	Args:
-    	    adata (ad.AnnData): AnnData object to reindex
-            genes (list[str]): List of gene names to enforce
+        Args:
+                adata (ad.AnnData): AnnData object to reindex
+                genes (list[str]): List of gene names to enforce
 
-	Returns:
-    	    New AnnData with exactly the genes specified, in the specified order.: None
-	"""
+        Returns:
+                New AnnData with exactly the genes specified, in the specified order.: None
+        """
         n_cells = adata.n_obs
         n_genes = len(genes)
 
@@ -193,4 +193,3 @@ class AnndataConverter:
             obs=adata.obs,
             var=adata.var.reindex(genes),
         )
-
