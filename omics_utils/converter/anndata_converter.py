@@ -206,7 +206,7 @@ class AnndataConverter:
         n_genes = len(genes)
         common_genes = list(set(genes) & set(adata.var_names))
 
-        if isinstance(adata.X, (sp.csr_matrix, da.Array)):
+        if isinstance(adata.X, sp.csr_matrix | da.Array):
             if not common_genes:
                 P = sp.csr_matrix(([], ([], [])), shape=(adata.n_vars, n_genes))
             else:
