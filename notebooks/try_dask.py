@@ -10,6 +10,7 @@ import io
 import numpy as np
 import scipy.sparse as sp
 import dask
+from dask.distributed import print
 
 def serialize_sparse_matrix(sparse_matrix: sp.csr_matrix) -> str:
     """Serialize a sparse matrix row to bytes.
@@ -46,6 +47,7 @@ def process_partition(block, obs_names_part):
     Returns:
         DataFrame with serialized sparse vectors
     """
+    print(block)
     sparse_vectors = []
     for i in range(block.shape[0]):
         row_sparse = sp.csr_matrix(block[i])
@@ -79,6 +81,7 @@ def transform(file_path):
         obs_chunk = obs_names[start:end]
         
         # Create a delayed task that will compute and process this chunk
+        print(chunk)
         task = dask.delayed(lambda x, names: process_partition(x, names))(chunk, obs_chunk)
         dask_tasks.append(task)
     
@@ -89,5 +92,5 @@ def transform(file_path):
     return dd.from_delayed(dask_tasks, meta=meta)
 data_df = dd.from_map(transform, input_files, meta=pd.DataFrame({"sparse_vector": [""]}))
 # %%
-data_df.compute().to_parquet("/tmp/test.parquet", filesystem="arrow", name_function=lambda part: f"part_{part}.parquet")
+data_df.compute().compute()
 # %%

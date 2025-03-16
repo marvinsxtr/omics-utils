@@ -6,7 +6,6 @@ import pandas as pd
 
 from omics_utils.converter.anndata_converter import AnndataConverter
 from omics_utils.pipeline.step import Step
-from omics_utils.utils.columns import ColumnNames
 from omics_utils.utils.helpers import remove_empty_partitions
 
 
@@ -83,7 +82,6 @@ class Preprocessing(Step, ABC):
         ----
           data_df: A `DataFrame` containing the patient/donor metadata and the matrix `X`.
         """
-        print(data_df)
         data_df.compute().to_parquet(
             self.output_path, filesystem="arrow", name_function=lambda part: f"part_{part}.parquet"
         )
