@@ -4,12 +4,12 @@ from typing import Any
 import dask.dataframe as dd
 import pandas as pd
 import yaml
+from anndata._io.h5ad import write_h5ad
 
 from omics_utils.converter.anndata_converter import AnndataConverter
 from omics_utils.pipeline.step import Step
 from omics_utils.splitting.splitter import Splitter
 from omics_utils.utils.columns import ColumnNames
-from omics_utils.utils.compat import write_h5ad
 from omics_utils.utils.helpers import global_reset_index
 
 
