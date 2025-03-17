@@ -30,10 +30,10 @@ class Pipeline:
         Args:
             steps: Preprocessing steps to perform in sequence
             output_dir: Output path to save intermediate and final preprocessing outputs in. By default,
-                this is the hydra output directory (`outputs`).
+                this is the hydra output directory ("outputs").
             force_recompute: Whether to recompute already existing intermediate results.
             cluster: Configured cluster to use for distributed preprocessing
-                using dask
+                using `dask`
             scale: Number of jobs to start on the cluster. Defaults to 10.
         """
         output_path = get_output_dir() if output_dir is None else Path(output_dir)
