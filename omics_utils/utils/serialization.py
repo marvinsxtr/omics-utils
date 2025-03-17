@@ -9,7 +9,7 @@ def serialize_sparse_matrix(sparse_matrix: sp.csr_matrix) -> str:
     """Serialize a sparse matrix row to bytes.
 
     Args:
-        sparse_matrix (sp.csr_matrix): A scipy sparse matrix (typically a single row).
+        sparse_matrix: A scipy sparse matrix, typically a single row
 
     Returns:
         Serialized representation.
@@ -29,10 +29,10 @@ def deserialize_sparse_matrix(serialized_str: str) -> sp.csr_matrix:
     """Deserialize string back to a sparse matrix row.
 
     Args:
-        serialized_str (str ): String representation of a sparse matrix
+        serialized_str: String representation of a sparse matrix
 
     Returns:
-        Reconstructed sparse matrix: None
+        Reconstructed sparse matrix.
     """
     buffer = io.BytesIO(base64.b64decode(serialized_str))
 
