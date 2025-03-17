@@ -4,13 +4,13 @@ from typing import Any
 
 
 class Step(ABC):
-    """Base preprocessing step in a modular ETL pipeline. Also see ``PreprocessingPipeline``."""
+    """Base preprocessing step in a modular ETL pipeline. Also see `PreprocessingPipeline`."""
 
     def __init__(self, base_dir: str) -> None:
         """Initializes an instance of a base preprocessing step.
 
         Args:
-            base_dir (str): Folder where a subfolder is created for each preprocessing step.
+            base_dir: Folder where a subfolder is created for each preprocessing step.
         """
         base_path = Path(base_dir)
 
@@ -24,7 +24,7 @@ class Step(ABC):
     @property
     @abstractmethod
     def input_step(self) -> str | None:
-        """Name of the preprocessing step preceding this one or ``None`` if this is the first."""
+        """Name of the preprocessing step preceding this one or `None` if this is the first."""
         ...
 
     @property
@@ -47,7 +47,7 @@ class Step(ABC):
         """Transform the data.
 
         Args:
-            args (Any ): The input data.
+            args: The input data.
 
         Returns:
             The transformed output.
@@ -59,11 +59,11 @@ class Step(ABC):
         """Save the result of the transformation.
 
         Args:
-            args (Any ): The transformed data.
+            args: The transformed data.
         """
         ...
 
     @abstractmethod
     def run(self) -> None:
-        """Run the whole preprocessing step by sequentially running ``read``, ``transform`` and ``write``."""
+        """Run the whole preprocessing step by sequentially running `read`, `transform` and `write`."""
         ...
