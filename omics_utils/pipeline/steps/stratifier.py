@@ -28,12 +28,10 @@ class Stratifier(Step):
         """Initializes an instance of a stratifier.
 
         Args:
-            *args: TODO
-            splitter (Splitter): Splitter to use for stratification, grouping and shuffling among folds.
-            converter (AnndataConverter): Converter used to convert the ``DataFrame`` format back to ``AnnData``.
-            seed (int): Seed to use for shuffling of the dataset.
-            partition_size (str ): The size of the resulting partitions in MB/GB. Should not be larger than memory.
-            **kwargs: TODO
+            splitter: Splitter to use for stratification, grouping and shuffling among folds
+            converter: Converter used to convert the `DataFrame` format back to `AnnData`
+            seed: Seed to use for shuffling of the dataset
+            partition_size: The size of the resulting partitions in MB/GB. Should not be larger than memory.
         """
         super().__init__(*args, **kwargs)
 
@@ -69,7 +67,7 @@ class Stratifier(Step):
         """Extract the metadata and perform splitting.
 
         Returns:
-            A tuple of a dict containing a mapping of the fold index to the data split and the metadata ``DataFrame``.
+            A tuple of a dict containing a mapping of the fold index to the data split and the metadata `DataFrame`.
         """
         metadata_df: pd.DataFrame = (
             data_df[[ColumnNames.CASE_ID, *self.converter.obs_cols]].drop_duplicates().reset_index(drop=True).compute()
@@ -90,13 +88,13 @@ class Stratifier(Step):
     def df_to_anndata(
         self, df: pd.DataFrame, output_dir: Path, fold_idx: int, partition_info: dict[str, Any] | None = None
     ) -> None:
-        """Write a ``DataFrame`` to an anndata file.
+        """Write a `DataFrame` to an anndata file.
 
         Args:
-            df (pd.DataFrame): Partition as a pandas ``DataFrame`` to save as an AnnData ``.h5ad`` file.
-            output_dir (Path ): Folder to save the anndata file in.
-            fold_idx (): Index of the fold the partition belongs to.
-            partition_info (): Dictionary containing metadata about the partition.
+            df: Partition as a pandas `DataFrame` to save as an AnnData `.h5ad` file.
+            output_dir: Folder to save the anndata file in.
+            fold_idx: Index of the fold the partition belongs to.
+            partition_info: Dictionary containing metadata about the partition.
         """
         part = partition_info["number"]
         adata = self.converter.dataframe_to_anndata(df)
@@ -106,8 +104,8 @@ class Stratifier(Step):
         """Save the folds and the case metadata separately.
 
         Args:
-            folds (dict[int, dd.DataFrame] ): A dict containing a mapping of the fold index to the data split.
-            metadata_df (pd.DataFrame): The metadata ``DataFrame``.
+            folds: A dict containing a mapping of the fold index to the data split.
+            metadata_df: The metadata `DataFrame`.
         """
         metadata_df.to_parquet(self.metadata_path)
 
