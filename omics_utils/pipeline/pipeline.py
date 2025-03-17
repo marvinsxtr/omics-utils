@@ -11,7 +11,6 @@ from omics_utils.utils.helpers import get_output_dir
 
 # TODO(marvin): Write documentation of the input schema this class expects.
 # https://github.com/bifold-pathomics/omics-utils/issues/1
-
 class Pipeline:
     """Handles a sequence of preprocessing steps in an ETL style pipeline.
 
