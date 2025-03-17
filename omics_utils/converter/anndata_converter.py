@@ -13,7 +13,7 @@ from omics_utils.utils.serialization import deserialize_sparse_matrix, serialize
 
 
 class AnndataConverter:
-    """Converter between AnnData objects and DataFrames with serialized sparse matrices.
+    """Converter between `AnnData` objects and `DataFrames` with serialized sparse matrices.
 
     NOTE: This class only keeps `X`, `obs` and `var_names`, everything else will be discarded.
     """
