@@ -133,4 +133,3 @@ convention = "google"
 [tool.setuptools.packages.find]
 where = ["omics_utils"]
 exclude = ["notebooks"]
-build-backend = "setuptools.build_meta"
