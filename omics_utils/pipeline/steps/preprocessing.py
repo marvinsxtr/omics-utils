@@ -10,7 +10,7 @@ from omics_utils.utils.helpers import remove_empty_partitions
 
 
 class Preprocessing(Step, ABC):
-    """Base class for preprocessing of ``AnnData`` files."""
+    """Base class for preprocessing of `AnnData` files."""
 
     def __init__(
         self, *args, converter: AnndataConverter, input_dir: str, n_debug: int | None = None, **kwargs
@@ -18,11 +18,9 @@ class Preprocessing(Step, ABC):
         """Initializes an instance of a preprocessing object with custom-chosen steps.
 
         Args:
-            *args: TODO
-            converter: TODO
-            input_dir: Folder where the input ``AnnData`` files are saved.
-            n_debug: Take the first n input files only for debugging purposes.
-            **kwargs: TODO
+            converter: Converter between `AnnData` object and `DataFrame` with serialized sparse matrices
+            input_dir: Folder where the input `AnnData` files are saved
+            n_debug: Take the first n input files only for debugging purposes
         """
         super().__init__(*args, **kwargs)
         input_path = Path(input_dir)
@@ -49,7 +47,6 @@ class Preprocessing(Step, ABC):
 
         NOTE: In this case the read step contains the transform step for compatibility with dask.
 
-
         Returns:
             The data ready for transformation.
         """
@@ -64,18 +61,18 @@ class Preprocessing(Step, ABC):
 
     @abstractmethod
     def transform(self, file_path: Path) -> pd.DataFrame:
-        """Transform a single ``AnnData`` file."""
+        """Transform a single `AnnData` file."""
         ...
 
     def write(self, data_df: dd.DataFrame) -> None:
         """Load/save the result of the transformation.
 
         Args:
-            data_df (): A ``DataFrame`` containing the patient/donor metadata and the matrix ``X``.
+            data_df: A `DataFrame` containing the patient/donor metadata and the matrix `X`.
         """
         data_df.to_parquet(self.output_path, filesystem="arrow", name_function=lambda part: f"part_{part}.parquet")
 
     def run(self) -> None:
-        """Run the whole preprocessing step by sequentially running ``read`` and ``write``."""
+        """Run the whole preprocessing step by sequentially running `read` and `write`."""
         data_df = self.read()
         self.write(data_df)
