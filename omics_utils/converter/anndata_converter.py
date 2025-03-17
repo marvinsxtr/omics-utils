@@ -15,8 +15,7 @@ from omics_utils.utils.serialization import deserialize_sparse_matrix, serialize
 class AnndataConverter:
     """Converter between AnnData objects and DataFrames with serialized sparse matrices.
 
-    NOTE: This class only keeps ``X``, ``obs`` and ``var_names``, everything else will be discarded.
-
+    NOTE: This class only keeps `X`, `obs` and `var_names`, everything else will be discarded.
     """
 
 
@@ -30,16 +29,16 @@ class AnndataConverter:
         """Initialize the converter.
 
         Args:
-            obs_cols (list[str]): Columns to retain from the ``obs`` ``DataFrame``. E.g. sample-level metadata.
-            var_cols (list[str]): Data columns to retain from the ``X`` array. E.g. genes. Inserts columns which are
+            obs_cols (list[str]): Columns to retain from the `obs` `DataFrame`, e.g. sample-level metadata
+            var_cols (list[str]): Data columns to retain from the `X` array, e.g. genes. Inserts columns which are
                 in this list but not in the data as empty columns.
             var_cols_file (str): Path to a csv file to load the column names from. The file should contain the names
                 separated by new lines.
-            sparse (bool): Whether to save the samples in a sparse format or as a dense ``DataFrame``
+            sparse (bool): Whether to save the samples in a sparse format or as a dense `DataFrame`.
         """
         if var_cols is not None and var_cols_file is not None:
             raise ValueError(
-                "Cannot provide the ``var_cols`` and load ``var_cols_file`` at the same time. One option has to be"
+                "Cannot provide the `var_cols` and load `var_cols_file` at the same time. One option has to be"
                 "None."
             )
 
@@ -58,14 +57,14 @@ class AnndataConverter:
     def anndata_to_dataframe(self, adata: anndata.AnnData) -> pd.DataFrame:
         """Convert an AnnData object to a DataFrame.
 
-        The result will have all obs metadata plus a 'sparse_vector' column
+        The result will have all obs metadata plus a `sparse_vector` column
         containing the serialized expression data for each cell.
 
         Args:
-            adata (): AnnData object to convert
+            adata: AnnData object to convert
 
         Returns:
-            ``DataFrame`` with cell metadata and serialized expression data: None
+            `DataFrame` with cell metadata and serialized expression data.
         """
         adata.obs = self._prepare_metadata(adata)
 
@@ -90,10 +89,10 @@ class AnndataConverter:
         """Convert a DataFrame back to an AnnData object.
 
         Args:
-            df (pd.DataFrame): DataFrame with serialized expression data
+            df (pd.DataFrame): `DataFrame` with serialized expression data
 
         Returns:
-                Reconstructed AnnData object: None
+                Reconstructed `AnnData` object.
         """
         id_cols = {ColumnNames.CASE_ID, ColumnNames.FOLD, ColumnNames.SAMPLE_ID}
 
@@ -121,10 +120,10 @@ class AnndataConverter:
         """Prepare the metadata by renaming the columns and adding additional identifiers.
 
         Args:
-            adata (ad.AnnData): The ``AnnData`` object to extract the metadata from.
+            adata (ad.AnnData): The `AnnData` object to extract the metadata from
 
         Returns:
-            The metadata as a ``DataFrame``.
+            The metadata as a `DataFrame`.
         """
         obs = adata.obs
 
@@ -158,7 +157,7 @@ class AnndataConverter:
             genes (list[str]): List of gene names to enforce
 
         Returns:
-            New AnnData with exactly the genes specified, in the specified order.: None
+            New `AnnData` object with exactly the genes specified, in the specified order.
         """
         n_cells = adata.n_obs
         n_genes = len(genes)
