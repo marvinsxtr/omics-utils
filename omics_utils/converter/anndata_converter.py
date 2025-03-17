@@ -55,13 +55,13 @@ class AnndataConverter:
         self.var_cols = var_cols
 
     def anndata_to_dataframe(self, adata: anndata.AnnData) -> pd.DataFrame:
-        """Convert an AnnData object to a DataFrame.
+        """Convert an `AnnData` object to a `DataFrame`.
 
         The result will have all obs metadata plus a `sparse_vector` column
         containing the serialized expression data for each cell.
 
         Args:
-            adata: AnnData object to convert
+            adata: `AnnData` object to convert
 
         Returns:
             `DataFrame` with cell metadata and serialized expression data.
@@ -86,7 +86,7 @@ class AnndataConverter:
         return df
 
     def dataframe_to_anndata(self, df: pd.DataFrame) -> anndata.AnnData:
-        """Convert a DataFrame back to an AnnData object.
+        """Convert a `DataFrame` back to an `AnnData` object.
 
         Args:
             df (pd.DataFrame): `DataFrame` with serialized expression data
@@ -150,10 +150,10 @@ class AnndataConverter:
         return obs
 
     def reindex_anndata_genes(self, adata: ad.AnnData, genes: list[str]) -> ad.AnnData:
-        """Reindex AnnData to exactly match a gene list while preserving sparsity.
+        """Reindex `AnnData` to exactly match a gene list while preserving sparsity.
 
         Args:
-            adata (ad.AnnData): AnnData object to reindex
+            adata (ad.AnnData): `AnnData` object to reindex
             genes (list[str]): List of gene names to enforce
 
         Returns:
