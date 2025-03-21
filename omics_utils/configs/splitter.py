@@ -13,7 +13,7 @@ StratifiedTrainTestSplitConfig = builds(
 CellXGeneStratifiedSplitterConfig = builds(
     StratifiedSplitter,
     sklearn_splitter=StratifiedTrainTestSplitConfig,
-    stratification_columns=["sex", "tissue", "disease", "assay"],
+    stratification_columns=["sex", "tissue", "disease"],
 )
 
 MethylationStratifiedSplitterConfig = builds(

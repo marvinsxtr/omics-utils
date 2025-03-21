@@ -51,8 +51,6 @@ class Preprocessing(Step, ABC):
         The data ready for transformation.
         """
         input_files = list(self.input_path.glob("*.h5ad"))
-        # "/home/space/omics/datasets/cellxgene/h5ads/1f1c5c14-5949-4c81-b28e-b272e271b672.h5ad"
-        # "/home/space/omics/datasets/cellxgene/h5ads/6f7fd0f1-a2ed-4ff1-80d3-33dde731cbc3.h5ad"
 
         if self.n_debug is not None:
             input_files = input_files[: self.n_debug]
@@ -89,7 +87,9 @@ class Preprocessing(Step, ABC):
         ----
           data_df: A `DataFrame` containing the patient/donor metadata and the matrix `X`.
         """
-        data_df.to_parquet(self.output_path, filesystem="arrow", name_function=lambda part: f"part_{part}.parquet")
+        data_df.repartition(partition_size="256MiB", force=True).to_parquet(
+            self.output_path, filesystem="arrow", name_function=lambda part: f"part_{part}.parquet"
+        )
 
     def run(self) -> None:
         """Run the whole preprocessing step by sequentially running `read` and `write`."""

@@ -56,22 +56,35 @@ class AnndataConverter:
         self.obs_cols = obs_cols
         self.var_cols = var_cols
 
-    def process_partition(self, block: sp.csr_matrix, obs_names_part: list[str]) -> pd.DataFrame:
-        """Process a partition of data.
+    def serialize(self, adata: ad.AnnData) -> pd.DataFrame:
+        """Serialize a dask backed `AnnData` object.
 
         Args:
-            block: A block of the dask array
-            obs_names_part: Observation names for this partition
+            adata: The `AnnData` object to serialize.
 
         Returns:
-            DataFrame with serialized sparse vectors
+            A `DataFrame` containing the serialized entries from the `AnnData` object.
         """
-        sparse_vectors = []
-        for i in range(block.shape[0]):
-            row_sparse = sp.csr_matrix(block[i])
-            sparse_vectors.append(serialize_sparse_matrix(row_sparse))
 
-        return pd.DataFrame({ColumnNames.SPARSE_VECTOR: sparse_vectors}, index=obs_names_part).astype(str)
+        def serialize_partition(block: sp.csr_matrix, obs_names_part: list[str]) -> pd.DataFrame:
+            """Serialize a partition of data."""
+            sparse_vectors = [serialize_sparse_matrix(row) for row in block]
+            return pd.DataFrame({ColumnNames.SPARSE_VECTOR: sparse_vectors}, index=obs_names_part).astype(str)
+
+        dask_tasks = []
+        X_dask = adata.X
+        obs_names = adata.obs_names
+        offsets = np.cumsum((0,) + X_dask.chunks[0])
+
+        for i in range(len(X_dask.chunks[0])):
+            start, end = offsets[i], offsets[i + 1]
+            chunk = X_dask[start:end]
+            obs_chunk = obs_names[start:end]
+
+            task = dask.delayed(serialize_partition)(chunk, obs_chunk)
+            dask_tasks.append(task)
+
+        return dd.from_delayed(dask_tasks, meta=pd.DataFrame({ColumnNames.SPARSE_VECTOR: [""]})).compute()
 
     def anndata_to_dataframe(self, adata: anndata.AnnData) -> pd.DataFrame:
         """Convert an AnnData object to a DataFrame.
@@ -97,21 +110,7 @@ class AnndataConverter:
                 if adata.n_obs == 0:
                     df = pd.DataFrame({ColumnNames.SPARSE_VECTOR: []}).astype(str)
                 else:
-                    dask_tasks = []
-                    X_dask = adata.X
-                    obs_names = adata.obs_names
-
-                    offsets = np.cumsum((0,) + X_dask.chunks[0])
-
-                    for i in range(len(X_dask.chunks[0])):
-                        start, end = offsets[i], offsets[i + 1]
-                        chunk = X_dask[start:end]
-                        obs_chunk = obs_names[start:end]
-
-                        task = dask.delayed(self.process_partition)(chunk, obs_chunk)
-                        dask_tasks.append(task)
-
-                    df = dd.from_delayed(dask_tasks, meta=pd.DataFrame({ColumnNames.SPARSE_VECTOR: [""]})).compute()
+                    df = self.serialize(adata)
             elif isinstance(adata.X, sp.csr_matrix):
                 sparse_vectors = [serialize_sparse_matrix(x) for x in adata.X]
                 df = pd.DataFrame({ColumnNames.SPARSE_VECTOR: sparse_vectors}, index=adata.obs_names).astype(str)

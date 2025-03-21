@@ -72,10 +72,21 @@ class StratifiedSplitter(Splitter):
 
         aggregated_strata = strata_df.agg(lambda x: "-".join(map(str, x)), axis=1)
 
+        strata_counts = aggregated_strata.value_counts()
+        valid_strata = strata_counts[strata_counts >= self.n_splits].index.tolist()
+
+        filter_mask = aggregated_strata.isin(valid_strata)
+        filtered_strata = aggregated_strata[filter_mask]
+
+        if groups is not None:
+            groups = groups[filter_mask]
+
+        df = df[filter_mask]
+
         df[ColumnNames.FOLD] = -1
         fold_column_idx = df.columns.get_loc(ColumnNames.FOLD)
 
-        split_iterator = self.sklearn_splitter.split(X=aggregated_strata, y=aggregated_strata, groups=groups)
+        split_iterator = self.sklearn_splitter.split(X=filtered_strata, y=filtered_strata, groups=groups)
 
         for fold_idx, (train_idx, test_idx) in enumerate(split_iterator):
             df.iloc[test_idx, fold_column_idx] = fold_idx

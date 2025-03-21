@@ -15,4 +15,4 @@ ClusterConfig = builds(
     log_directory=builds(get_output_dir),
 )
 
-LocalClusterConfig = builds(LocalCluster, n_workers=1)
+LocalClusterConfig = builds(LocalCluster, n_workers=1, threads_per_worker=4)

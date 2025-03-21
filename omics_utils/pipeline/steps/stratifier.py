@@ -22,7 +22,6 @@ class Stratifier(Step):
         splitter: Splitter,
         converter: AnndataConverter,
         seed: int,
-        partition_size: str = "10GB",
         **kwargs,
     ) -> None:
         """Args:
@@ -30,7 +29,6 @@ class Stratifier(Step):
           splitter: Splitter to use for stratification, grouping and shuffling among folds.
           converter: Converter used to convert the `DataFrame` format back to `AnnData`.
           seed: Seed to use for shuffling of the dataset.
-          partition_size: The size of the resulting partitions in MB/GB. Should not be larger than memory.
         """
         super().__init__(*args, **kwargs)
 
@@ -40,7 +38,6 @@ class Stratifier(Step):
         self.splitter = splitter
         self.converter = converter
         self.seed = seed
-        self.partition_size = partition_size
         self.metadata_path = metadata_path
         self.split_path = split_path
 
@@ -61,7 +58,9 @@ class Stratifier(Step):
         -------
         The data ready for transformation.
         """
-        return dd.from_map(pd.read_parquet, self.input_path.glob("*.parquet"))
+        return dd.read_parquet(
+            list(self.input_path.glob("*.parquet")), split_row_groups="adaptive", blocksize="128MiB"
+        )
 
     def transform(self, data_df: dd.DataFrame) -> tuple[dict[int, dd.DataFrame], pd.DataFrame]:
         """Extract the metadata and perform splitting.
@@ -102,6 +101,7 @@ class Stratifier(Step):
           fold_idx: Index of the fold the partition belongs to.
           partition_info: Dictionary containing metadata about the partition.
         """
+        print(len(df))
         part = partition_info["number"]
         adata = self.converter.dataframe_to_anndata(df)
         write_h5ad(output_dir / f"fold_{fold_idx}_part_{part}.h5ad", adata, convert_strings_to_categoricals=False)
@@ -120,7 +120,9 @@ class Stratifier(Step):
 
         limits = {}
         for fold_idx, fold_df in folds.items():
-            limits[fold_idx] = list(fold_df.divisions)[1:]
+            l = list(fold_df.divisions)[1:]
+            l[-1] += 1
+            limits[fold_idx] = l
             fold_df.map_partitions(self.df_to_anndata, self.split_path, fold_idx, meta=fold_df.head()).compute()
 
         with Path.open(self.output_path / "limits.yaml", "w") as outfile:

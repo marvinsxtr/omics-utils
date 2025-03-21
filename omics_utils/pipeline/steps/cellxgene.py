@@ -3,7 +3,6 @@ from pathlib import Path
 import anndata as ad
 import h5py
 import pandas as pd
-import scanpy as sc
 
 from omics_utils.converter.anndata_converter import AnndataConverter
 from omics_utils.pipeline.steps.preprocessing import Preprocessing
@@ -81,13 +80,5 @@ class CellXGenePreprocessing(Preprocessing):
 
         # Filter cells and genes
         adata = adata[cell_filter, gene_filter].copy()
-
-        # Check if all cells/genes were filtered out
-        if adata.n_obs == 0 or adata.n_vars == 0:
-            return self.converter.anndata_to_dataframe(adata)
-
-        # Preprocessing
-        sc.pp.normalize_total(adata, target_sum=1e4)
-        sc.pp.log1p(adata)
 
         return self.converter.anndata_to_dataframe(adata)
