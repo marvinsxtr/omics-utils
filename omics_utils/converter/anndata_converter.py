@@ -89,26 +89,29 @@ class AnndataConverter:
         """
         adata.obs = self._prepare_metadata(adata)
 
-        if self.var_cols is not None:
+        if self.var_cols is not None and adata.n_obs > 0:
             adata = self.reindex_anndata_genes(adata, self.var_cols)
 
         if self.sparse:
             if isinstance(adata.X, da.Array):
-                dask_tasks = []
-                X_dask = adata.X
-                obs_names = adata.obs_names
+                if adata.n_obs == 0:
+                    df = pd.DataFrame({ColumnNames.SPARSE_VECTOR: []}).astype(str)
+                else:
+                    dask_tasks = []
+                    X_dask = adata.X
+                    obs_names = adata.obs_names
 
-                offsets = np.cumsum((0,) + X_dask.chunks[0])
+                    offsets = np.cumsum((0,) + X_dask.chunks[0])
 
-                for i in range(len(X_dask.chunks[0])):
-                    start, end = offsets[i], offsets[i + 1]
-                    chunk = X_dask[start:end]
-                    obs_chunk = obs_names[start:end]
+                    for i in range(len(X_dask.chunks[0])):
+                        start, end = offsets[i], offsets[i + 1]
+                        chunk = X_dask[start:end]
+                        obs_chunk = obs_names[start:end]
 
-                    task = dask.delayed(lambda x, names: self.process_partition(x, names))(chunk, obs_chunk)
-                    dask_tasks.append(task)
+                        task = dask.delayed(self.process_partition)(chunk, obs_chunk)
+                        dask_tasks.append(task)
 
-                df = dd.from_delayed(dask_tasks, meta=pd.DataFrame({ColumnNames.SPARSE_VECTOR: [""]}))
+                    df = dd.from_delayed(dask_tasks, meta=pd.DataFrame({ColumnNames.SPARSE_VECTOR: [""]})).compute()
             elif isinstance(adata.X, sp.csr_matrix):
                 sparse_vectors = [serialize_sparse_matrix(x) for x in adata.X]
                 df = pd.DataFrame({ColumnNames.SPARSE_VECTOR: sparse_vectors}, index=adata.obs_names).astype(str)
@@ -206,16 +209,14 @@ class AnndataConverter:
         n_genes = len(genes)
         common_genes = list(set(genes) & set(adata.var_names))
 
-        if isinstance(adata.X, sp.csr_matrix | da.Array):
-            if not common_genes:
-                P = sp.csr_matrix(([], ([], [])), shape=(adata.n_vars, n_genes))
-            else:
-                old_indices = np.array([adata.var_names.get_loc(g) for g in common_genes])
-                new_indices = np.array([genes.index(g) for g in common_genes])
+        if adata.n_obs == 0:
+            raise ValueError("Must have at least one observation to reindex the genes.")
 
-                P = sp.csr_matrix(
-                    (np.ones(len(common_genes)), (old_indices, new_indices)), shape=(adata.n_vars, n_genes)
-                )
+        if isinstance(adata.X, sp.csr_matrix | da.Array):
+            old_indices = np.array([adata.var_names.get_loc(g) for g in common_genes])
+            new_indices = np.array([genes.index(g) for g in common_genes])
+
+            P = sp.csr_matrix((np.ones(len(common_genes)), (old_indices, new_indices)), shape=(adata.n_vars, n_genes))
 
             new_X = adata.X.dot(P)
         else:
