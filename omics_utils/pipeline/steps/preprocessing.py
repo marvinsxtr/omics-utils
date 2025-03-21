@@ -87,7 +87,7 @@ class Preprocessing(Step, ABC):
         ----
           data_df: A `DataFrame` containing the patient/donor metadata and the matrix `X`.
         """
-        data_df.repartition(partition_size="256MiB", force=True).to_parquet(
+        data_df.repartition(partition_size="512MiB", force=True).to_parquet(
             self.output_path, filesystem="arrow", name_function=lambda part: f"part_{part}.parquet"
         )
 

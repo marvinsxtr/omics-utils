@@ -101,7 +101,6 @@ class Stratifier(Step):
           fold_idx: Index of the fold the partition belongs to.
           partition_info: Dictionary containing metadata about the partition.
         """
-        print(len(df))
         part = partition_info["number"]
         adata = self.converter.dataframe_to_anndata(df)
         write_h5ad(output_dir / f"fold_{fold_idx}_part_{part}.h5ad", adata, convert_strings_to_categoricals=False)
