@@ -18,7 +18,7 @@ class Preprocessing(Step, ABC):
         *args,
         converter: AnndataConverter,
         input_dir: str,
-        partition_size: str = "512MiB",
+        partition_size: str = "1GiB",
         n_debug: int | None = None,
         **kwargs,
     ) -> None:

@@ -26,7 +26,7 @@ CellXGenePreprocessingConfig = builds(
         ),
     ],
     cluster=MISSING,
-    scale=2,
+    scale=4,
     output_dir=None,
 )
 

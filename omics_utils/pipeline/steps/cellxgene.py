@@ -18,7 +18,7 @@ class CellXGenePreprocessing(Preprocessing):
         input_dir: str,
         converter: AnndataConverter,
         n_debug: int | None = None,
-        chunk_size: int = 25000,
+        chunk_size: int = 100000,
         **kwargs,
     ) -> None:
         """Args:
