@@ -1,6 +1,5 @@
-from hydra_zen import builds
+from hydra_zen import MISSING, builds
 
-from omics_utils.configs.cluster import ClusterConfig, LocalClusterConfig
 from omics_utils.configs.converter import CellXGeneConverterConfig, MethylationConverterConfig
 from omics_utils.configs.splitter import CellXGeneStratifiedSplitterConfig, MethylationStratifiedSplitterConfig
 from omics_utils.pipeline.pipeline import Pipeline
@@ -26,8 +25,8 @@ CellXGenePreprocessingConfig = builds(
             zen_partial=True,
         ),
     ],
-    cluster=LocalClusterConfig,
-    scale=1,
+    cluster=MISSING,
+    scale=2,
     output_dir=None,
 )
 
@@ -49,6 +48,6 @@ MethylationPreprocessingConfig = builds(
             zen_partial=True,
         ),
     ],
-    cluster=ClusterConfig,
+    cluster=MISSING,
     output_dir=None,
 )

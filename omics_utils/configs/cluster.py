@@ -6,7 +6,7 @@ from omics_utils.utils.helpers import get_output_dir
 
 ClusterConfig = builds(
     SLURMCluster,
-    n_workers=5,
+    n_workers=2,
     queue="cpu-5h",
     cores=32,
     processes=17,

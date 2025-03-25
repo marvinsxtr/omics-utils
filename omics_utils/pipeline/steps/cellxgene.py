@@ -48,9 +48,17 @@ class CellXGenePreprocessing(Preprocessing):
                 obs=ad.io.read_elem(f["obs"]),
                 var=ad.io.read_elem(f["var"]),
             )
-            adata.X = ad.experimental.read_elem_as_dask(
-                f["raw/X"] if "raw/X" in f else f["X"], chunks=(self.chunk_size, adata.shape[1])
-            )
+
+            source = f["raw/X"] if "raw/X" in f else f["X"]
+
+            encoding = source.attrs.get("encoding-type")
+
+            if encoding == "csr_matrix":
+                adata.X = ad.experimental.read_elem_as_dask(source, chunks=(self.chunk_size, adata.shape[1]))
+            elif encoding == "csc_matrix":
+                adata.X = ad.experimental.read_elem_as_dask(source, chunks=(adata.shape[0], self.chunk_size))
+            else:
+                raise NotImplementedError(f"The encoding {encoding} is not implemented.")
 
         # Correct column spelling
         adata.obs = adata.obs.rename(columns={"donor_id": ColumnNames.CASE_ID})
