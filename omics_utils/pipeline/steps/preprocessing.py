@@ -6,7 +6,6 @@ import pandas as pd
 
 from omics_utils.converter.anndata_converter import AnndataConverter
 from omics_utils.pipeline.step import Step
-from omics_utils.utils.columns import ColumnNames
 from omics_utils.utils.helpers import remove_empty_partitions
 
 
@@ -20,6 +19,7 @@ class Preprocessing(Step, ABC):
         input_dir: str,
         partition_size: str = "1GiB",
         n_debug: int | None = None,
+        meta_partition_size: int | None = None,
         **kwargs,
     ) -> None:
         """Args:
@@ -39,6 +39,7 @@ class Preprocessing(Step, ABC):
         self.input_path = input_path
         self.partition_size = partition_size
         self.n_debug = n_debug
+        self.meta_partition_size = meta_partition_size
 
     @property
     def input_step(self) -> str | None:
@@ -50,28 +51,29 @@ class Preprocessing(Step, ABC):
         """Name of this preprocessing step."""
         return "data"
 
-    def read(self) -> dd.DataFrame:
+    @property
+    @abstractmethod
+    def meta_df(self) -> pd.DataFrame:
+        """`DataFrame` used by Dask to determine the output of `transform`."""
+        ...
+
+    def read(self, input_files: list[Path]) -> dd.DataFrame:
         """Read and transform the data from the the input data.
 
         NOTE: In this case the read step contains the transform step for compatibility with dask.
 
-        Returns
+        Args:
+        ----
+          input_files: File paths to process in parallel.
+
+        Returns:
         -------
         The data ready for transformation.
         """
-        input_files = list(self.input_path.glob("*.h5ad"))
-
         if self.n_debug is not None:
             input_files = input_files[: self.n_debug]
 
-        meta_df = pd.DataFrame(
-            dict.fromkeys(
-                [ColumnNames.SPARSE_VECTOR, ColumnNames.CASE_ID, ColumnNames.SAMPLE_ID, *self.converter.obs_cols], ""
-            ),
-            index=[""],
-        )
-
-        data_df = dd.from_map(self.transform, input_files, meta=meta_df)
+        data_df = dd.from_map(self.transform, input_files, meta=self.meta_df)
         data_df = remove_empty_partitions(data_df)
         return data_df
 
@@ -102,5 +104,12 @@ class Preprocessing(Step, ABC):
 
     def run(self) -> None:
         """Run the whole preprocessing step by sequentially running `read` and `write`."""
-        data_df = self.read()
-        self.write(data_df)
+        input_files = list(self.input_path.glob("*.h5ad"))
+
+        if self.meta_partition_size is not None:
+            for i in range(0, len(input_files), self.meta_partition_size):
+                data_df = self.read(input_files[i : i + self.meta_partition_size])
+                self.write(data_df)
+        else:
+            data_df = self.read(input_files)
+            self.write(data_df)

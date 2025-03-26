@@ -32,6 +32,15 @@ class CellXGenePreprocessing(Preprocessing):
         super().__init__(*args, converter=converter, input_dir=input_dir, n_debug=n_debug, **kwargs)
         self.chunk_size = chunk_size
 
+    @property
+    def meta_df(self) -> pd.DataFrame:
+        """Empty `DataFrame` used by Dask to determine the output of `transform`."""
+        return pd.DataFrame(
+            columns=[ColumnNames.SPARSE_VECTOR, ColumnNames.CASE_ID, ColumnNames.SAMPLE_ID, *self.converter.obs_cols],
+            index=pd.Index([], dtype=str),
+            dtype=str,
+        )
+
     def transform(self, file_path: Path) -> pd.DataFrame:
         """Preprocess a single `AnnData` file.
 
@@ -56,7 +65,8 @@ class CellXGenePreprocessing(Preprocessing):
             if encoding == "csr_matrix":
                 adata.X = ad.experimental.read_elem_as_dask(source, chunks=(self.chunk_size, adata.shape[1]))
             elif encoding == "csc_matrix":
-                adata.X = ad.experimental.read_elem_as_dask(source, chunks=(adata.shape[0], self.chunk_size))
+                return self.meta_df
+                # adata.X = ad.experimental.read_elem_as_dask(source, chunks=(adata.shape[0], self.chunk_size))
             else:
                 raise NotImplementedError(f"The encoding {encoding} is not implemented.")
 
