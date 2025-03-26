@@ -3,12 +3,12 @@ from pathlib import Path
 
 import anndata
 import anndata as ad
-import dask
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
+from dask.distributed import worker_client
 
 from omics_utils.utils.columns import ColumnNames
 from omics_utils.utils.helpers import densify_matrix, sanitize_dtypes, sparsify_matrix
@@ -56,7 +56,7 @@ class AnndataConverter:
         self.obs_cols = obs_cols
         self.var_cols = var_cols
 
-    def serialize(self, adata: ad.AnnData) -> pd.DataFrame:
+    def serialize(self, adata: ad.AnnData) -> dd.DataFrame:
         """Serialize a dask backed `AnnData` object.
 
         Args:
@@ -66,25 +66,22 @@ class AnndataConverter:
             A `DataFrame` containing the serialized entries from the `AnnData` object.
         """
 
-        def serialize_partition(block: sp.csr_matrix, obs_names_part: list[str]) -> pd.DataFrame:
+        def serialize_partition(block: da.Array, obs_names_part: list[str]) -> pd.DataFrame:
             """Serialize a partition of data."""
-            sparse_vectors = [serialize_sparse_matrix(row) for row in block]
+            sparse_vectors = [serialize_sparse_matrix(row) for row in block.compute()]
             return pd.DataFrame({ColumnNames.SPARSE_VECTOR: sparse_vectors}, index=obs_names_part).astype(str)
 
-        dask_tasks = []
         X_dask = adata.X
         obs_names = adata.obs_names
         offsets = np.cumsum((0,) + X_dask.chunks[0])
 
-        for i in range(len(X_dask.chunks[0])):
-            start, end = offsets[i], offsets[i + 1]
-            chunk = X_dask[start:end]
-            obs_chunk = obs_names[start:end]
+        with worker_client() as client:
+            arrays = [X_dask[offsets[i] : offsets[i + 1]] for i in range(len(X_dask.chunks[0]))]
+            names = [obs_names[offsets[i] : offsets[i + 1]] for i in range(len(X_dask.chunks[0]))]
+            futures = client.map(serialize_partition, arrays, names)
+            results = client.gather(futures)
 
-            task = dask.delayed(serialize_partition)(chunk, obs_chunk)
-            dask_tasks.append(task)
-
-        return dd.from_delayed(dask_tasks, meta=pd.DataFrame({ColumnNames.SPARSE_VECTOR: [""]})).compute()
+        return pd.concat(results)
 
     def anndata_to_dataframe(self, adata: anndata.AnnData) -> pd.DataFrame:
         """Convert an AnnData object to a DataFrame.
