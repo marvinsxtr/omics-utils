@@ -119,7 +119,7 @@ class Stratifier(Step):
 
         limits = {}
         for fold_idx, fold_df in folds.items():
-            l = list(fold_df.divisions)[1:]
+            l = [int(d) for d in fold_df.divisions[1:]]
             l[-1] += 1
             limits[fold_idx] = l
             fold_df.map_partitions(self.df_to_anndata, self.split_path, fold_idx, meta=fold_df.head()).compute()
