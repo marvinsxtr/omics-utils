@@ -65,8 +65,7 @@ class CellXGenePreprocessing(Preprocessing):
             if encoding == "csr_matrix":
                 adata.X = ad.experimental.read_elem_as_dask(source, chunks=(self.chunk_size, adata.shape[1]))
             elif encoding == "csc_matrix":
-                return self.meta_df
-                # adata.X = ad.experimental.read_elem_as_dask(source, chunks=(adata.shape[0], self.chunk_size))
+                return []
             else:
                 raise NotImplementedError(f"The encoding {encoding} is not implemented.")
 

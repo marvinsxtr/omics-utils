@@ -1,8 +1,10 @@
+import itertools
 from abc import ABC, abstractmethod
 from pathlib import Path
 
 import dask.dataframe as dd
 import pandas as pd
+from tqdm import tqdm
 
 from omics_utils.converter.anndata_converter import AnndataConverter
 from omics_utils.pipeline.step import Step
@@ -73,7 +75,9 @@ class Preprocessing(Step, ABC):
         if self.n_debug is not None:
             input_files = input_files[: self.n_debug]
 
-        data_df = dd.from_map(self.transform, input_files, meta=self.meta_df)
+        delayed = list(itertools.chain(*[self.transform(f) for f in tqdm(input_files)]))
+
+        data_df = dd.from_delayed(delayed, meta=self.meta_df)
         data_df = remove_empty_partitions(data_df)
         return data_df
 

@@ -3,12 +3,12 @@ from pathlib import Path
 
 import anndata
 import anndata as ad
+import dask
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
-from dask.distributed import worker_client
 
 from omics_utils.utils.columns import ColumnNames
 from omics_utils.utils.helpers import densify_matrix, sanitize_dtypes, sparsify_matrix
@@ -66,22 +66,20 @@ class AnndataConverter:
             A `DataFrame` containing the serialized entries from the `AnnData` object.
         """
 
-        def serialize_partition(block: da.Array, obs_names_part: list[str]) -> pd.DataFrame:
+        def serialize_partition(block: sp.csr_matrix, obs_names_part: list[str], obs: pd.DataFrame) -> pd.DataFrame:
             """Serialize a partition of data."""
-            sparse_vectors = [serialize_sparse_matrix(row) for row in block.compute()]
-            return pd.DataFrame({ColumnNames.SPARSE_VECTOR: sparse_vectors}, index=obs_names_part).astype(str)
+            sparse_vectors = [serialize_sparse_matrix(row) for row in block]
+            df = pd.DataFrame({ColumnNames.SPARSE_VECTOR: sparse_vectors}, index=obs_names_part)
+            return df.join(obs[[ColumnNames.CASE_ID, ColumnNames.SAMPLE_ID, *self.obs_cols]].astype(str))
 
         X_dask = adata.X
         obs_names = adata.obs_names
         offsets = np.cumsum((0,) + X_dask.chunks[0])
 
-        with worker_client() as client:
-            arrays = [X_dask[offsets[i] : offsets[i + 1]] for i in range(len(X_dask.chunks[0]))]
-            names = [obs_names[offsets[i] : offsets[i + 1]] for i in range(len(X_dask.chunks[0]))]
-            futures = client.map(serialize_partition, arrays, names)
-            results = client.gather(futures)
-
-        return pd.concat(results)
+        arrays = [X_dask[offsets[i] : offsets[i + 1]] for i in range(len(X_dask.chunks[0]))]
+        names = [obs_names[offsets[i] : offsets[i + 1]] for i in range(len(X_dask.chunks[0]))]
+        futures = [dask.delayed(serialize_partition)(a, n, adata.obs) for a, n in zip(arrays, names, strict=False)]
+        return futures
 
     def anndata_to_dataframe(self, adata: anndata.AnnData) -> pd.DataFrame:
         """Convert an AnnData object to a DataFrame.
@@ -104,21 +102,18 @@ class AnndataConverter:
 
         if self.sparse:
             if isinstance(adata.X, da.Array):
-                if adata.n_obs == 0:
-                    df = pd.DataFrame({ColumnNames.SPARSE_VECTOR: []}).astype(str)
-                else:
-                    df = self.serialize(adata)
+                df = [] if adata.n_obs == 0 else self.serialize(adata)
             elif isinstance(adata.X, sp.csr_matrix):
                 sparse_vectors = [serialize_sparse_matrix(x) for x in adata.X]
                 df = pd.DataFrame({ColumnNames.SPARSE_VECTOR: sparse_vectors}, index=adata.obs_names).astype(str)
+                df = df.join(adata.obs[[ColumnNames.CASE_ID, ColumnNames.SAMPLE_ID, *self.obs_cols]].astype(str))
         else:
             X = densify_matrix(adata.X) if isinstance(adata.X, sp.spmatrix) else adata.X
             df = pd.DataFrame(X, index=adata.obs_names, columns=adata.var_names)
+            df = df.join(adata.obs[[ColumnNames.CASE_ID, ColumnNames.SAMPLE_ID, *self.obs_cols]].astype(str))
 
             if self.var_cols is not None:
                 df = df.reindex(columns=self.var_cols).astype(float)
-
-        df = df.join(adata.obs[[ColumnNames.CASE_ID, ColumnNames.SAMPLE_ID, *self.obs_cols]].astype(str))
 
         return df
 
