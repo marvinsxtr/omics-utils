@@ -118,11 +118,11 @@ class AnndataConverter:
             elif isinstance(adata.X, sp.csr_matrix):
                 sparse_vectors = [serialize_sparse_matrix(x) for x in adata.X]
                 df = pd.DataFrame({ColumnNames.SPARSE_VECTOR: sparse_vectors}, index=adata.obs_names).astype(str)
-                df = self.join_metadata(df, adata.ob)
+                df = self.join_metadata(df, adata.obs)
         else:
             X = densify_matrix(adata.X) if isinstance(adata.X, sp.spmatrix) else adata.X
             df = pd.DataFrame(X, index=adata.obs_names, columns=adata.var_names)
-            df = self.join_metadata(df, adata.ob)
+            df = self.join_metadata(df, adata.obs)
 
             if self.var_cols is not None:
                 df = df.reindex(columns=self.var_cols).astype(float)
