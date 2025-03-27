@@ -5,10 +5,10 @@ import anndata
 import anndata as ad
 import dask
 import dask.array as da
-import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
+from dask.delayed import Delayed
 
 from omics_utils.utils.columns import ColumnNames
 from omics_utils.utils.helpers import densify_matrix, sanitize_dtypes, sparsify_matrix
@@ -56,21 +56,21 @@ class AnndataConverter:
         self.obs_cols = obs_cols
         self.var_cols = var_cols
 
-    def serialize(self, adata: ad.AnnData) -> dd.DataFrame:
-        """Serialize a dask backed `AnnData` object.
+    def serialize(self, adata: ad.AnnData) -> list[Delayed]:
+        """Serialize a Dask-backed `AnnData` object.
 
         Args:
             adata: The `AnnData` object to serialize.
 
         Returns:
-            A `DataFrame` containing the serialized entries from the `AnnData` object.
+            A list of `Delayed` tasks computing the serialized entries from the `AnnData` object.
         """
 
         def serialize_partition(block: sp.csr_matrix, obs_names_part: list[str], obs: pd.DataFrame) -> pd.DataFrame:
             """Serialize a partition of data."""
             sparse_vectors = [serialize_sparse_matrix(row) for row in block]
             df = pd.DataFrame({ColumnNames.SPARSE_VECTOR: sparse_vectors}, index=obs_names_part)
-            return df.join(obs[[ColumnNames.CASE_ID, ColumnNames.SAMPLE_ID, *self.obs_cols]].astype(str))
+            return self.join_metadata(df, obs)
 
         X_dask = adata.X
         obs_names = adata.obs_names
@@ -78,10 +78,22 @@ class AnndataConverter:
 
         arrays = [X_dask[offsets[i] : offsets[i + 1]] for i in range(len(X_dask.chunks[0]))]
         names = [obs_names[offsets[i] : offsets[i + 1]] for i in range(len(X_dask.chunks[0]))]
-        futures = [dask.delayed(serialize_partition)(a, n, adata.obs) for a, n in zip(arrays, names, strict=False)]
-        return futures
 
-    def anndata_to_dataframe(self, adata: anndata.AnnData) -> pd.DataFrame:
+        return [dask.delayed(serialize_partition)(a, n, adata.obs) for a, n in zip(arrays, names, strict=False)]
+
+    def join_metadata(self, df: pd.DataFrame, obs: pd.DataFrame) -> pd.DataFrame:
+        """Join the observation metadata and IDs to the main `DataFrame`.
+
+        Args:
+          df: `DataFrame` containing the cells as serialized strings.
+          obs: `DataFrame` containing `AnnData.obs`.
+
+        Returns:
+        The joined `DataFrame`.
+        """
+        return df.join(obs[[ColumnNames.CASE_ID, ColumnNames.SAMPLE_ID, *self.obs_cols]].astype(str))
+
+    def anndata_to_dataframe(self, adata: anndata.AnnData) -> pd.DataFrame | list[Delayed]:
         """Convert an AnnData object to a DataFrame.
 
         The result will have all obs metadata plus a 'sparse_vector' column
@@ -93,7 +105,7 @@ class AnndataConverter:
 
         Returns:
         -------
-            DataFrame with cell metadata and serialized expression data
+            DataFrame with cell metadata and serialized expression data or a list of `Delayed` tasks.
         """
         adata.obs = self._prepare_metadata(adata)
 
@@ -106,11 +118,11 @@ class AnndataConverter:
             elif isinstance(adata.X, sp.csr_matrix):
                 sparse_vectors = [serialize_sparse_matrix(x) for x in adata.X]
                 df = pd.DataFrame({ColumnNames.SPARSE_VECTOR: sparse_vectors}, index=adata.obs_names).astype(str)
-                df = df.join(adata.obs[[ColumnNames.CASE_ID, ColumnNames.SAMPLE_ID, *self.obs_cols]].astype(str))
+                df = self.join_metadata(df, adata.ob)
         else:
             X = densify_matrix(adata.X) if isinstance(adata.X, sp.spmatrix) else adata.X
             df = pd.DataFrame(X, index=adata.obs_names, columns=adata.var_names)
-            df = df.join(adata.obs[[ColumnNames.CASE_ID, ColumnNames.SAMPLE_ID, *self.obs_cols]].astype(str))
+            df = self.join_metadata(df, adata.ob)
 
             if self.var_cols is not None:
                 df = df.reindex(columns=self.var_cols).astype(float)

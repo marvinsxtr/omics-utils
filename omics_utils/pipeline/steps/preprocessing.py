@@ -1,13 +1,12 @@
-import itertools
 from abc import ABC, abstractmethod
 from pathlib import Path
 
 import dask.dataframe as dd
 import pandas as pd
-from tqdm import tqdm
 
 from omics_utils.converter.anndata_converter import AnndataConverter
 from omics_utils.pipeline.step import Step
+from omics_utils.utils.columns import ColumnNames
 from omics_utils.utils.helpers import remove_empty_partitions
 
 
@@ -30,6 +29,7 @@ class Preprocessing(Step, ABC):
           input_dir: Folder where the input `AnnData` files are saved.
           partition_size: Size of the output partitions.
           n_debug: Take the first n input files only for debugging purposes.
+          meta_partition_size: Number of files to process at a time, useful for saving resources.
         """
         super().__init__(*args, **kwargs)
         input_path = Path(input_dir)
@@ -54,10 +54,13 @@ class Preprocessing(Step, ABC):
         return "data"
 
     @property
-    @abstractmethod
     def meta_df(self) -> pd.DataFrame:
-        """`DataFrame` used by Dask to determine the output of `transform`."""
-        ...
+        """Empty `DataFrame` used by Dask to determine the output of `transform`."""
+        return pd.DataFrame(
+            columns=[ColumnNames.SPARSE_VECTOR, ColumnNames.CASE_ID, ColumnNames.SAMPLE_ID, *self.converter.obs_cols],
+            index=pd.Index([], dtype=str),
+            dtype=str,
+        )
 
     def read(self, input_files: list[Path]) -> dd.DataFrame:
         """Read and transform the data from the the input data.
@@ -75,9 +78,7 @@ class Preprocessing(Step, ABC):
         if self.n_debug is not None:
             input_files = input_files[: self.n_debug]
 
-        delayed = list(itertools.chain(*[self.transform(f) for f in tqdm(input_files)]))
-
-        data_df = dd.from_delayed(delayed, meta=self.meta_df)
+        data_df = dd.from_map(self.transform, input_files)
         data_df = remove_empty_partitions(data_df)
         return data_df
 

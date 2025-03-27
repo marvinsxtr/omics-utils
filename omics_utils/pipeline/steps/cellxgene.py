@@ -1,12 +1,16 @@
+import itertools
 from pathlib import Path
 
 import anndata as ad
+import dask.dataframe as dd
 import h5py
-import pandas as pd
+from dask.delayed import Delayed
+from tqdm import tqdm
 
 from omics_utils.converter.anndata_converter import AnndataConverter
 from omics_utils.pipeline.steps.preprocessing import Preprocessing
 from omics_utils.utils.columns import ColumnNames
+from omics_utils.utils.helpers import remove_empty_partitions
 
 
 class CellXGenePreprocessing(Preprocessing):
@@ -32,16 +36,29 @@ class CellXGenePreprocessing(Preprocessing):
         super().__init__(*args, converter=converter, input_dir=input_dir, n_debug=n_debug, **kwargs)
         self.chunk_size = chunk_size
 
-    @property
-    def meta_df(self) -> pd.DataFrame:
-        """Empty `DataFrame` used by Dask to determine the output of `transform`."""
-        return pd.DataFrame(
-            columns=[ColumnNames.SPARSE_VECTOR, ColumnNames.CASE_ID, ColumnNames.SAMPLE_ID, *self.converter.obs_cols],
-            index=pd.Index([], dtype=str),
-            dtype=str,
-        )
+    def read(self, input_files: list[Path]) -> dd.DataFrame:
+        """Read and transform the data from the the input data.
 
-    def transform(self, file_path: Path) -> pd.DataFrame:
+        NOTE: In this case the read step contains the transform step for compatibility with dask.
+
+        Args:
+        ----
+          input_files: File paths to process in parallel.
+
+        Returns:
+        -------
+        The data ready for transformation.
+        """
+        if self.n_debug is not None:
+            input_files = input_files[: self.n_debug]
+
+        delayed = list(itertools.chain(*[self.transform(f) for f in tqdm(input_files)]))
+
+        data_df = dd.from_delayed(delayed, meta=self.meta_df)
+        data_df = remove_empty_partitions(data_df)
+        return data_df
+
+    def transform(self, file_path: Path) -> list[Delayed]:
         """Preprocess a single `AnnData` file.
 
         Args:
@@ -50,7 +67,7 @@ class CellXGenePreprocessing(Preprocessing):
 
         Returns:
         -------
-        The preprocessed data as a pandas `DataFrame`.
+        A list of `Delayed` tasks for preprocessing.
         """
         with h5py.File(file_path, "r") as f:
             adata = ad.AnnData(
@@ -69,7 +86,6 @@ class CellXGenePreprocessing(Preprocessing):
             else:
                 raise NotImplementedError(f"The encoding {encoding} is not implemented.")
 
-        # Correct column spelling
         adata.obs = adata.obs.rename(columns={"donor_id": ColumnNames.CASE_ID})
 
         # Filter out non-human tissue, non-primary and diseased data
@@ -91,11 +107,7 @@ class CellXGenePreprocessing(Preprocessing):
                 )
             )
         )
-
-        # Only use genes in vocabulary
         gene_filter = adata.var.index.isin(self.converter.var_cols)
-
-        # Filter cells and genes
         adata = adata[cell_filter, gene_filter].copy()
 
         return self.converter.anndata_to_dataframe(adata)
