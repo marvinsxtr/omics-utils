@@ -63,7 +63,7 @@ class Limiter(Step):
                 counts[fold_id][part_id] = len(f[f"obs/{ColumnNames.SAMPLE_ID}"])
 
         def get_divisions(mapping: dict[int, int]) -> list[int]:
-            return [int(x) for x in np.cumsum(list(dict(sorted(mapping.items())).values()))]
+            return np.cumsum(list(dict(sorted(mapping.items())).values())).tolist()
 
         return {fold_id: get_divisions(mapping) for fold_id, mapping in counts.items()}
 
