@@ -4,6 +4,7 @@ from omics_utils.configs.converter import CellXGeneConverterConfig, MethylationC
 from omics_utils.configs.splitter import CellXGeneStratifiedSplitterConfig, MethylationStratifiedSplitterConfig
 from omics_utils.pipeline.pipeline import Pipeline
 from omics_utils.pipeline.steps.cellxgene import CellXGenePreprocessing
+from omics_utils.pipeline.steps.limiter import Limiter
 from omics_utils.pipeline.steps.methylation import MethylationPreprocessing
 from omics_utils.pipeline.steps.stratifier import Stratifier
 
@@ -26,6 +27,7 @@ CellXGenePreprocessingConfig = builds(
             seed=42,
             zen_partial=True,
         ),
+        builds(Limiter, zen_partial=True),
     ],
     cluster=MISSING,
     scale=4,
@@ -49,6 +51,7 @@ MethylationPreprocessingConfig = builds(
             seed=42,
             zen_partial=True,
         ),
+        builds(Limiter, zen_partial=True),
     ],
     cluster=MISSING,
     output_dir=None,

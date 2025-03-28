@@ -3,14 +3,12 @@ from typing import Any
 
 import dask.dataframe as dd
 import pandas as pd
-import yaml
 from anndata._io.h5ad import write_h5ad
 
 from omics_utils.converter.anndata_converter import AnndataConverter
 from omics_utils.pipeline.step import Step
 from omics_utils.splitting.splitter import Splitter
 from omics_utils.utils.columns import ColumnNames
-from omics_utils.utils.helpers import global_reset_index
 
 
 class Stratifier(Step):
@@ -22,6 +20,7 @@ class Stratifier(Step):
         splitter: Splitter,
         converter: AnndataConverter,
         seed: int,
+        block_size: str = "128MiB",
         **kwargs,
     ) -> None:
         """Args:
@@ -29,6 +28,7 @@ class Stratifier(Step):
           splitter: Splitter to use for stratification, grouping and shuffling among folds.
           converter: Converter used to convert the `DataFrame` format back to `AnnData`.
           seed: Seed to use for shuffling of the dataset.
+          block_size: Size of the blocks to read from the previous step.
         """
         super().__init__(*args, **kwargs)
 
@@ -38,6 +38,7 @@ class Stratifier(Step):
         self.splitter = splitter
         self.converter = converter
         self.seed = seed
+        self.block_size = block_size
         self.metadata_path = metadata_path
         self.split_path = split_path
 
@@ -59,7 +60,7 @@ class Stratifier(Step):
         The data ready for transformation.
         """
         return dd.read_parquet(
-            list(self.input_path.glob("*.parquet")), split_row_groups="adaptive", blocksize="128MiB"
+            list(self.input_path.glob("*.parquet")), split_row_groups="adaptive", blocksize=self.block_size
         )
 
     def transform(self, data_df: dd.DataFrame) -> tuple[dict[int, dd.DataFrame], pd.DataFrame]:
@@ -83,13 +84,11 @@ class Stratifier(Step):
 
         folds = {}
         for fold_idx in range(self.splitter.n_splits):
-            fold_df = joined_df[joined_df[ColumnNames.FOLD] == fold_idx].sample(frac=1, random_state=self.seed)
-            fold_df = global_reset_index(fold_df).compute_current_divisions(set_divisions=True)
-            folds[fold_idx] = fold_df
+            folds[fold_idx] = joined_df[joined_df[ColumnNames.FOLD] == fold_idx].sample(frac=1, random_state=self.seed)
 
         return folds, metadata_df
 
-    def df_to_anndata(
+    def write_df_to_anndata(
         self, df: pd.DataFrame, output_dir: Path, fold_idx: int, partition_info: dict[str, Any] | None = None
     ) -> None:
         """Write a `DataFrame` to an anndata file.
@@ -114,18 +113,10 @@ class Stratifier(Step):
           metadata_df: The metadata `DataFrame`.
         """
         metadata_df.to_parquet(self.metadata_path)
-
         self.split_path.mkdir(exist_ok=True)
 
-        limits = {}
         for fold_idx, fold_df in folds.items():
-            l = [int(d) for d in fold_df.divisions[1:]]
-            l[-1] += 1
-            limits[fold_idx] = l
-            fold_df.map_partitions(self.df_to_anndata, self.split_path, fold_idx, meta=fold_df.head()).compute()
-
-        with Path.open(self.output_path / "limits.yaml", "w") as outfile:
-            yaml.dump(limits, outfile, default_flow_style=False)
+            fold_df.map_partitions(self.write_df_to_anndata, self.split_path, fold_idx, meta=fold_df.head()).compute()
 
     def run(self) -> None:
         """Run the stratification and splitting step."""
