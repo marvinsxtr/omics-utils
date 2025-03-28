@@ -16,7 +16,7 @@ CellXGenePreprocessingConfig = builds(
             input_dir="/home/space/omics/datasets/cellxgene/h5ads",
             converter=CellXGeneConverterConfig,
             n_debug=None,
-            partition_size="5GiB",
+            partition_size="2GiB",
             meta_partition_size=406,
             zen_partial=True,
         ),

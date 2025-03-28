@@ -88,7 +88,7 @@ class Stratifier(Step):
         folds = {}
         for fold_idx in range(self.splitter.n_splits):
             fold_df = joined_df[joined_df[ColumnNames.FOLD] == fold_idx].sample(frac=1, random_state=self.seed)
-            fold_df = global_reset_index(fold_df)
+            fold_df = global_reset_index(fold_df.drop_duplicates(subset=ColumnNames.SAMPLE_ID))
             folds[fold_idx] = fold_df
 
         return folds, metadata_df
