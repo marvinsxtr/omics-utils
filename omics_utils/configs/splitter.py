@@ -6,7 +6,7 @@ from omics_utils.splitting.splitter import StratifiedSplitter
 StratifiedTrainTestSplitConfig = builds(
     StratifiedShuffleSplit,
     n_splits=1,
-    test_size=0.1,
+    test_size=0.2,
     random_state=42,
 )
 

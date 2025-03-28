@@ -95,5 +95,5 @@ def sanitize_dtypes(df: pd.DataFrame) -> pd.DataFrame:
     """
     for name, dtype in df.dtypes.items():
         if dtype == "string":
-            df[name] = df[name].astype(object)
+            df.loc[:, name] = df[name].astype(object)
     return df

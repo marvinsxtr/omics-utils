@@ -83,7 +83,7 @@ class StratifiedSplitter(Splitter):
 
         df = df[filter_mask]
 
-        df[ColumnNames.FOLD] = -1
+        df.loc[:, ColumnNames.FOLD] = -1
         fold_column_idx = df.columns.get_loc(ColumnNames.FOLD)
 
         split_iterator = self.sklearn_splitter.split(X=filtered_strata, y=filtered_strata, groups=groups)
@@ -94,6 +94,6 @@ class StratifiedSplitter(Splitter):
             if isinstance(self.sklearn_splitter, StratifiedShuffleSplit):
                 df.iloc[train_idx, fold_column_idx] = 1
 
-        df[ColumnNames.FOLD] = df[ColumnNames.FOLD].astype(int)
+        df.loc[:, ColumnNames.FOLD] = df[ColumnNames.FOLD].astype(int)
 
         return df

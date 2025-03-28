@@ -20,7 +20,7 @@ class Stratifier(Step):
         splitter: Splitter,
         converter: AnndataConverter,
         seed: int,
-        block_size: str = "128MiB",
+        block_size: str = "1GiB",
         **kwargs,
     ) -> None:
         """Args:
