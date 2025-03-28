@@ -1,11 +1,10 @@
-import itertools
 from pathlib import Path
 
 import anndata as ad
+import dask.bag as db
 import dask.dataframe as dd
 import h5py
 from dask.delayed import Delayed
-from tqdm import tqdm
 
 from omics_utils.converter.anndata_converter import AnndataConverter
 from omics_utils.pipeline.steps.preprocessing import Preprocessing
@@ -52,10 +51,10 @@ class CellXGenePreprocessing(Preprocessing):
         if self.n_debug is not None:
             input_files = input_files[: self.n_debug]
 
-        delayed = list(itertools.chain(*[self.transform(f) for f in tqdm(input_files)]))
-
+        delayed = db.from_sequence(input_files).map(self.transform).flatten().compute()
         data_df = dd.from_delayed(delayed, meta=self.meta_df)
         data_df = remove_empty_partitions(data_df)
+
         return data_df
 
     def transform(self, file_path: Path) -> list[Delayed]:

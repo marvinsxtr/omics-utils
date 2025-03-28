@@ -96,15 +96,18 @@ class Preprocessing(Step, ABC):
         """
         ...
 
-    def write(self, data_df: dd.DataFrame) -> None:
+    def write(self, data_df: dd.DataFrame, meta_partition_index: int = 0) -> None:
         """Load/save the result of the transformation.
 
         Args:
         ----
           data_df: A `DataFrame` containing the patient/donor metadata and the matrix `X`.
+          meta_partition_index: Index of the sequential processing partition.
         """
         data_df.repartition(partition_size=self.partition_size, force=True).to_parquet(
-            self.output_path, filesystem="arrow", name_function=lambda part: f"part_{part}.parquet"
+            self.output_path,
+            filesystem="arrow",
+            name_function=lambda chunk: f"part_{meta_partition_index}_chunk_{chunk}.parquet",
         )
 
     def run(self) -> None:
@@ -112,9 +115,9 @@ class Preprocessing(Step, ABC):
         input_files = list(self.input_path.glob("*.h5ad"))
 
         if self.meta_partition_size is not None:
-            for i in range(0, len(input_files), self.meta_partition_size):
-                data_df = self.read(input_files[i : i + self.meta_partition_size])
-                self.write(data_df)
+            for i, j in enumerate(range(0, len(input_files), self.meta_partition_size)):
+                data_df = self.read(input_files[j : j + self.meta_partition_size])
+                self.write(data_df, meta_partition_index=i)
         else:
             data_df = self.read(input_files)
             self.write(data_df)
