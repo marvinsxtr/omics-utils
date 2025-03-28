@@ -81,7 +81,7 @@ class StratifiedSplitter(Splitter):
         if groups is not None:
             groups = groups[filter_mask]
 
-        df = df[filter_mask]
+        df = df[filter_mask].copy()
 
         df.loc[:, ColumnNames.FOLD] = -1
         fold_column_idx = df.columns.get_loc(ColumnNames.FOLD)
