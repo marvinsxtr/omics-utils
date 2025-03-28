@@ -82,6 +82,24 @@ def sparsify_matrix(dense_matrix: np.ndarray) -> sp.csr_matrix:
     return sparse_matrix
 
 
+def global_reset_index(df: dd.DataFrame) -> dd.DataFrame:
+    """Resets the index of a dask `DataFrame` globally instead of per partition.
+
+    Args:
+    ----
+      df: Dask `DataFrame` to reset the index of.
+
+    Returns:
+    -------
+    Dask `DataFrame` with a globally reset index.
+    """
+    index_name = "__tmp_idx"
+    df = df.assign(**{index_name: 1})
+    df = df.set_index((df[index_name].cumsum() - 1).rename(None))
+    df = df.drop(columns=index_name)
+    return df
+
+
 def sanitize_dtypes(df: pd.DataFrame) -> pd.DataFrame:
     """Sanitize the dtypes of a `DataFrame` for compatibility with anndata.
 

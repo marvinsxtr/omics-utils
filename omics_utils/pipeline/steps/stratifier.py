@@ -9,6 +9,7 @@ from omics_utils.converter.anndata_converter import AnndataConverter
 from omics_utils.pipeline.step import Step
 from omics_utils.splitting.splitter import Splitter
 from omics_utils.utils.columns import ColumnNames
+from omics_utils.utils.helpers import global_reset_index
 
 
 class Stratifier(Step):
@@ -84,7 +85,9 @@ class Stratifier(Step):
 
         folds = {}
         for fold_idx in range(self.splitter.n_splits):
-            folds[fold_idx] = joined_df[joined_df[ColumnNames.FOLD] == fold_idx].sample(frac=1, random_state=self.seed)
+            fold_df = joined_df[joined_df[ColumnNames.FOLD] == fold_idx].sample(frac=1, random_state=self.seed)
+            fold_df = global_reset_index(fold_df)
+            folds[fold_idx] = fold_df
 
         return folds, metadata_df
 
