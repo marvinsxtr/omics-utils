@@ -21,7 +21,7 @@ class Stratifier(Step):
         splitter: Splitter,
         converter: AnndataConverter,
         seed: int,
-        block_size: str = "1GiB",
+        block_size: str = "128MiB",
         **kwargs,
     ) -> None:
         """Args:
@@ -82,6 +82,8 @@ class Stratifier(Step):
         metadata_df = self.splitter.split(metadata_df)
 
         joined_df: dd.DataFrame = data_df.join(metadata_df[[ColumnNames.FOLD]], on=ColumnNames.CASE_ID)
+        joined_df = joined_df.dropna(subset=ColumnNames.FOLD)
+        joined_df[ColumnNames.FOLD] = joined_df[ColumnNames.FOLD].astype(int)
 
         folds = {}
         for fold_idx in range(self.splitter.n_splits):

@@ -111,7 +111,9 @@ def sanitize_dtypes(df: pd.DataFrame) -> pd.DataFrame:
     -------
     The `DataFrame` with sanitized dtypes.
     """
+    dtypes = {}
     for name, dtype in df.dtypes.items():
         if dtype == "string":
-            df[name] = df[name].astype(object)
-    return df
+            dtypes[name] = object
+
+    return df.astype(dtypes)
