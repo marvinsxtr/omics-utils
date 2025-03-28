@@ -94,6 +94,6 @@ class StratifiedSplitter(Splitter):
             if isinstance(self.sklearn_splitter, StratifiedShuffleSplit):
                 df.iloc[train_idx, fold_column_idx] = 1
 
-        df.loc[:, ColumnNames.FOLD] = df[ColumnNames.FOLD].astype(int)
+        df.loc[ColumnNames.FOLD] = df[ColumnNames.FOLD].astype(int)
 
         return df
