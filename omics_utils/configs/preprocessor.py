@@ -16,8 +16,8 @@ CellXGenePreprocessingConfig = builds(
             input_dir="/home/space/omics/datasets/cellxgene/h5ads",
             converter=CellXGeneConverterConfig,
             n_debug=None,
-            partition_size="2GiB",
-            meta_partition_size=406,
+            n_partitions=50,
+            meta_partition_size=102,
             zen_partial=True,
         ),
         builds(
@@ -30,7 +30,7 @@ CellXGenePreprocessingConfig = builds(
         builds(Limiter, zen_partial=True),
     ],
     cluster=MISSING,
-    scale=4,
+    scale=2,
     output_dir=None,
 )
 
@@ -42,6 +42,7 @@ MethylationPreprocessingConfig = builds(
             input_dir="/home/space/methyl_group/datasets/leitheiser_classification/pp_anndata/lung",
             converter=MethylationConverterConfig,
             n_debug=2,
+            n_partitions=10,
             zen_partial=True,
         ),
         builds(

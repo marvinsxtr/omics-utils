@@ -18,7 +18,7 @@ class Preprocessing(Step, ABC):
         *args,
         converter: AnndataConverter,
         input_dir: str,
-        partition_size: str = "1GiB",
+        n_partitions: int = 100,
         n_debug: int | None = None,
         meta_partition_size: int | None = None,
         **kwargs,
@@ -27,7 +27,7 @@ class Preprocessing(Step, ABC):
         ----
           converter: Converter used to transform AnnData objects into DataFrames and the other way around.
           input_dir: Folder where the input `AnnData` files are saved.
-          partition_size: Size of the output partitions.
+          n_partitions: Number of output partitions.
           n_debug: Take the first n input files only for debugging purposes.
           meta_partition_size: Number of files to process at a time, useful for saving resources.
         """
@@ -39,7 +39,7 @@ class Preprocessing(Step, ABC):
 
         self.converter = converter
         self.input_path = input_path
-        self.partition_size = partition_size
+        self.n_partitions = n_partitions
         self.n_debug = n_debug
         self.meta_partition_size = meta_partition_size
 
@@ -104,7 +104,7 @@ class Preprocessing(Step, ABC):
           data_df: A `DataFrame` containing the patient/donor metadata and the matrix `X`.
           meta_partition_index: Index of the sequential processing partition.
         """
-        data_df.repartition(partition_size=self.partition_size, force=True).to_parquet(
+        data_df.repartition(npartitions=self.n_partitions, force=True).to_parquet(
             self.output_path,
             filesystem="arrow",
             name_function=lambda chunk: f"part_{meta_partition_index}_chunk_{chunk}.parquet",

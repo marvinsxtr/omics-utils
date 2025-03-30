@@ -78,7 +78,7 @@ class Limiter(Step):
             yaml.dump(limits, outfile, default_flow_style=False)
 
     def run(self) -> None:
-        """Run the stratification and splitting step."""
+        """Calculate the partition limits."""
         input_files = self.read()
         limits = self.transform(input_files)
         self.write(limits)

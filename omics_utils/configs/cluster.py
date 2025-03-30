@@ -6,11 +6,11 @@ from omics_utils.utils.helpers import get_output_dir
 
 ClusterConfig = builds(
     SLURMCluster,
-    n_workers=4,
+    n_workers=2,
     queue="cpu-5h",
     cores=32,
-    processes=16,
-    memory="1024GiB",
+    processes=8,
+    memory="2048GiB",
     walltime="05:00:00",
     python="apptainer run oras://ghcr.io/bifold-pathomics/omics-utils:v0.0.23-sif python",
     log_directory=builds(get_output_dir),

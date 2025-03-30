@@ -9,7 +9,6 @@ from dask.delayed import Delayed
 from omics_utils.converter.anndata_converter import AnndataConverter
 from omics_utils.pipeline.steps.preprocessing import Preprocessing
 from omics_utils.utils.columns import ColumnNames
-from omics_utils.utils.helpers import remove_empty_partitions
 
 
 class CellXGenePreprocessing(Preprocessing):
@@ -53,7 +52,6 @@ class CellXGenePreprocessing(Preprocessing):
 
         delayed = db.from_sequence(input_files).map(self.transform).flatten().compute()
         data_df = dd.from_delayed(delayed, meta=self.meta_df)
-        data_df = remove_empty_partitions(data_df)
 
         return data_df
 
