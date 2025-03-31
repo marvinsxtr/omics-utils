@@ -5,7 +5,11 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "omics-utils"
 version = "0.0.1"
+<<<<<<< HEAD
 requires-python = ">=3.12"
+=======
+requires-python = ">=3.11.3"
+>>>>>>> 7f39398 (Rebase README.md)
 dependencies = [
   "hydra-zen>=0.13.0",
   "submitit>=1.5.1",
@@ -27,6 +31,7 @@ dependencies = [
   "ml-project-template",
   "bokeh>=3.6.3",
 <<<<<<< HEAD
+<<<<<<< HEAD
   "sphinx>=7.3.7",
   "pydata-sphinx-theme>=0.16.1",
   "myst-parser>=4.0.1", 
@@ -35,6 +40,10 @@ dependencies = [
   "sphinx=7.3.7",
   "pydata-sphinx-theme"=0.16.1"
 >>>>>>> 56f1bdd (Add Sphinx to pyproject.toml and minor bugfixes)
+=======
+  "sphinx>=7.3.7",
+  "pydata-sphinx-theme>=0.16.1",
+>>>>>>> 7f39398 (Rebase README.md)
 ]
 
 [dependency-groups]
@@ -141,3 +150,10 @@ convention = "google"
 [tool.setuptools.packages.find]
 where = ["omics_utils"]
 exclude = ["notebooks"]
+<<<<<<< HEAD
+=======
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+>>>>>>> 7f39398 (Rebase README.md)

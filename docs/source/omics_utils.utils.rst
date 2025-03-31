@@ -43,4 +43,7 @@ Module contents
    :members:
    :undoc-members:
    :show-inheritance:
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7f39398 (Rebase README.md)
