@@ -34,7 +34,7 @@ class Limiter(Step):
 
         Returns
         -------
-        List of file paths to prcess.
+        List of file paths to process.
         """
         return list(self.split_path.glob("*.h5ad"))
 
