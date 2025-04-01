@@ -108,7 +108,7 @@ Choose one of the following methods to set up your environment:
 
 In order to access Slurm with submitit from within the container, you first need to set up passwordless SSH to the login node.
 
-On the cluster, create a new SSH key pair in case you don't have one yet
+On the cluster, create a new SSH key pair in case you don't have one yet:
 
 ```bash
 ssh-keygen -t ed25519 -C "your_email@example.com"
