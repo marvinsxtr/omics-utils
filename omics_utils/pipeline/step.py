@@ -34,8 +34,11 @@ class Step(ABC):
         ...
 
     @abstractmethod
-    def read(self) -> Any:
+    def read(self, *args: Any) -> Any:
         """Read the data from the previous step or the input data.
+
+        Args:          
+            args: The input data, e.g. file paths.
 
         Returns:
             The data ready for transformation.

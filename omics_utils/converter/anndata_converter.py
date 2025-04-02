@@ -3,9 +3,12 @@ from pathlib import Path
 
 import anndata
 import anndata as ad
+import dask
+import dask.array as da
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
+from dask.delayed import Delayed
 
 from omics_utils.utils.columns import ColumnNames
 from omics_utils.utils.helpers import densify_matrix, sanitize_dtypes, sparsify_matrix
@@ -54,8 +57,48 @@ class AnndataConverter:
         self.obs_cols = obs_cols
         self.var_cols = var_cols
 
-    def anndata_to_dataframe(self, adata: anndata.AnnData) -> pd.DataFrame:
-        """Convert an `AnnData` object to a `DataFrame`.
+    def serialize(self, adata: ad.AnnData) -> list[Delayed]:
+        """Serialize a Dask-backed `AnnData` object.
+
+        Args:
+            adata: The `AnnData` object to serialize.
+
+        Returns:
+            A list of `Delayed` tasks computing the serialized entries from the `AnnData` object.
+        """
+
+        def serialize_partition(block: sp.csr_matrix, obs_names_part: list[str], obs: pd.DataFrame) -> pd.DataFrame:
+            """Serialize a partition of data."""
+            sparse_vectors = [serialize_sparse_matrix(row) for row in block]
+            df = pd.DataFrame(
+                {ColumnNames.SPARSE_VECTOR: sparse_vectors}, index=obs_names_part)
+            return self.join_metadata(df, obs)
+
+        X_dask = adata.X
+        obs_names = adata.obs_names
+        offsets = np.cumsum((0,) + X_dask.chunks[0])
+
+        arrays = [X_dask[offsets[i]: offsets[i + 1]]
+                  for i in range(len(X_dask.chunks[0]))]
+        names = [obs_names[offsets[i]: offsets[i + 1]]
+                 for i in range(len(X_dask.chunks[0]))]
+
+        return [dask.delayed(serialize_partition)(a, n, adata.obs) for a, n in zip(arrays, names, strict=False)]
+
+    def join_metadata(self, df: pd.DataFrame, obs: pd.DataFrame) -> pd.DataFrame:
+        """Join the observation metadata and IDs to the main `DataFrame`.
+
+        Args:
+          df: `DataFrame` containing the cells as serialized strings.
+          obs: `DataFrame` containing `AnnData.obs`.
+
+        Returns:
+        The joined `DataFrame`.
+        """
+        return df.join(obs[[ColumnNames.CASE_ID, ColumnNames.SAMPLE_ID, *self.obs_cols]].astype(str))
+
+    def anndata_to_dataframe(self, adata: anndata.AnnData) -> pd.DataFrame | list[Delayed]:
+        """Convert an AnnData object to a DataFrame.
 
         The result will have all obs metadata plus a `sparse_vector` column
         containing the serialized expression data for each cell.
@@ -64,28 +107,31 @@ class AnndataConverter:
             adata: `AnnData` object to convert
 
         Returns:
-            `DataFrame` with cell metadata and serialized expression data.
+        -------
+            `DataFrame` with cell metadata and serialized expression data or a list of `Delayed` tasks.
         """
         adata.obs = self._prepare_metadata(adata)
 
-        if self.var_cols is not None:
+        if self.var_cols is not None and adata.n_obs > 0:
             adata = self.reindex_anndata_genes(adata, self.var_cols)
 
         if self.sparse:
-            sparse_vectors = [serialize_sparse_matrix(x) for x in adata.X]
-            df = pd.DataFrame(
-                {ColumnNames.SPARSE_VECTOR: sparse_vectors}, index=adata.obs_names).astype(str)
+            if isinstance(adata.X, da.Array):
+                df = [] if adata.n_obs == 0 else self.serialize(adata)
+            elif isinstance(adata.X, sp.csr_matrix):
+                sparse_vectors = [serialize_sparse_matrix(x) for x in adata.X]
+                df = pd.DataFrame(
+                    {ColumnNames.SPARSE_VECTOR: sparse_vectors}, index=adata.obs_names).astype(str)
+                df = self.join_metadata(df, adata.obs)
         else:
             X = densify_matrix(adata.X) if isinstance(
                 adata.X, sp.spmatrix) else adata.X
             df = pd.DataFrame(X, index=adata.obs_names,
                               columns=adata.var_names)
+            df = self.join_metadata(df, adata.obs)
 
             if self.var_cols is not None:
                 df = df.reindex(columns=self.var_cols).astype(float)
-
-        df = df.join(
-            adata.obs[[ColumnNames.CASE_ID, ColumnNames.SAMPLE_ID, *self.obs_cols]].astype(str))
 
         return df
 
@@ -169,31 +215,28 @@ class AnndataConverter:
         Returns:
             New `AnnData` object with exactly the genes specified, in the specified order.
         """
-        n_cells = adata.n_obs
         n_genes = len(genes)
-
         common_genes = list(set(genes) & set(adata.var_names))
-        old_indices = [adata.var_names.get_loc(g) for g in common_genes]
-        new_indices = [genes.index(g) for g in common_genes]
 
-        if not common_genes:
-            new_X = sp.csr_matrix((n_cells, n_genes), dtype=adata.X.dtype)
+        if adata.n_obs == 0:
+            raise ValueError(
+                "Must have at least one observation to reindex the genes.")
+
+        if isinstance(adata.X, sp.csr_matrix | da.Array):
+            old_indices = np.array([adata.var_names.get_loc(g)
+                                   for g in common_genes])
+            new_indices = np.array([genes.index(g) for g in common_genes])
+
+            P = sp.csr_matrix((np.ones(len(common_genes)), (old_indices, new_indices)), shape=(
+                adata.n_vars, n_genes))
+
+            new_X = adata.X.dot(P)
         else:
-            coo = adata.X.tocoo()
-
-            mask = np.isin(coo.col, old_indices)
-            data = coo.data[mask]
-            rows = coo.row[mask]
-            cols = coo.col[mask]
-
-            old_to_new = dict(zip(old_indices, new_indices, strict=True))
-            mapped_cols = np.array([old_to_new[col] for col in cols])
-
-            new_X = sp.csr_matrix(
-                (data, (rows, mapped_cols)), shape=(n_cells, n_genes))
+            raise NotImplementedError(
+                f"The type {type(adata.X)} is not supported.")
 
         return ad.AnnData(
-            X=new_X,
+            new_X,
             obs=adata.obs,
             var=adata.var.reindex(genes),
         )

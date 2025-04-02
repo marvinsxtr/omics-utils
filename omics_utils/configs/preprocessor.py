@@ -1,10 +1,10 @@
-from hydra_zen import builds
+from hydra_zen import MISSING, builds
 
-from omics_utils.configs.cluster import ClusterConfig
 from omics_utils.configs.converter import CellXGeneConverterConfig, MethylationConverterConfig
 from omics_utils.configs.splitter import CellXGeneStratifiedSplitterConfig, MethylationStratifiedSplitterConfig
 from omics_utils.pipeline.pipeline import Pipeline
 from omics_utils.pipeline.steps.cellxgene import CellXGenePreprocessing
+from omics_utils.pipeline.steps.limiter import Limiter
 from omics_utils.pipeline.steps.methylation import MethylationPreprocessing
 from omics_utils.pipeline.steps.stratifier import Stratifier
 
@@ -16,6 +16,8 @@ CellXGenePreprocessingConfig = builds(
             input_dir="/home/space/omics/datasets/cellxgene/h5ads",
             converter=CellXGeneConverterConfig,
             n_debug=None,
+            n_partitions=50,
+            meta_partition_size=102,
             zen_partial=True,
         ),
         builds(
@@ -25,9 +27,10 @@ CellXGenePreprocessingConfig = builds(
             seed=42,
             zen_partial=True,
         ),
+        builds(Limiter, zen_partial=True),
     ],
-    cluster=ClusterConfig,
-    scale=20,
+    cluster=MISSING,
+    scale=2,
     output_dir=None,
 )
 
@@ -39,6 +42,7 @@ MethylationPreprocessingConfig = builds(
             input_dir="/home/space/methyl_group/datasets/leitheiser_classification/pp_anndata/lung",
             converter=MethylationConverterConfig,
             n_debug=2,
+            n_partitions=10,
             zen_partial=True,
         ),
         builds(
@@ -48,7 +52,8 @@ MethylationPreprocessingConfig = builds(
             seed=42,
             zen_partial=True,
         ),
+        builds(Limiter, zen_partial=True),
     ],
-    cluster=ClusterConfig,
+    cluster=MISSING,
     output_dir=None,
 )
