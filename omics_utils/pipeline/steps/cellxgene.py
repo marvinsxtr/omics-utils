@@ -29,7 +29,7 @@ class CellXGenePreprocessing(Preprocessing):
             converter: Converter to convert `AnnData` into a `DataFrame` format.
             n_debug: Take the first n input files only for debugging purposes.
             chunk_size: Chunk size of the expression matrix in dask.
-        """  # noqa: D107
+        """  # noqa: D212
         super().__init__(*args, converter=converter,
                          input_dir=input_dir, n_debug=n_debug, **kwargs)
         self.chunk_size = chunk_size

@@ -30,7 +30,7 @@ class Stratifier(Step):
             converter: Converter used to convert the `DataFrame` format back to `AnnData`.
             seed: Seed to use for shuffling of the dataset.
             block_size: Size of the blocks to read from the previous step.
-        """  # noqa: D107
+        """  # noqa: D212
         super().__init__(*args, **kwargs)
 
         metadata_path = self.output_path / "metadata.parquet"
