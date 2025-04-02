@@ -3,7 +3,8 @@ from pathlib import Path
 import os
 
 sys.path.insert(0, os.path.abspath('../../../omics-utils'))
-sys.path.insert(0, os.path.abspath("../../omics_utils")) # Folder to preprocess.py had to be specified individually.
+# Folder to preprocess.py had to be specified individually.
+sys.path.insert(0, os.path.abspath("../../omics_utils"))
 
 
 # Configuration file for the Sphinx documentation builder.
@@ -15,7 +16,7 @@ sys.path.insert(0, os.path.abspath("../../omics_utils")) # Folder to preprocess.
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'Omics Utils'
-copyright = '2025, The BIFOLD Pathomics Team' # noqa: A001
+copyright = '2025, The BIFOLD Pathomics Team'  # noqa: A001
 author = 'The BIFOLD Pathomics Team'
 release = 'v0.0.13'
 
@@ -23,21 +24,13 @@ release = 'v0.0.13'
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-<<<<<<< HEAD
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
     'sphinx_autodoc_typehints',
     'myst_parser']
-=======
-    'sphinx.ext.autodoc',	
-    'sphinx.ext.napoleon',
-    'myst_parser'	
-]
->>>>>>> ad36c56 (Rebase README.md)
 
 templates_path = ['_templates']
 exclude_patterns = []
-
 
 
 # -- Options for HTML output -------------------------------------------------
