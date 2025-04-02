@@ -1,5 +1,7 @@
-omics\_utils.converter package
-==============================
+Converter
+=========
+
+.. py:module:: omics_utils.converter
 
 Subpackages
 -----------
@@ -9,21 +11,11 @@ Subpackages
 
    omics_utils.converter.tests
 
-Submodules
-----------
 
-omics\_utils.converter.anndata\_converter module
-------------------------------------------------
+AnnData Converter
+-----------------
 
 .. automodule:: omics_utils.converter.anndata_converter
    :members:
-   :undoc-members:
    :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: omics_utils.converter
-   :members:
    :undoc-members:
-   :show-inheritance:

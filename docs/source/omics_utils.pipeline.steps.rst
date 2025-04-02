@@ -1,39 +1,44 @@
-omics\_utils.pipeline.steps namespace
-=====================================
+Pipeline Steps
+==============
 
 .. py:module:: omics_utils.pipeline.steps
 
-Submodules
-----------
-
-omics\_utils.pipeline.steps.cellxgene module
---------------------------------------------
+CellXGene Data
+--------------
 
 .. automodule:: omics_utils.pipeline.steps.cellxgene
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
-omics\_utils.pipeline.steps.methylation module
-----------------------------------------------
+Limiter
+-------
+
+.. automodule:: omics_utils.pipeline.steps.limiter
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Methylation Data
+----------------
 
 .. automodule:: omics_utils.pipeline.steps.methylation
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
-omics\_utils.pipeline.steps.preprocessing module
-------------------------------------------------
+Preprocessing
+-------------
 
 .. automodule:: omics_utils.pipeline.steps.preprocessing
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
-omics\_utils.pipeline.steps.stratifier module
----------------------------------------------
+Stratifier
+----------
 
 .. automodule:: omics_utils.pipeline.steps.stratifier
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

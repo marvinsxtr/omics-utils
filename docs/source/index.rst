@@ -9,7 +9,7 @@ Welcome to Omics Utils's Documentation!
    :maxdepth: 3
    :caption: Contents:
 
-   README
+   README.md
    API Reference <modules> 
 
 

@@ -1,15 +1,15 @@
-omics\_utils.configs.stores namespace
-=====================================
+Stores
+======
 
 .. py:module:: omics_utils.configs.stores
 
 Submodules
 ----------
 
-omics\_utils.configs.stores.preprocess module
----------------------------------------------
+Preprocess
+----------
 
 .. automodule:: omics_utils.configs.stores.preprocess
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

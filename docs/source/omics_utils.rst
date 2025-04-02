@@ -1,5 +1,7 @@
-omics\_utils package
-====================
+Omics Utils
+===========
+
+.. py:module:: omics_utils
 
 Subpackages
 -----------
@@ -12,22 +14,12 @@ Subpackages
    omics_utils.pipeline
    omics_utils.splitting
    omics_utils.utils
+   
 
-Submodules
+Preprocess
 ----------
-
-omics\_utils.preprocess module
-------------------------------
 
 .. automodule:: omics_utils.preprocess
    :members:
-   :undoc-members:
    :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: omics_utils
-   :members:
    :undoc-members:
-   :show-inheritance:

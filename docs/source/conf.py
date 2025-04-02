@@ -1,9 +1,9 @@
 import sys
-from pathlib import Path
+import os
 
 # Folder to preprocess.py had to be specified individually.
-sys.path.insert(0, Path("../../omics_utils").resolve())
-sys.path.insert(0, Path('../../../omics-utils').resolve())
+sys.path.insert(0, os.path.abspath("../../omics_utils"))  # noqa: PTH100
+sys.path.insert(0, os.path.abspath("../../../omics-utils"))  # noqa: PTH100
 
 
 # Configuration file for the Sphinx documentation builder.
@@ -23,10 +23,11 @@ release = 'v0.0.13'
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
+    'myst_parser',
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
-    'sphinx_autodoc_typehints',
-    'myst_parser']
+    'sphinx_autodoc_typehints'
+]
 
 templates_path = ['_templates']
 exclude_patterns = []

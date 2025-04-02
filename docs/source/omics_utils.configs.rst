@@ -1,5 +1,7 @@
-omics\_utils.configs package
-============================
+Configs
+=======
+
+.. py:module:: omics_utils.configs
 
 Subpackages
 -----------
@@ -10,45 +12,35 @@ Subpackages
    omics_utils.configs.stores
    omics_utils.configs.tests
 
-Submodules
-----------
 
-omics\_utils.configs.cluster module
------------------------------------
+Clustering
+----------
 
 .. automodule:: omics_utils.configs.cluster
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
-omics\_utils.configs.converter module
--------------------------------------
+Converter
+---------
 
 .. automodule:: omics_utils.configs.converter
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
-omics\_utils.configs.preprocessor module
-----------------------------------------
+Preprocessor
+------------
 
 .. automodule:: omics_utils.configs.preprocessor
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
-omics\_utils.configs.splitter module
-------------------------------------
+Splitter
+--------
 
 .. automodule:: omics_utils.configs.splitter
    :members:
-   :undoc-members:
    :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: omics_utils.configs
-   :members:
    :undoc-members:
-   :show-inheritance:

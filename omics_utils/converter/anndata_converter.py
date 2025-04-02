@@ -89,11 +89,11 @@ class AnndataConverter:
         """Join the observation metadata and IDs to the main `DataFrame`.
 
         Args:
-          df: `DataFrame` containing the cells as serialized strings.
-          obs: `DataFrame` containing `AnnData.obs`.
+            df: `DataFrame` containing the cells as serialized strings.
+            obs: `DataFrame` containing `AnnData.obs`.
 
         Returns:
-        The joined `DataFrame`.
+            The joined `DataFrame`.
         """
         return df.join(obs[[ColumnNames.CASE_ID, ColumnNames.SAMPLE_ID, *self.obs_cols]].astype(str))
 
@@ -107,7 +107,6 @@ class AnndataConverter:
             adata: `AnnData` object to convert
 
         Returns:
-        -------
             `DataFrame` with cell metadata and serialized expression data or a list of `Delayed` tasks.
         """
         adata.obs = self._prepare_metadata(adata)

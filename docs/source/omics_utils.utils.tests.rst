@@ -1,23 +1,21 @@
-omics\_utils.utils.tests namespace
-==================================
+Tests
+=====
 
 .. py:module:: omics_utils.utils.tests
 
-Submodules
-----------
 
-omics\_utils.utils.tests.test\_helpers module
----------------------------------------------
+Helpers Test
+------------
 
 .. automodule:: omics_utils.utils.tests.test_helpers
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
-omics\_utils.utils.tests.test\_serialization module
----------------------------------------------------
+Serialization Test
+------------------
 
 .. automodule:: omics_utils.utils.tests.test_serialization
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

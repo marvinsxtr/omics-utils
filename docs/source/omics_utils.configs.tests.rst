@@ -1,15 +1,13 @@
-omics\_utils.configs.tests namespace
-====================================
+Tests
+=====
 
 .. py:module:: omics_utils.configs.tests
 
-Submodules
-----------
 
-omics\_utils.configs.tests.test\_configs module
------------------------------------------------
+Config Test
+-----------
 
 .. automodule:: omics_utils.configs.tests.test_configs
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

@@ -1,5 +1,5 @@
-omics\_utils.pipeline namespace
-===============================
+Pipeline
+========
 
 .. py:module:: omics_utils.pipeline
 
@@ -11,21 +11,19 @@ Subpackages
 
    omics_utils.pipeline.steps
 
-Submodules
-----------
 
-omics\_utils.pipeline.pipeline module
--------------------------------------
+Pipeline
+--------
 
 .. automodule:: omics_utils.pipeline.pipeline
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
-omics\_utils.pipeline.step module
----------------------------------
+Step
+----
 
 .. automodule:: omics_utils.pipeline.step
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
