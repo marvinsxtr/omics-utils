@@ -23,8 +23,7 @@ class Preprocessing(Step, ABC):
         meta_partition_size: int | None = None,
         **kwargs,
     ) -> None:
-        """
-        Args:
+        """Args:
             converter: Converter used to transform AnnData objects into DataFrames and the other way around.
             input_dir: Folder where the input `AnnData` files are saved.
             n_partitions: Number of output partitions.

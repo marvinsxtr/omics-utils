@@ -23,8 +23,7 @@ class CellXGenePreprocessing(Preprocessing):
         chunk_size: int = 100000,
         **kwargs,
     ) -> None:
-        """
-        Args:
+        """Args:
             input_dir: Folder where the input CellXGene `AnnData` files are saved.
             converter: Converter to convert `AnnData` into a `DataFrame` format.
             n_debug: Take the first n input files only for debugging purposes.

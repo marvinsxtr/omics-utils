@@ -1,10 +1,9 @@
 import sys
 from pathlib import Path
-import os
 
-sys.path.insert(0, os.path.abspath('../../../omics-utils'))
 # Folder to preprocess.py had to be specified individually.
-sys.path.insert(0, os.path.abspath("../../omics_utils"))
+sys.path.insert(0, Path("../../omics_utils").resolve())
+sys.path.insert(0, Path('../../../omics-utils').resolve())
 
 
 # Configuration file for the Sphinx documentation builder.

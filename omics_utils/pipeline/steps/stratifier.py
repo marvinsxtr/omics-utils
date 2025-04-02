@@ -24,8 +24,7 @@ class Stratifier(Step):
         block_size: str = "128MiB",
         **kwargs,
     ) -> None:
-        """
-        Args:
+        """Args:
             splitter: Splitter to use for stratification, grouping and shuffling among folds.
             converter: Converter used to convert the `DataFrame` format back to `AnnData`.
             seed: Seed to use for shuffling of the dataset.
