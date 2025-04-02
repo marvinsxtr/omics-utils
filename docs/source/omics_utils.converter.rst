@@ -1,6 +1,14 @@
 omics\_utils.converter package
 ==============================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   omics_utils.converter.tests
+
 Submodules
 ----------
 

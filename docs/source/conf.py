@@ -1,7 +1,9 @@
 import sys
 from pathlib import Path
+import os
 
-sys.path.insert(0, str(Path('../../omics_utils').resolve()))
+sys.path.insert(0, os.path.abspath('../../../omics-utils'))
+sys.path.insert(0, os.path.abspath("../../omics_utils")) # Folder to preprocess.py had to be specified individually.
 
 
 # Configuration file for the Sphinx documentation builder.
@@ -13,8 +15,8 @@ sys.path.insert(0, str(Path('../../omics_utils').resolve()))
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'Omics Utils'
-copyright = '2025, The Omics Team' # noqa: A001
-author = 'The Omics Team'
+copyright = '2025, The BIFOLD Pathomics Team' # noqa: A001
+author = 'The BIFOLD Pathomics Team'
 release = 'v0.0.13'
 
 # -- General configuration ---------------------------------------------------
@@ -24,6 +26,7 @@ extensions = [
 <<<<<<< HEAD
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
+    'sphinx_autodoc_typehints',
     'myst_parser']
 =======
     'sphinx.ext.autodoc',	

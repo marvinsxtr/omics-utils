@@ -9,6 +9,7 @@ Subpackages
 
    omics_utils.configs
    omics_utils.converter
+   omics_utils.pipeline
    omics_utils.splitting
    omics_utils.utils
 

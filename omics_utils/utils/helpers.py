@@ -48,7 +48,7 @@ def densify_matrix(sparse_matrix: sp.spmatrix) -> np.ndarray:
     """Replaces missing values with `np.nan` while preserving zeros.
 
     Args:
-        sparse_matrix (sparse.spmatrix): The sparse matrix to densify, e.g. in csr format.
+        sparse_matrix: The sparse matrix to densify, e.g. in csr format.
 
     Returns:
         The densified matrix.
@@ -71,7 +71,8 @@ def sparsify_matrix(dense_matrix: np.ndarray) -> sp.csr_matrix:
     mask = ~np.isnan(dense_matrix)
     rows, cols = np.nonzero(mask)
     values = dense_matrix[mask]
-    sparse_matrix = sp.csr_matrix((values, (rows, cols)), shape=dense_matrix.shape)
+    sparse_matrix = sp.csr_matrix(
+        (values, (rows, cols)), shape=dense_matrix.shape)
     return sparse_matrix
 
 

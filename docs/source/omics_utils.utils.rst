@@ -1,6 +1,14 @@
 omics\_utils.utils package
 ==========================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   omics_utils.utils.tests
+
 Submodules
 ----------
 
