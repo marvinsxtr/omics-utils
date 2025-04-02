@@ -1,5 +1,5 @@
-import sys
 import os
+import sys
 
 # Folder to preprocess.py had to be specified individually.
 sys.path.insert(0, os.path.abspath("../../omics_utils"))  # noqa: PTH100
