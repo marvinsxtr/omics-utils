@@ -21,9 +21,16 @@ release = 'v0.0.13'
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
+<<<<<<< HEAD
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
     'myst_parser']
+=======
+    'sphinx.ext.autodoc',	
+    'sphinx.ext.napoleon',
+    'myst_parser'	
+]
+>>>>>>> ad36c56 (Rebase README.md)
 
 templates_path = ['_templates']
 exclude_patterns = []

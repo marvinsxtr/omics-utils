@@ -7,11 +7,23 @@ class Step(ABC):
     """Base preprocessing step in a modular ETL pipeline. Also see `PreprocessingPipeline`."""
 
     def __init__(self, base_dir: str) -> None:
+<<<<<<< HEAD
         """Initializes an instance of a base preprocessing step.
 
         Args:
             base_dir: Folder where a subfolder is created for each preprocessing step.
         """
+=======
+        """
+        Initializes an instance of a base preprocessing step.
+        
+        Parameters
+        ----------
+        base_dir: str 
+            Folder where a subfolder is created for each preprocessing step.
+        
+	"""
+>>>>>>> ad36c56 (Rebase README.md)
         base_path = Path(base_dir)
 
         input_path = base_path / self.input_step if self.input_step is not None else None
@@ -37,9 +49,17 @@ class Step(ABC):
     def read(self) -> Any:
         """Read the data from the previous step or the input data.
 
+<<<<<<< HEAD
         Returns:
             The data ready for transformation.
         """
+=======
+        Returns
+        -------
+        The data ready for transformation.
+        
+	"""
+>>>>>>> ad36c56 (Rebase README.md)
         ...
 
     @abstractmethod
@@ -49,8 +69,15 @@ class Step(ABC):
         Args:
             args: The input data.
 
+<<<<<<< HEAD
         Returns:
             The transformed output.
+=======
+        Returns
+        -------
+        The transformed output.
+        
+>>>>>>> ad36c56 (Rebase README.md)
         """
         ...
 
@@ -58,8 +85,16 @@ class Step(ABC):
     def write(self, *args: Any) -> None:
         """Save the result of the transformation.
 
+<<<<<<< HEAD
         Args:
             args: The transformed data.
+=======
+        Parameters
+        ----------
+        args: Any 
+            The transformed data.
+        
+>>>>>>> ad36c56 (Rebase README.md)
         """
         ...
 

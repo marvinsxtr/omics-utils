@@ -19,3 +19,15 @@ Module contents
    :members:
    :undoc-members:
    :show-inheritance:
+<<<<<<< HEAD
+=======
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: omics_utils.splitting
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
