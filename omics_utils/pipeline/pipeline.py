@@ -7,7 +7,6 @@ from ml_project_template.common.logging.logger import logger
 
 from omics_utils.pipeline.step import Step
 from omics_utils.utils.helpers import get_output_dir
-from omics_utils.pipeline.step import Step
 
 
 # TODO(marvin): Write documentation of the input schema this class expects.
