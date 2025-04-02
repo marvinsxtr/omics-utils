@@ -28,19 +28,10 @@ class Stratifier(Step):
         """Initializes an instance of a stratifier.
 
         Args:
-<<<<<<< HEAD
             splitter: Splitter to use for stratification, grouping and shuffling among folds
             converter: Converter used to convert the `DataFrame` format back to `AnnData`
             seed: Seed to use for shuffling of the dataset
             partition_size: The size of the resulting partitions in MB/GB. Should not be larger than memory.
-=======
-            *args: TODO
-            splitter (Splitter): Splitter to use for stratification, grouping and shuffling among folds.
-            converter (AnndataConverter): Converter used to convert the ``DataFrame`` format back to ``AnnData``.
-            seed (int): Seed to use for shuffling of the dataset.
-            partition_size (str ): The size of the resulting partitions in MB/GB. Should not be larger than memory.
-            **kwargs: TODO
->>>>>>> 56f1bdd (Add Sphinx to pyproject.toml and minor bugfixes)
         """
         super().__init__(*args, **kwargs)
 
@@ -79,17 +70,21 @@ class Stratifier(Step):
             A tuple of a dict containing a mapping of the fold index to the data split and the metadata `DataFrame`.
         """
         metadata_df: pd.DataFrame = (
-            data_df[[ColumnNames.CASE_ID, *self.converter.obs_cols]].drop_duplicates().reset_index(drop=True).compute()
+            data_df[[ColumnNames.CASE_ID, *self.converter.obs_cols]
+                    ].drop_duplicates().reset_index(drop=True).compute()
         )
         metadata_df = metadata_df.set_index(ColumnNames.CASE_ID)
         metadata_df = self.splitter.split(metadata_df)
 
-        joined_df: dd.DataFrame = data_df.join(metadata_df[[ColumnNames.FOLD]], on=ColumnNames.CASE_ID)
+        joined_df: dd.DataFrame = data_df.join(
+            metadata_df[[ColumnNames.FOLD]], on=ColumnNames.CASE_ID)
 
         folds = {}
         for fold_idx in range(self.splitter.n_splits):
-            fold_df = joined_df[joined_df[ColumnNames.FOLD] == fold_idx].sample(frac=1, random_state=self.seed)
-            fold_df = global_reset_index(fold_df).compute_current_divisions(set_divisions=True)
+            fold_df = joined_df[joined_df[ColumnNames.FOLD] == fold_idx].sample(
+                frac=1, random_state=self.seed)
+            fold_df = global_reset_index(
+                fold_df).compute_current_divisions(set_divisions=True)
             folds[fold_idx] = fold_df
 
         return folds, metadata_df
@@ -107,7 +102,8 @@ class Stratifier(Step):
         """
         part = partition_info["number"]
         adata = self.converter.dataframe_to_anndata(df)
-        write_h5ad(output_dir / f"fold_{fold_idx}_part_{part}.h5ad", adata, convert_strings_to_categoricals=False)
+        write_h5ad(output_dir / f"fold_{fold_idx}_part_{part}.h5ad",
+                   adata, convert_strings_to_categoricals=False)
 
     def write(self, folds: dict[int, dd.DataFrame], metadata_df: pd.DataFrame) -> None:
         """Save the folds and the case metadata separately.
@@ -123,7 +119,8 @@ class Stratifier(Step):
         limits = {}
         for fold_idx, fold_df in folds.items():
             limits[fold_idx] = list(fold_df.divisions)[1:]
-            fold_df.map_partitions(self.df_to_anndata, self.split_path, fold_idx, meta=fold_df.head()).compute()
+            fold_df.map_partitions(
+                self.df_to_anndata, self.split_path, fold_idx, meta=fold_df.head()).compute()
 
         with Path.open(self.output_path / "limits.yaml", "w") as outfile:
             yaml.dump(limits, outfile, default_flow_style=False)
