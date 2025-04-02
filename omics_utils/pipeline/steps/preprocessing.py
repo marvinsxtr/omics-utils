@@ -23,13 +23,14 @@ class Preprocessing(Step, ABC):
         meta_partition_size: int | None = None,
         **kwargs,
     ) -> None:
-        """Args:
+        """ 
+        Args:
             converter: Converter used to transform AnnData objects into DataFrames and the other way around.
             input_dir: Folder where the input `AnnData` files are saved.
             n_partitions: Number of output partitions.
             n_debug: Take the first n input files only for debugging purposes.
             meta_partition_size: Number of files to process at a time, useful for saving resources.
-        """
+        """  # noqa: D107
         super().__init__(*args, **kwargs)
         input_path = Path(input_dir)
 

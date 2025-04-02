@@ -23,12 +23,13 @@ class CellXGenePreprocessing(Preprocessing):
         chunk_size: int = 100000,
         **kwargs,
     ) -> None:
-        """Args:
+        """
+        Args:
             input_dir: Folder where the input CellXGene `AnnData` files are saved.
             converter: Converter to convert `AnnData` into a `DataFrame` format.
             n_debug: Take the first n input files only for debugging purposes.
             chunk_size: Chunk size of the expression matrix in dask.
-        """
+        """  # noqa: D107
         super().__init__(*args, converter=converter,
                          input_dir=input_dir, n_debug=n_debug, **kwargs)
         self.chunk_size = chunk_size
