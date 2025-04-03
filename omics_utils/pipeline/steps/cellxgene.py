@@ -23,15 +23,15 @@ class CellXGenePreprocessing(Preprocessing):
         chunk_size: int = 100000,
         **kwargs,
     ) -> None:
-        """Args:
-        ----
-          input_dir: Folder where the input CellXGene `AnnData` files are saved.
-          converter: Converter to convert `AnnData` into a `DataFrame` format.
-          gene_vocab_file: Path to the gene vocabulary to filter by.
-          n_debug: Take the first n input files only for debugging purposes.
-          chunk_size: Chunk size of the expression matrix in dask.
         """
-        super().__init__(*args, converter=converter, input_dir=input_dir, n_debug=n_debug, **kwargs)
+        Args:
+            input_dir: Folder where the input CellXGene `AnnData` files are saved.
+            converter: Converter to convert `AnnData` into a `DataFrame` format.
+            n_debug: Take the first n input files only for debugging purposes.
+            chunk_size: Chunk size of the expression matrix in dask.
+        """  # noqa: D212
+        super().__init__(*args, converter=converter,
+                         input_dir=input_dir, n_debug=n_debug, **kwargs)
         self.chunk_size = chunk_size
 
     def read(self, input_files: list[Path]) -> dd.DataFrame:
@@ -40,17 +40,16 @@ class CellXGenePreprocessing(Preprocessing):
         NOTE: In this case the read step contains the transform step for compatibility with dask.
 
         Args:
-        ----
-          input_files: File paths to process in parallel.
+            input_files: File paths to process in parallel.
 
         Returns:
-        -------
-        The data ready for transformation.
+            The data ready for transformation.
         """
         if self.n_debug is not None:
             input_files = input_files[: self.n_debug]
 
-        delayed = db.from_sequence(input_files).map(self.transform).flatten().compute()
+        delayed = db.from_sequence(input_files).map(
+            self.transform).flatten().compute()
         data_df = dd.from_delayed(delayed, meta=self.meta_df)
 
         return data_df
@@ -59,12 +58,10 @@ class CellXGenePreprocessing(Preprocessing):
         """Preprocess a single `AnnData` file.
 
         Args:
-        ----
-          file_path: Path to the `AnnData` file to be transformed.
+            file_path: Path to the `AnnData` file to be transformed.
 
         Returns:
-        -------
-        A list of `Delayed` tasks for preprocessing.
+            A list of `Delayed` tasks for preprocessing.
         """
         with h5py.File(file_path, "r") as f:
             adata = ad.AnnData(
@@ -77,11 +74,13 @@ class CellXGenePreprocessing(Preprocessing):
             encoding = source.attrs.get("encoding-type")
 
             if encoding == "csr_matrix":
-                adata.X = ad.experimental.read_elem_as_dask(source, chunks=(self.chunk_size, adata.shape[1]))
+                adata.X = ad.experimental.read_elem_as_dask(
+                    source, chunks=(self.chunk_size, adata.shape[1]))
             elif encoding == "csc_matrix":
                 return []
             else:
-                raise NotImplementedError(f"The encoding {encoding} is not implemented.")
+                raise NotImplementedError(
+                    f"The encoding {encoding} is not implemented.")
 
         adata.obs = adata.obs.rename(columns={"donor_id": ColumnNames.CASE_ID})
 

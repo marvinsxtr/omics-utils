@@ -11,7 +11,7 @@ from omics_utils.utils.serialization import deserialize_sparse_matrix
 
 
 def test_anndata_to_dataframe_sparse() -> None:
-    """Test conversion from AnnData to DataFrame using sparse format."""
+    """Test conversion from `AnnData` to `DataFrame` using sparse format."""
     X = sp.csr_matrix(np.array([[1.0, 0.0, 3.0], [0.0, 2.0, 0.0]]))
     obs = pd.DataFrame({ColumnNames.CASE_ID: ["case1", "case2"], "cell_type": ["A", "B"]})
     var = pd.DataFrame(index=["gene1", "gene2", "gene3"])
@@ -34,7 +34,7 @@ def test_anndata_to_dataframe_sparse() -> None:
 
 
 def test_dataframe_to_anndata_sparse() -> None:
-    """Test conversion from DataFrame to AnnData using sparse format."""
+    """Test conversion from `DataFrame` to `AnnData` using sparse format."""
     X_original = sp.csr_matrix(np.array([[1.0, 0.0, 3.0], [0.0, 2.0, 0.0]]))
     obs_original = pd.DataFrame({ColumnNames.CASE_ID: ["case1", "case2"], "cell_type": ["A", "B"]})
     var_original = pd.DataFrame(index=["gene1", "gene2", "gene3"])

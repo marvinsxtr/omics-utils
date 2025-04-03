@@ -16,7 +16,7 @@ from omics_utils.utils.serialization import deserialize_sparse_matrix, serialize
 
 
 class AnndataConverter:
-    """Converter between AnnData objects and DataFrames with serialized sparse matrices.
+    """Converter between `AnnData` objects and `DataFrames` with serialized sparse matrices.
 
     NOTE: This class only keeps `X`, `obs` and `var_names`, everything else will be discarded.
     """
@@ -31,17 +31,17 @@ class AnndataConverter:
         """Initialize the converter.
 
         Args:
-        ----
-            obs_cols: Columns to retain from the `obs` `DataFrame`. E.g. sample-level metadata.
-            var_cols: Data columns to retain from the `X` array. E.g. genes. Inserts columns which are in this list but
-              not in the data as empty columns.
-            var_cols_file: Path to a csv file to load the column names from. The file should contain the names
-              separated by new lines.
-            sparse: Whether to save the samples in a sparse format or as a dense `DataFrame`
+            obs_cols (list[str]): Columns to retain from the `obs` `DataFrame`, e.g. sample-level metadata
+            var_cols (list[str]): Data columns to retain from the `X` array, e.g. genes. Inserts columns which are
+                in this list but not in the data as empty columns.
+            var_cols_file (str): Path to a csv file to load the column names from. The file should contain the names
+                separated by new lines.
+            sparse (bool): Whether to save the samples in a sparse format or as a dense `DataFrame`.
         """
         if var_cols is not None and var_cols_file is not None:
             raise ValueError(
-                "Cannot provide the `var_cols` and load `var_cols_file` at the same time. One option has to be None."
+                "Cannot provide the `var_cols` and load `var_cols_file` at the same time. One option has to be"
+                "None."
             )
 
         if var_cols_file is not None:
@@ -49,7 +49,8 @@ class AnndataConverter:
                 raise ValueError(f"The given {var_cols_file=} does not exist.")
 
             var_cols = (
-                pd.read_csv(var_cols_file, header=None, index_col=None, names=["name"])["name"].to_numpy().tolist()
+                pd.read_csv(var_cols_file, header=None, index_col=None, names=["name"])[
+                    "name"].to_numpy().tolist()
             )
 
         self.sparse = sparse
@@ -69,15 +70,18 @@ class AnndataConverter:
         def serialize_partition(block: sp.csr_matrix, obs_names_part: list[str], obs: pd.DataFrame) -> pd.DataFrame:
             """Serialize a partition of data."""
             sparse_vectors = [serialize_sparse_matrix(row) for row in block]
-            df = pd.DataFrame({ColumnNames.SPARSE_VECTOR: sparse_vectors}, index=obs_names_part)
+            df = pd.DataFrame(
+                {ColumnNames.SPARSE_VECTOR: sparse_vectors}, index=obs_names_part)
             return self.join_metadata(df, obs)
 
         X_dask = adata.X
         obs_names = adata.obs_names
         offsets = np.cumsum((0,) + X_dask.chunks[0])
 
-        arrays = [X_dask[offsets[i] : offsets[i + 1]] for i in range(len(X_dask.chunks[0]))]
-        names = [obs_names[offsets[i] : offsets[i + 1]] for i in range(len(X_dask.chunks[0]))]
+        arrays = [X_dask[offsets[i]: offsets[i + 1]]
+                  for i in range(len(X_dask.chunks[0]))]
+        names = [obs_names[offsets[i]: offsets[i + 1]]
+                 for i in range(len(X_dask.chunks[0]))]
 
         return [dask.delayed(serialize_partition)(a, n, adata.obs) for a, n in zip(arrays, names, strict=False)]
 
@@ -85,27 +89,25 @@ class AnndataConverter:
         """Join the observation metadata and IDs to the main `DataFrame`.
 
         Args:
-          df: `DataFrame` containing the cells as serialized strings.
-          obs: `DataFrame` containing `AnnData.obs`.
+            df: `DataFrame` containing the cells as serialized strings.
+            obs: `DataFrame` containing `AnnData.obs`.
 
         Returns:
-        The joined `DataFrame`.
+            The joined `DataFrame`.
         """
         return df.join(obs[[ColumnNames.CASE_ID, ColumnNames.SAMPLE_ID, *self.obs_cols]].astype(str))
 
     def anndata_to_dataframe(self, adata: anndata.AnnData) -> pd.DataFrame | list[Delayed]:
         """Convert an AnnData object to a DataFrame.
 
-        The result will have all obs metadata plus a 'sparse_vector' column
+        The result will have all obs metadata plus a `sparse_vector` column
         containing the serialized expression data for each cell.
 
         Args:
-        ----
-            adata: AnnData object to convert
+            adata: `AnnData` object to convert
 
         Returns:
-        -------
-            DataFrame with cell metadata and serialized expression data or a list of `Delayed` tasks.
+            `DataFrame` with cell metadata and serialized expression data or a list of `Delayed` tasks.
         """
         adata.obs = self._prepare_metadata(adata)
 
@@ -117,11 +119,14 @@ class AnndataConverter:
                 df = [] if adata.n_obs == 0 else self.serialize(adata)
             elif isinstance(adata.X, sp.csr_matrix):
                 sparse_vectors = [serialize_sparse_matrix(x) for x in adata.X]
-                df = pd.DataFrame({ColumnNames.SPARSE_VECTOR: sparse_vectors}, index=adata.obs_names).astype(str)
+                df = pd.DataFrame(
+                    {ColumnNames.SPARSE_VECTOR: sparse_vectors}, index=adata.obs_names).astype(str)
                 df = self.join_metadata(df, adata.obs)
         else:
-            X = densify_matrix(adata.X) if isinstance(adata.X, sp.spmatrix) else adata.X
-            df = pd.DataFrame(X, index=adata.obs_names, columns=adata.var_names)
+            X = densify_matrix(adata.X) if isinstance(
+                adata.X, sp.spmatrix) else adata.X
+            df = pd.DataFrame(X, index=adata.obs_names,
+                              columns=adata.var_names)
             df = self.join_metadata(df, adata.obs)
 
             if self.var_cols is not None:
@@ -130,19 +135,19 @@ class AnndataConverter:
         return df
 
     def dataframe_to_anndata(self, df: pd.DataFrame) -> anndata.AnnData:
-        """Convert a DataFrame back to an AnnData object.
+        """Convert a `DataFrame` back to an `AnnData` object.
 
         Args:
-        ----
-            df: DataFrame with serialized expression data
+            df: `DataFrame` with serialized expression data
 
         Returns:
-        -------
-            Reconstructed AnnData object
+            Reconstructed `AnnData` object.
         """
-        id_cols = {ColumnNames.CASE_ID, ColumnNames.FOLD, ColumnNames.SAMPLE_ID}
+        id_cols = {ColumnNames.CASE_ID,
+                   ColumnNames.FOLD, ColumnNames.SAMPLE_ID}
 
-        var_cols = self.var_cols if self.var_cols is not None else list(set(df.columns) - set(self.obs_cols) - id_cols)
+        var_cols = self.var_cols if self.var_cols is not None else list(
+            set(df.columns) - set(self.obs_cols) - id_cols)
         var = pd.DataFrame(index=var_cols)
 
         obs_cols = list(set(self.obs_cols) | id_cols)
@@ -155,7 +160,8 @@ class AnndataConverter:
                     f"`{ColumnNames.SPARSE_VECTOR}`."
                 )
 
-            sparse_rows = [deserialize_sparse_matrix(row) for row in df[ColumnNames.SPARSE_VECTOR]]
+            sparse_rows = [deserialize_sparse_matrix(
+                row) for row in df[ColumnNames.SPARSE_VECTOR]]
             X = sp.vstack(sparse_rows, format="csr")
         else:
             X = sparsify_matrix(df[var_cols].to_numpy(dtype=float))
@@ -166,12 +172,10 @@ class AnndataConverter:
         """Prepare the metadata by renaming the columns and adding additional identifiers.
 
         Args:
-        ----
-          adata: The `AnnData` object to extract the metadata from.
+            adata: The `AnnData` object to extract the metadata from
 
         Returns:
-        -------
-        The metadata as a `DataFrame`.
+            The metadata as a `DataFrame`.
         """
         obs = adata.obs
 
@@ -179,12 +183,14 @@ class AnndataConverter:
         if ColumnNames.SAMPLE_ID in obs.columns:
             obs["original_sample_id"] = obs[ColumnNames.SAMPLE_ID]
 
-        obs[ColumnNames.SAMPLE_ID] = [str(uuid.uuid4()) for _ in range(len(adata.obs))]
+        obs[ColumnNames.SAMPLE_ID] = [
+            str(uuid.uuid4()) for _ in range(len(adata.obs))]
         obs[ColumnNames.SAMPLE_ID] = obs[ColumnNames.SAMPLE_ID].astype(str)
 
         # If data does not contain a case_id, generate it from sample_id
         if ColumnNames.CASE_ID not in obs.columns:
-            obs[ColumnNames.CASE_ID] = [str(uuid.uuid4()) for _ in range(len(obs))]
+            obs[ColumnNames.CASE_ID] = [
+                str(uuid.uuid4()) for _ in range(len(obs))]
             obs[ColumnNames.CASE_ID] = obs[ColumnNames.CASE_ID].astype(str)
         else:
             obs[ColumnNames.CASE_ID] = (
@@ -193,37 +199,40 @@ class AnndataConverter:
                 .astype(str)
             )
 
-        obs = obs.set_index(ColumnNames.SAMPLE_ID, drop=False).rename_axis(None)
+        obs = obs.set_index(ColumnNames.SAMPLE_ID,
+                            drop=False).rename_axis(None)
 
         return obs
 
     def reindex_anndata_genes(self, adata: ad.AnnData, genes: list[str]) -> ad.AnnData:
-        """Reindex AnnData to exactly match a gene list while preserving sparsity.
+        """Reindex `AnnData` to exactly match a gene list while preserving sparsity.
 
         Args:
-        ----
-        adata: AnnData object to reindex
-        genes: List of gene names to enforce
+            adata: `AnnData` object to reindex
+            genes: List of gene names to enforce
 
         Returns:
-        -------
-        New AnnData with exactly the genes specified, in the specified order.
+            New `AnnData` object with exactly the genes specified, in the specified order.
         """
         n_genes = len(genes)
         common_genes = list(set(genes) & set(adata.var_names))
 
         if adata.n_obs == 0:
-            raise ValueError("Must have at least one observation to reindex the genes.")
+            raise ValueError(
+                "Must have at least one observation to reindex the genes.")
 
         if isinstance(adata.X, sp.csr_matrix | da.Array):
-            old_indices = np.array([adata.var_names.get_loc(g) for g in common_genes])
+            old_indices = np.array([adata.var_names.get_loc(g)
+                                   for g in common_genes])
             new_indices = np.array([genes.index(g) for g in common_genes])
 
-            P = sp.csr_matrix((np.ones(len(common_genes)), (old_indices, new_indices)), shape=(adata.n_vars, n_genes))
+            P = sp.csr_matrix((np.ones(len(common_genes)), (old_indices, new_indices)), shape=(
+                adata.n_vars, n_genes))
 
             new_X = adata.X.dot(P)
         else:
-            raise NotImplementedError(f"The type {type(adata.X)} is not supported.")
+            raise NotImplementedError(
+                f"The type {type(adata.X)} is not supported.")
 
         return ad.AnnData(
             new_X,

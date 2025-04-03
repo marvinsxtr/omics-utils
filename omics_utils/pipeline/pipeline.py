@@ -3,7 +3,7 @@ from pathlib import Path
 from dask.distributed import Client, LocalCluster
 from dask_jobqueue import JobQueueCluster
 from hydra_zen.typing import Partial
-from ml_project_template.common.logging.logger import logger
+from ml_project_template.utils import logger
 
 from omics_utils.pipeline.step import Step
 from omics_utils.utils.helpers import get_output_dir
@@ -25,14 +25,16 @@ class Pipeline:
         cluster: JobQueueCluster | LocalCluster | None = None,
         scale: int = 10,
     ) -> None:
-        """Args:
-        ----
-          steps: Preprocessing steps to perform in sequence.
-          output_dir: Output path to save intermediate and final preprocessing outputs in. By default this is the
-            hydra output directory (`outputs`).
-          force_recompute: Whether to recompute already existing intermediate results.
-          cluster: Configured cluster to use for distributed preprocessing using dask.
-          scale: Number of jobs to start on the cluster. Defaults to 10.
+        """Initializes an instance of a preprocessing pipeline.
+
+        Args:
+            steps: Preprocessing steps to perform in sequence
+            output_dir: Output path to save intermediate and final preprocessing outputs in. By default,
+                this is the hydra output directory ("outputs").
+            force_recompute: Whether to recompute already existing intermediate results.
+            cluster: Configured cluster to use for distributed preprocessing
+                using `dask`
+            scale: Number of jobs to start on the cluster. Defaults to 10.
         """
         output_path = get_output_dir() if output_dir is None else Path(output_dir)
         output_path.mkdir(parents=True, exist_ok=True)
@@ -47,8 +49,7 @@ class Pipeline:
         """Configures the Slurm cluster for multi-node processing using dask.
 
         Args:
-        ----
-          cluster: The dask jobqueue cluster to use.
+            cluster: The dask jobqueue cluster to use.
         """
         if isinstance(cluster, LocalCluster):
             logger.info("Running locally...")

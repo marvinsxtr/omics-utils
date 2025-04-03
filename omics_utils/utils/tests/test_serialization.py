@@ -24,3 +24,4 @@ def test_csr_matrix_serialization() -> None:
     assert deserialized.shape == csr_matrix.shape, "Shape mismatch"
 
     np.testing.assert_array_equal(deserialized.toarray(), csr_matrix.toarray(), err_msg="Matrix contents don't match")
+

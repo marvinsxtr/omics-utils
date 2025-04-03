@@ -11,16 +11,11 @@ class MethylationPreprocessing(Preprocessing):
     """Preprocessing of DNA methylation array `AnnData` files."""
 
     def transform(self, file_path: Path) -> pd.DataFrame:
-        """Preprocess a single `AnnData` file. Since the methylation array data are already preprocessed this only
+        """Preprocess a single `AnnData` file. Since the methylation array data are already preprocessed, this only
         adjusts column spelling.
 
-        Args:
-        ----
-          file_path: Path to the `AnnData` file to be transformed.
-
         Returns:
-        -------
-        The preprocessed data as a pandas `DataFrame`.
+            The preprocessed data as a pandas `DataFrame`.
         """
         adata = ad.read_h5ad(file_path)
 

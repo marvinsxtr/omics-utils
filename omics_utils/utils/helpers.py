@@ -4,15 +4,14 @@ import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
-from ml_project_template.common.utils.config import get_hydra_output_dir
+from ml_project_template.utils import get_hydra_output_dir
 
 
 def get_output_dir() -> Path:
     """Get the current output directory.
 
-    Returns
-    -------
-    Output path of the current run.
+    Returns:
+        Output path of the current run.
     """
     try:
         output_dir = get_hydra_output_dir()
@@ -26,12 +25,10 @@ def remove_empty_partitions(df: dd.DataFrame) -> dd.DataFrame:
     """Removes empty partitions from a dask `DataFrame`.
 
     Args:
-    ----
-      df: Dask `DataFrame` to remove empty partitions from.
+        df: Dask `DataFrame` to remove empty partitions from.
 
     Returns:
-    -------
-    Dask `DataFrame` without empty partitions.
+        Dask `DataFrame` without empty partitions.
     """
     ll = list(df.map_partitions(len).compute())
     df_delayed = df.to_delayed()
@@ -51,12 +48,10 @@ def densify_matrix(sparse_matrix: sp.spmatrix) -> np.ndarray:
     """Replaces missing values with `np.nan` while preserving zeros.
 
     Args:
-    ----
-      sparse_matrix: The sparse matrix to densify, e.g. in csr format.
+        sparse_matrix: The sparse matrix to densify, e.g. in csr format.
 
     Returns:
-    -------
-    The densified matrix.
+        The densified matrix.
     """
     dense = np.full(sparse_matrix.shape, np.nan)
     coo = sparse_matrix.tocoo()
@@ -68,12 +63,10 @@ def sparsify_matrix(dense_matrix: np.ndarray) -> sp.csr_matrix:
     """Convert a dense matrix to a sparse matrix where `np.nan` are not explicitly stored.
 
     Args:
-    ----
-      dense_matrix: Matrix to sparsify.
+        dense_matrix: Matrix to sparsify.
 
     Returns:
-    -------
-    The sparse matrix storing zeros explicitly and not storing `np.nan`.
+        The sparse matrix storing zeros explicitly and not storing `np.nan`.
     """
     mask = ~np.isnan(dense_matrix)
     rows, cols = np.nonzero(mask)
@@ -86,12 +79,10 @@ def global_reset_index(df: dd.DataFrame) -> dd.DataFrame:
     """Resets the index of a dask `DataFrame` globally instead of per partition.
 
     Args:
-    ----
-      df: Dask `DataFrame` to reset the index of.
+        df: Dask `DataFrame` to reset the index of.
 
     Returns:
-    -------
-    Dask `DataFrame` with a globally reset index.
+        Dask `DataFrame` with a globally reset index.
     """
     index_name = "__tmp_idx"
     df = df.assign(**{index_name: 1})
@@ -104,12 +95,10 @@ def sanitize_dtypes(df: pd.DataFrame) -> pd.DataFrame:
     """Sanitize the dtypes of a `DataFrame` for compatibility with anndata.
 
     Args:
-    ----
-      df: The `DataFrame` to sanitize.
+        df: The `DataFrame` to sanitize.
 
     Returns:
-    -------
-    The `DataFrame` with sanitized dtypes.
+        The `DataFrame` with sanitized dtypes.
     """
     dtypes = {}
     for name, dtype in df.dtypes.items():

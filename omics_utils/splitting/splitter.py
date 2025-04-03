@@ -14,12 +14,10 @@ class Splitter(ABC):
         """Generate a new split of a metadata `DataFrame` into folds.
 
         Args:
-        ----
-          df: `DataFrame` to be split into folds.
+            df: `DataFrame` to be split into folds.
 
         Returns:
-        -------
-        `DataFrame` containing the fold indices in a new `ColumnNames.FOLD` column.
+            `DataFrame` containing the fold indices in a new `ColumnNames.FOLD` column.
         """
         ...
 
@@ -33,11 +31,12 @@ class StratifiedSplitter(Splitter):
         stratification_columns: list[str] | None = None,
         grouping_column: list[str] | None = None,
     ) -> None:
-        """Args:
-        ----
-          sklearn_splitter: Sklearn splitter to use for the split.
-          stratification_columns: Subset of columns defining the metadata subset to stratify by.
-          grouping_column: Column containing the metadata to group by.
+        """Creates an instance of a stratified splitter.
+
+        Args:
+            sklearn_splitter: Sklearn splitter to use for the split
+            stratification_columns: Subset of columns defining the metadata subset to stratify by
+            grouping_column: Column containing the metadata to group by
         """
         self.sklearn_splitter = sklearn_splitter
         self.n_splits = 2 if isinstance(sklearn_splitter, StratifiedShuffleSplit) else sklearn_splitter.get_n_splits()
@@ -48,7 +47,7 @@ class StratifiedSplitter(Splitter):
         """Validate the input `DataFrame` column data types and subset."""
         strat_cols = self.stratification_columns
         if strat_cols is not None and (not set(strat_cols).issubset(df.columns)):
-            raise ValueError(f"The `stratification_columns` have to be all in `df`. Got {strat_cols}.")
+            raise ValueError(f"The `stratification_columns` have to be all in `f`. Got {strat_cols}.")
 
         group_col = self.grouping_column
         if group_col is not None and (not set(group_col).issubset(df.columns)):
@@ -58,12 +57,10 @@ class StratifiedSplitter(Splitter):
         """Perform a stratified split of a `DataFrame` into folds.
 
         Args:
-        ----
-          df: A `DataFrame` containing metadata to stratify by.
+            df: A `DataFrame` containing metadata to stratify by.
 
         Returns:
-        -------
-        A `DataFrame` containing the fold indices in the `ColumnNames.FOLD` column.
+            A `DataFrame` containing the fold indices in the `ColumnNames.FOLD` column.
         """
         self._validate_input_df(df)
 

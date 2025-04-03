@@ -1,7 +1,11 @@
+[build-system]
+requires = ["setuptools>=64.0"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "omics-utils"
-version = "0.0.1"
-requires-python = "~=3.12"
+version = "0.0.24"
+requires-python = ">=3.12"
 dependencies = [
   "hydra-zen>=0.13.0",
   "submitit>=1.5.1",
@@ -19,8 +23,12 @@ dependencies = [
   "scanpy==1.11.0",
   "pyarrow>=19.0.0",
   "dask-jobqueue>=0.9.0",
-  "ml-project-template",
+  "ml-project-template>=0.0.12",
   "bokeh>=3.6.3",
+  "sphinx>=7.3.7",
+  "pydata-sphinx-theme>=0.16.1",
+  "myst-parser>=4.0.1",
+  "sphinx-autodoc-typehints>=3.1.0",
   "sklearn-ann>=0.1.2",
   "scipy>=1.15.1",
   "pytest>=8.3.5",
@@ -36,7 +44,7 @@ dev = [
 ]
 
 [tool.uv.sources]
-ml-project-template = { git = "https://github.com/marvinsxtr/ml-project-template.git" }
+ml-project-template = { git = "https://github.com/marvinsxtr/ml-project-template.git", tag = "v0.0.12" }
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
@@ -66,6 +74,7 @@ ignore = [
     "D100",
     "D104",
     "D107",
+    "D417",
     "D205",
     "PD901",
     "D400",
@@ -122,3 +131,10 @@ ignore = [
     "ARG",
     "FBT",
 ]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.setuptools.packages.find]
+where = ["omics_utils"]
+exclude = ["notebooks"]

@@ -23,14 +23,14 @@ class Preprocessing(Step, ABC):
         meta_partition_size: int | None = None,
         **kwargs,
     ) -> None:
-        """Args:
-        ----
-          converter: Converter used to transform AnnData objects into DataFrames and the other way around.
-          input_dir: Folder where the input `AnnData` files are saved.
-          n_partitions: Number of output partitions.
-          n_debug: Take the first n input files only for debugging purposes.
-          meta_partition_size: Number of files to process at a time, useful for saving resources.
         """
+        Args:
+            converter: Converter used to transform AnnData objects into DataFrames and the other way around.
+            input_dir: Folder where the input `AnnData` files are saved.
+            n_partitions: Number of output partitions.
+            n_debug: Take the first n input files only for debugging purposes.
+            meta_partition_size: Number of files to process at a time, useful for saving resources.
+        """  # noqa: D212
         super().__init__(*args, **kwargs)
         input_path = Path(input_dir)
 
@@ -57,7 +57,8 @@ class Preprocessing(Step, ABC):
     def meta_df(self) -> pd.DataFrame:
         """Empty `DataFrame` used by Dask to determine the output of `transform`."""
         return pd.DataFrame(
-            columns=[ColumnNames.SPARSE_VECTOR, ColumnNames.CASE_ID, ColumnNames.SAMPLE_ID, *self.converter.obs_cols],
+            columns=[ColumnNames.SPARSE_VECTOR, ColumnNames.CASE_ID,
+                     ColumnNames.SAMPLE_ID, *self.converter.obs_cols],
             index=pd.Index([], dtype=str),
             dtype=str,
         )
@@ -68,12 +69,10 @@ class Preprocessing(Step, ABC):
         NOTE: In this case the read step contains the transform step for compatibility with dask.
 
         Args:
-        ----
-          input_files: File paths to process in parallel.
+            input_files: File paths to process in parallel.
 
         Returns:
-        -------
-        The data ready for transformation.
+            The data ready for transformation.
         """
         if self.n_debug is not None:
             input_files = input_files[: self.n_debug]
@@ -84,25 +83,15 @@ class Preprocessing(Step, ABC):
 
     @abstractmethod
     def transform(self, file_path: Path) -> pd.DataFrame:
-        """Transform a single `AnnData` file.
-
-        Args:
-        ----
-          file_path: Path to the `AnnData` file to be transformed.
-
-        Returns:
-        -------
-        The data as a pandas `DataFrame`.
-        """
+        """Transform a single `AnnData` file."""
         ...
 
     def write(self, data_df: dd.DataFrame, meta_partition_index: int = 0) -> None:
         """Load/save the result of the transformation.
 
         Args:
-        ----
-          data_df: A `DataFrame` containing the patient/donor metadata and the matrix `X`.
-          meta_partition_index: Index of the sequential processing partition.
+            data_df: A `DataFrame` containing the patient/donor metadata and the matrix `X`.
+            meta_partition_index: Index of the sequential processing partition.
         """
         data_df.repartition(npartitions=self.n_partitions, force=True).to_parquet(
             self.output_path,
@@ -116,7 +105,8 @@ class Preprocessing(Step, ABC):
 
         if self.meta_partition_size is not None:
             for i, j in enumerate(range(0, len(input_files), self.meta_partition_size)):
-                data_df = self.read(input_files[j : j + self.meta_partition_size])
+                data_df = self.read(
+                    input_files[j: j + self.meta_partition_size])
                 self.write(data_df, meta_partition_index=i)
         else:
             data_df = self.read(input_files)

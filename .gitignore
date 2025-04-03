@@ -164,3 +164,6 @@ cython_debug/
 outputs
 wandb
 data/
+build/
+
+.DS_Store

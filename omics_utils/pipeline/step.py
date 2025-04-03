@@ -7,9 +7,10 @@ class Step(ABC):
     """Base preprocessing step in a modular ETL pipeline. Also see `PreprocessingPipeline`."""
 
     def __init__(self, base_dir: str) -> None:
-        """Args:
-        ----
-          base_dir: Folder where a subfolder is created for each preprocessing step.
+        """Initializes an instance of a base preprocessing step.
+
+        Args:
+            base_dir: Folder where a subfolder is created for each preprocessing step.
         """
         base_path = Path(base_dir)
 
@@ -37,12 +38,10 @@ class Step(ABC):
         """Read the data from the previous step or the input data.
 
         Args:
-        ----
-          args: The input data, e.g. file paths.
+            args: The input data, e.g. file paths.
 
         Returns:
-        -------
-        The data ready for transformation.
+            str: The data ready for transformation.
         """
         ...
 
@@ -51,12 +50,10 @@ class Step(ABC):
         """Transform the data.
 
         Args:
-        ----
-          args: The input data.
+            args: The input data.
 
         Returns:
-        -------
-        The transformed output.
+            The transformed output.
         """
         ...
 
@@ -65,8 +62,7 @@ class Step(ABC):
         """Save the result of the transformation.
 
         Args:
-        ----
-          args: The transformed data.
+            args: The transformed data.
         """
         ...
 
