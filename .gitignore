@@ -165,3 +165,5 @@ outputs
 wandb
 data/
 build/
+
+.DS_Store

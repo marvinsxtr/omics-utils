@@ -1,4 +1,4 @@
-# 🧬 Omics Utils
+# 🧬 omics-utils
 
 A modern toolkit for handling larger-than-memory datasets across multiple omics modalities using **hydra-zen** and **dask** on a Slurm cluster with Docker/Apptainer containerization.
 
@@ -22,13 +22,14 @@ A modern toolkit for handling larger-than-memory datasets across multiple omics 
 
 ## 📋 Table of Contents
 
-- [🔑 Container Registry Authentication](container-registry-authentication)
-- [🐳 Container Setup](container-setup)
-  - [Option 1: Apptainer (Slurm Cluster)](option-1-apptainer-slurm-cluster)
-  - [Option 2: Docker (Local Machine)](option-2-docker-local-machine)
-- [🧬 Running Preprocessing](running-preprocessing)
-- [📦 Package Management](package-management)
-- [👥 Contributions](contributions)
+- [🔑 Container Registry Authentication](#container-registry-authentication)
+- [🐳 Container Setup](#container-setup)
+  - [Option 1: Apptainer (Slurm Cluster)](#option-1-apptainer-slurm-cluster)
+  - [Option 2: Docker (Local Machine)](#option-2-docker-local-machine)
+- [🧬 Running Preprocessing](#running-preprocessing)
+- [📦 Package Management](#package-management)
+- [📚 Documentation](#documentation)
+- [👥 Contributions](#contributions)
 
 (container-registry-authentication)=
 ## 🔑 Container Registry Authentication
@@ -191,6 +192,15 @@ python omics_utils/preprocess.py preprocessor=methylation
    ```bash
    docker run -it --rm --platform=linux/amd64 ghcr.io/bifold-pathomics/omics-utils:v0.0.1 /bin/bash
    ```
+
+(documentation)=
+## 📚 Documentation
+
+To build the documentation locally, run the following command in your container:
+
+```bash
+uv run sphinx-build docs/source docs/build
+```
 
 (contributions)=
 ## 👥 Contributions

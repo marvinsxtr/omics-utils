@@ -4,7 +4,7 @@ import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
-from ml_project_template.common.utils.config import get_hydra_output_dir
+from ml_project_template.utils import get_hydra_output_dir
 
 
 def get_output_dir() -> Path:
@@ -71,8 +71,7 @@ def sparsify_matrix(dense_matrix: np.ndarray) -> sp.csr_matrix:
     mask = ~np.isnan(dense_matrix)
     rows, cols = np.nonzero(mask)
     values = dense_matrix[mask]
-    sparse_matrix = sp.csr_matrix(
-        (values, (rows, cols)), shape=dense_matrix.shape)
+    sparse_matrix = sp.csr_matrix((values, (rows, cols)), shape=dense_matrix.shape)
     return sparse_matrix
 
 
