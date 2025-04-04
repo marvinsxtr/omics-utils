@@ -30,8 +30,7 @@ class CellXGenePreprocessing(Preprocessing):
             n_debug: Take the first n input files only for debugging purposes.
             chunk_size: Chunk size of the expression matrix in dask.
         """  # noqa: D212
-        super().__init__(*args, converter=converter,
-                         input_dir=input_dir, n_debug=n_debug, **kwargs)
+        super().__init__(*args, converter=converter, input_dir=input_dir, n_debug=n_debug, **kwargs)
         self.chunk_size = chunk_size
 
     def read(self, input_files: list[Path]) -> dd.DataFrame:
@@ -48,8 +47,7 @@ class CellXGenePreprocessing(Preprocessing):
         if self.n_debug is not None:
             input_files = input_files[: self.n_debug]
 
-        delayed = db.from_sequence(input_files).map(
-            self.transform).flatten().compute()
+        delayed = db.from_sequence(input_files).map(self.transform).flatten().compute()
         data_df = dd.from_delayed(delayed, meta=self.meta_df)
 
         return data_df
@@ -74,31 +72,32 @@ class CellXGenePreprocessing(Preprocessing):
             encoding = source.attrs.get("encoding-type")
 
             if encoding == "csr_matrix":
-                adata.X = ad.experimental.read_elem_as_dask(
-                    source, chunks=(self.chunk_size, adata.shape[1]))
+                adata.X = ad.experimental.read_elem_as_dask(source, chunks=(self.chunk_size, adata.shape[1]))
             elif encoding == "csc_matrix":
                 return []
             else:
-                raise NotImplementedError(
-                    f"The encoding {encoding} is not implemented.")
+                raise NotImplementedError(f"The encoding {encoding} is not implemented.")
 
         adata.obs = adata.obs.rename(columns={"donor_id": ColumnNames.CASE_ID})
+        adata.obs[ColumnNames.BATCH_ID] = str(file_path)
 
         # Filter out non-human tissue, non-primary and diseased data
         cell_filter = (
             (adata.obs["organism_ontology_term_id"] == "NCBITaxon:9606")
             & (adata.obs["is_primary_data"] == True)
-            & (adata.obs["disease"] == "normal")
             & (
                 adata.obs["assay"].isin(
                     [
+                        "10x transcription profiling",
+                        "10x 3' transcription profiling",
                         "10x 3' v1",
                         "10x 3' v2",
                         "10x 3' v3",
+                        "10x 3' v4",
+                        "10x 5' transcription profiling",
                         "10x 5' v1",
                         "10x 5' v2",
-                        "10x 3' transcription profiling",
-                        "10x 5' transcription profiling",
+                        "10x 5' v3",
                     ]
                 )
             )

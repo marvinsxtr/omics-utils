@@ -1,16 +1,29 @@
 from abc import ABC, abstractmethod
+from collections.abc import Generator
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
+
+from dask.distributed import Client, LocalCluster
+from dask_jobqueue import JobQueueCluster
+from ml_project_template.utils import logger
 
 
 class Step(ABC):
     """Base preprocessing step in a modular ETL pipeline. Also see `PreprocessingPipeline`."""
 
-    def __init__(self, base_dir: str) -> None:
+    def __init__(
+        self,
+        base_dir: str,
+        cluster: JobQueueCluster | LocalCluster | None = None,
+        scale: int | None = None,
+    ) -> None:
         """Initializes an instance of a base preprocessing step.
 
         Args:
             base_dir: Folder where a subfolder is created for each preprocessing step.
+            cluster: Configured cluster to use for distributed preprocessing using `dask`.
+            scale: Number of workers to use in the cluster. Only relevant when `cluster` is given.
         """
         base_path = Path(base_dir)
 
@@ -20,6 +33,8 @@ class Step(ABC):
         self.base_path = base_path
         self.input_path = input_path
         self.output_path = output_path
+        self.cluster = cluster
+        self.scale = scale
 
     @property
     @abstractmethod
@@ -65,6 +80,36 @@ class Step(ABC):
             args: The transformed data.
         """
         ...
+
+    @contextmanager
+    def cluster_context(self) -> Generator[Client, None, None]:
+        """Context manager for cluster lifecycle management.
+
+        Yields:
+            A dask Client connected to the configured cluster.
+        """
+        client = None
+        try:
+            if self.cluster is not None:
+                if isinstance(self.cluster, LocalCluster):
+                    logger.info("Running locally...")
+                else:
+                    logger.info(f"Running the following job script:\n{self.cluster.job_script()}")
+                    self.cluster.scale(jobs=self.scale)
+
+                client = Client(self.cluster)
+                logger.info(f"View dask dashboard at {client.dashboard_link}")
+
+            yield client
+
+        finally:
+            if client is not None:
+                client.shutdown()
+
+    def run_step(self) -> None:
+        """Run the pipeline step."""
+        with self.cluster_context():
+            self.run()
 
     @abstractmethod
     def run(self) -> None:
