@@ -14,6 +14,7 @@ CellXGenePreprocessingClusterConfig = builds(
     walltime="05:00:00",
     python="apptainer run oras://ghcr.io/bifold-pathomics/omics-utils:latest-sif python",
     log_directory=builds(get_output_dir),
+    zen_partial=True,
 )
 
 CellXGeneStratificationClusterConfig = CellXGenePreprocessingClusterConfig(processes=8)

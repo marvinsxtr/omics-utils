@@ -6,6 +6,7 @@ from typing import Any
 
 from dask.distributed import Client, LocalCluster
 from dask_jobqueue import JobQueueCluster
+from hydra_zen.typing import Partial
 from ml_project_template.utils import logger
 
 
@@ -15,7 +16,7 @@ class Step(ABC):
     def __init__(
         self,
         base_dir: str,
-        cluster: JobQueueCluster | LocalCluster | None = None,
+        cluster: Partial[JobQueueCluster | LocalCluster] | None = None,
         scale: int | None = None,
     ) -> None:
         """Initializes an instance of a base preprocessing step.
@@ -91,13 +92,14 @@ class Step(ABC):
         client = None
         try:
             if self.cluster is not None:
-                if isinstance(self.cluster, LocalCluster):
+                cluster: JobQueueCluster | LocalCluster = self.cluster()
+                if isinstance(cluster, LocalCluster):
                     logger.info("Running locally...")
                 else:
-                    logger.info(f"Running the following job script:\n{self.cluster.job_script()}")
-                    self.cluster.scale(jobs=self.scale)
+                    logger.info(f"Running the following job script:\n{cluster.job_script()}")
+                    cluster.scale(jobs=self.scale)
 
-                client = Client(self.cluster)
+                client = Client(cluster)
                 logger.info(f"View dask dashboard at {client.dashboard_link}")
 
             yield client
@@ -108,7 +110,7 @@ class Step(ABC):
 
     def run_step(self) -> None:
         """Run the pipeline step."""
-        with self.cluster_context():
+        with self.cluster_context() as _client:
             self.run()
 
     @abstractmethod

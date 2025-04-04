@@ -29,4 +29,3 @@ def test_preprocessing_configs(tmp_path: Path) -> None:
 
     for config, overrides in configs:
         launch(config, task_function=wrap, overrides=overrides)
-

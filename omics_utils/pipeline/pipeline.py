@@ -20,7 +20,7 @@ class Pipeline:
         steps: list[Partial[Step]],
         output_dir: str | None = None,
         force_recompute: bool = False,
-        cluster: JobQueueCluster | LocalCluster | None = None,
+        cluster: Partial[JobQueueCluster | LocalCluster] | None = None,
         scale: int | None = None,
     ) -> None:
         """Initializes an instance of a preprocessing pipeline.

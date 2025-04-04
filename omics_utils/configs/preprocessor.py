@@ -38,6 +38,7 @@ CellXGenePreprocessingConfig = builds(
         ),
         builds(Limiter, cluster=LocalClusterConfig, zen_partial=True),
     ],
+    cluster=None,
     output_dir=None,
 )
 
