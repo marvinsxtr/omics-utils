@@ -79,7 +79,7 @@ class CellXGenePreprocessing(Preprocessing):
                 raise NotImplementedError(f"The encoding {encoding} is not implemented.")
 
         adata.obs = adata.obs.rename(columns={"donor_id": ColumnNames.CASE_ID})
-        adata.obs[ColumnNames.BATCH_ID] = str(file_path)
+        adata.obs[ColumnNames.BATCH_ID] = str(file_path.stem)
 
         # Filter out non-human tissue, non-primary and diseased data
         cell_filter = (
