@@ -22,7 +22,6 @@ CellXGeneConverterConfig = builds(
         "tissue_type",
         "tissue_ontology_term_id",
         "development_stage",
-        "observation_joinid",
         "self_reported_ethnicity",
     ],
     var_cols_file="/home/space/omics/datasets/vocabulary/gene_vocabulary.csv",
