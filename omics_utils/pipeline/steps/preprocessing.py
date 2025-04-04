@@ -57,8 +57,13 @@ class Preprocessing(Step, ABC):
     def meta_df(self) -> pd.DataFrame:
         """Empty `DataFrame` used by Dask to determine the output of `transform`."""
         return pd.DataFrame(
-            columns=[ColumnNames.SPARSE_VECTOR, ColumnNames.CASE_ID,
-                     ColumnNames.SAMPLE_ID, *self.converter.obs_cols],
+            columns=[
+                ColumnNames.SPARSE_VECTOR,
+                ColumnNames.CASE_ID,
+                ColumnNames.SAMPLE_ID,
+                ColumnNames.BATCH_ID,
+                *self.converter.obs_cols,
+            ],
             index=pd.Index([], dtype=str),
             dtype=str,
         )
@@ -105,8 +110,7 @@ class Preprocessing(Step, ABC):
 
         if self.meta_partition_size is not None:
             for i, j in enumerate(range(0, len(input_files), self.meta_partition_size)):
-                data_df = self.read(
-                    input_files[j: j + self.meta_partition_size])
+                data_df = self.read(input_files[j : j + self.meta_partition_size])
                 self.write(data_df, meta_partition_index=i)
         else:
             data_df = self.read(input_files)
