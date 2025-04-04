@@ -9,7 +9,6 @@ CellXGeneConverterConfig = builds(
         "tissue",
         "disease",
         "assay",
-        "donor_id",
         "cell_type",
         "organism",
         "assay_ontology_term_id",
