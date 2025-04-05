@@ -22,9 +22,8 @@ CellXGenePreprocessingConfig = builds(
             converter=CellXGeneConverterConfig,
             n_debug=None,
             n_partitions=50,
-            meta_partition_size=102,
             cluster=CellXGenePreprocessingClusterConfig,
-            scale=2,
+            scale=4,
             zen_partial=True,
         ),
         builds(

@@ -1,3 +1,5 @@
+import itertools
+import uuid
 from abc import ABC, abstractmethod
 from pathlib import Path
 
@@ -20,7 +22,6 @@ class Preprocessing(Step, ABC):
         input_dir: str,
         n_partitions: int = 100,
         n_debug: int | None = None,
-        meta_partition_size: int | None = None,
         **kwargs,
     ) -> None:
         """
@@ -29,7 +30,6 @@ class Preprocessing(Step, ABC):
             input_dir: Folder where the input `AnnData` files are saved.
             n_partitions: Number of output partitions.
             n_debug: Take the first n input files only for debugging purposes.
-            meta_partition_size: Number of files to process at a time, useful for saving resources.
         """  # noqa: D212
         super().__init__(*args, **kwargs)
         input_path = Path(input_dir)
@@ -41,7 +41,6 @@ class Preprocessing(Step, ABC):
         self.input_path = input_path
         self.n_partitions = n_partitions
         self.n_debug = n_debug
-        self.meta_partition_size = meta_partition_size
 
     @property
     def input_step(self) -> str | None:
@@ -91,27 +90,27 @@ class Preprocessing(Step, ABC):
         """Transform a single `AnnData` file."""
         ...
 
-    def write(self, data_df: dd.DataFrame, meta_partition_index: int = 0) -> None:
+    def write(self, data_df: dd.DataFrame) -> None:
         """Load/save the result of the transformation.
 
         Args:
             data_df: A `DataFrame` containing the patient/donor metadata and the matrix `X`.
-            meta_partition_index: Index of the sequential processing partition.
         """
-        data_df.repartition(npartitions=self.n_partitions, force=True).to_parquet(
-            self.output_path,
-            filesystem="arrow",
-            name_function=lambda chunk: f"part_{meta_partition_index}_chunk_{chunk}.parquet",
+        data_df.repartition(partition_size="500MiB", force=True).to_parquet(
+            self.output_path, filesystem="arrow", name_function=lambda _: f"{uuid.uuid4()!s}.parquet"
         )
 
     def run(self) -> None:
         """Run the whole preprocessing step by sequentially running `read` and `write`."""
         input_files = list(self.input_path.glob("*.h5ad"))
+        delayed = self.read(input_files)
 
-        if self.meta_partition_size is not None:
-            for i, j in enumerate(range(0, len(input_files), self.meta_partition_size)):
-                data_df = self.read(input_files[j : j + self.meta_partition_size])
-                self.write(data_df, meta_partition_index=i)
-        else:
-            data_df = self.read(input_files)
-            self.write(data_df)
+        def process(delayed_iterator: itertools.chain) -> None:
+            """Process a partition of tasks."""
+            delayed_list = list(delayed_iterator)
+
+            if len(delayed_list) > 0:
+                data_df = dd.from_delayed(delayed_list, meta=self.meta_df)
+                self.write(data_df)
+
+        delayed.map_partitions(process).compute()

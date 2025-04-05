@@ -47,10 +47,7 @@ class CellXGenePreprocessing(Preprocessing):
         if self.n_debug is not None:
             input_files = input_files[: self.n_debug]
 
-        delayed = db.from_sequence(input_files).map(self.transform).flatten().compute()
-        data_df = dd.from_delayed(delayed, meta=self.meta_df)
-
-        return data_df
+        return db.from_sequence(input_files).map(self.transform).flatten().repartition(npartitions=20)
 
     def transform(self, file_path: Path) -> list[Delayed]:
         """Preprocess a single `AnnData` file.
