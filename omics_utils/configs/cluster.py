@@ -6,7 +6,7 @@ from omics_utils.utils.helpers import get_output_dir
 
 CellXGenePreprocessingClusterConfig = builds(
     SLURMCluster,
-    n_workers=4,
+    n_workers=6,
     queue="cpu-2h",
     cores=16,
     processes=8,
@@ -17,6 +17,6 @@ CellXGenePreprocessingClusterConfig = builds(
     zen_partial=True,
 )
 
-CellXGeneStratificationClusterConfig = CellXGenePreprocessingClusterConfig(n_workers=2, processes=4, memory="1024GiB")
+CellXGeneStratificationClusterConfig = CellXGenePreprocessingClusterConfig(processes=3)
 
-LocalClusterConfig = builds(LocalCluster, n_workers=1, threads_per_worker=4)
+LocalClusterConfig = builds(LocalCluster, n_workers=1, threads_per_worker=4, zen_partial=True)

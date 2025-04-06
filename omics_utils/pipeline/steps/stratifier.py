@@ -4,12 +4,12 @@ from typing import Any
 import dask.dataframe as dd
 import pandas as pd
 from anndata._io.h5ad import write_h5ad
+from dask_ml.model_selection import train_test_split
 
 from omics_utils.converter.anndata_converter import AnndataConverter
 from omics_utils.pipeline.step import Step
 from omics_utils.splitting.splitter import Splitter
 from omics_utils.utils.columns import ColumnNames
-from omics_utils.utils.helpers import global_reset_index
 
 
 class Stratifier(Step):
@@ -21,7 +21,6 @@ class Stratifier(Step):
         splitter: Splitter,
         converter: AnndataConverter,
         seed: int,
-        block_size: str = "128MiB",
         **kwargs,
     ) -> None:
         """
@@ -29,7 +28,6 @@ class Stratifier(Step):
             splitter: Splitter to use for stratification, grouping and shuffling among folds.
             converter: Converter used to convert the `DataFrame` format back to `AnnData`.
             seed: Seed to use for shuffling of the dataset.
-            block_size: Size of the blocks to read from the previous step.
         """  # noqa: D212
         super().__init__(*args, **kwargs)
 
@@ -39,7 +37,6 @@ class Stratifier(Step):
         self.splitter = splitter
         self.converter = converter
         self.seed = seed
-        self.block_size = block_size
         self.metadata_path = metadata_path
         self.split_path = split_path
 
@@ -60,7 +57,7 @@ class Stratifier(Step):
             The data ready for transformation.
         """
         return dd.read_parquet(
-            list(self.input_path.glob("*.parquet")), split_row_groups="adaptive", blocksize=self.block_size
+            list(self.input_path.glob("*.parquet")), split_row_groups=True, ignore_metadata_file=True
         )
 
     def transform(self, data_df: dd.DataFrame) -> tuple[dict[int, dd.DataFrame], pd.DataFrame]:
@@ -70,26 +67,15 @@ class Stratifier(Step):
             A tuple of a dict containing a mapping of the fold index to the data split and the metadata `DataFrame`.
         """
         metadata_df: pd.DataFrame = (
-            data_df[[ColumnNames.CASE_ID, *self.converter.obs_cols]
-                    ].drop_duplicates().reset_index(drop=True).compute()
+            data_df[[ColumnNames.CASE_ID, *self.converter.obs_cols]].drop_duplicates().reset_index(drop=True).compute()
         )
         metadata_df = metadata_df.set_index(ColumnNames.CASE_ID)
-        metadata_df = self.splitter.split(metadata_df)
+        metadata_df.to_parquet(self.metadata_path)
 
-        joined_df: dd.DataFrame = data_df.join(
-            metadata_df[[ColumnNames.FOLD]], on=ColumnNames.CASE_ID)
-        joined_df = joined_df.dropna(subset=ColumnNames.FOLD)
-        joined_df[ColumnNames.FOLD] = joined_df[ColumnNames.FOLD].astype(int)
+        data_df = data_df.sort_values(ColumnNames.SAMPLE_ID, npartitions=500)
 
-        folds = {}
-        for fold_idx in range(self.splitter.n_splits):
-            fold_df = joined_df[joined_df[ColumnNames.FOLD] == fold_idx].sample(
-                frac=1, random_state=self.seed)
-            fold_df = global_reset_index(
-                fold_df.drop_duplicates(subset=ColumnNames.SAMPLE_ID))
-            folds[fold_idx] = fold_df
-
-        return folds, metadata_df
+        train_df, val_df = train_test_split(data_df, test_size=0.1, random_state=self.seed, shuffle=False)
+        return train_df, val_df, metadata_df
 
     def write_df_to_anndata(
         self, df: pd.DataFrame, output_dir: Path, fold_idx: int, partition_info: dict[str, Any] | None = None
@@ -104,10 +90,9 @@ class Stratifier(Step):
         """
         part = partition_info["number"]
         adata = self.converter.dataframe_to_anndata(df)
-        write_h5ad(output_dir / f"fold_{fold_idx}_part_{part}.h5ad",
-                   adata, convert_strings_to_categoricals=False)
+        write_h5ad(output_dir / f"fold_{fold_idx}_part_{part}.h5ad", adata, convert_strings_to_categoricals=False)
 
-    def write(self, folds: dict[int, dd.DataFrame], metadata_df: pd.DataFrame) -> None:
+    def write(self, train_df: dd.DataFrame, val_df: dd.DataFrame, metadata_df: pd.DataFrame) -> None:
         """Save the folds and the case metadata separately.
 
         Args:
@@ -117,12 +102,11 @@ class Stratifier(Step):
         metadata_df.to_parquet(self.metadata_path)
         self.split_path.mkdir(exist_ok=True)
 
-        for fold_idx, fold_df in folds.items():
-            fold_df.map_partitions(
-                self.write_df_to_anndata, self.split_path, fold_idx, meta=fold_df.head()).compute()
+        train_df.map_partitions(self.write_df_to_anndata, self.split_path, "train", meta=pd.DataFrame()).compute()
+        val_df.map_partitions(self.write_df_to_anndata, self.split_path, "val", meta=pd.DataFrame()).compute()
 
     def run(self) -> None:
         """Run the stratification and splitting step."""
         data_df = self.read()
-        folds, metadata_df = self.transform(data_df)
-        self.write(folds, metadata_df)
+        train_df, val_df, metadata_df = self.transform(data_df)
+        self.write(train_df, val_df, metadata_df)

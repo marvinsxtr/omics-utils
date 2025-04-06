@@ -20,7 +20,7 @@ class Preprocessing(Step, ABC):
         *args,
         converter: AnndataConverter,
         input_dir: str,
-        n_partitions: int = 100,
+        n_partitions: int = 10,
         n_debug: int | None = None,
         **kwargs,
     ) -> None:
@@ -96,7 +96,7 @@ class Preprocessing(Step, ABC):
         Args:
             data_df: A `DataFrame` containing the patient/donor metadata and the matrix `X`.
         """
-        data_df.repartition(partition_size="1GiB", force=True).to_parquet(
+        data_df.repartition(npartitions=self.n_partitions, force=True).to_parquet(
             self.output_path, filesystem="arrow", name_function=lambda _: f"{uuid.uuid4()!s}.parquet"
         )
 
