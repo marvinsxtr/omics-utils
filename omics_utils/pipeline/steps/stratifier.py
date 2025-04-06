@@ -72,7 +72,8 @@ class Stratifier(Step):
         metadata_df = metadata_df.set_index(ColumnNames.CASE_ID)
         metadata_df.to_parquet(self.metadata_path)
 
-        data_df = data_df.sort_values(ColumnNames.SAMPLE_ID, npartitions=500)
+        data_df = data_df.drop_duplicates(subset=ColumnNames.SAMPLE_ID)
+        data_df = data_df.sort_values(ColumnNames.SAMPLE_ID, npartitions=1000)
 
         train_df, val_df = train_test_split(data_df, test_size=0.1, random_state=self.seed, shuffle=False)
         return train_df, val_df, metadata_df
