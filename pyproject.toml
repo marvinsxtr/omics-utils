@@ -32,6 +32,7 @@ dependencies = [
   "sklearn-ann>=0.1.2",
   "scipy>=1.15.1",
   "pytest>=8.3.5",
+  "dask-ml>=2024.4.4",
 ]
 
 [dependency-groups]
