@@ -40,7 +40,7 @@ class AnndataConverter:
         """
         if var_cols is not None and var_cols_file is not None:
             raise ValueError(
-                "Cannot provide the `var_cols` and load `var_cols_file` at the same time. One option has to beNone."
+                "Cannot provide the `var_cols` and load `var_cols_file` at the same time. One option has to be None."
             )
 
         if var_cols_file is not None:
