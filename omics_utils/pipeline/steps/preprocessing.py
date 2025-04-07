@@ -1,4 +1,3 @@
-import itertools
 import uuid
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -20,7 +19,7 @@ class Preprocessing(Step, ABC):
         *args,
         converter: AnndataConverter,
         input_dir: str,
-        n_partitions: int = 10,
+        n_inner_partitions: int = 10,
         n_debug: int | None = None,
         **kwargs,
     ) -> None:
@@ -28,7 +27,7 @@ class Preprocessing(Step, ABC):
         Args:
             converter: Converter used to transform AnnData objects into DataFrames and the other way around.
             input_dir: Folder where the input `AnnData` files are saved.
-            n_partitions: Number of output partitions.
+            n_inner_partitions: Number of output partitions within each outer partition.
             n_debug: Take the first n input files only for debugging purposes.
         """  # noqa: D212
         super().__init__(*args, **kwargs)
@@ -39,7 +38,7 @@ class Preprocessing(Step, ABC):
 
         self.converter = converter
         self.input_path = input_path
-        self.n_partitions = n_partitions
+        self.n_inner_partitions = n_inner_partitions
         self.n_debug = n_debug
 
     @property
@@ -96,21 +95,12 @@ class Preprocessing(Step, ABC):
         Args:
             data_df: A `DataFrame` containing the patient/donor metadata and the matrix `X`.
         """
-        data_df.repartition(npartitions=self.n_partitions, force=True).to_parquet(
+        data_df.repartition(npartitions=self.n_inner_partitions, force=True).to_parquet(
             self.output_path, filesystem="arrow", name_function=lambda _: f"{uuid.uuid4()!s}.parquet"
         )
 
     def run(self) -> None:
         """Run the whole preprocessing step by sequentially running `read` and `write`."""
         input_files = list(self.input_path.glob("*.h5ad"))
-        delayed = self.read(input_files)
-
-        def process(delayed_iterator: itertools.chain) -> None:
-            """Process a partition of tasks."""
-            delayed_list = list(delayed_iterator)
-
-            if len(delayed_list) > 0:
-                data_df = dd.from_delayed(delayed_list, meta=self.meta_df)
-                self.write(data_df)
-
-        delayed.map_partitions(process).compute()
+        data_df = self.read(input_files)
+        self.write(data_df)

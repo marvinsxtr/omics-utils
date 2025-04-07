@@ -6,11 +6,12 @@ from omics_utils.configs.cluster import (
     LocalClusterConfig,
 )
 from omics_utils.configs.converter import CellXGeneConverterConfig, MethylationConverterConfig
-from omics_utils.configs.splitter import CellXGeneStratifiedSplitterConfig, MethylationStratifiedSplitterConfig
+from omics_utils.configs.splitter import MethylationStratifiedSplitterConfig
 from omics_utils.pipeline.pipeline import Pipeline
 from omics_utils.pipeline.steps.cellxgene import CellXGenePreprocessing
 from omics_utils.pipeline.steps.limiter import Limiter
 from omics_utils.pipeline.steps.methylation import MethylationPreprocessing
+from omics_utils.pipeline.steps.splitting import Splitting
 from omics_utils.pipeline.steps.stratifier import Stratifier
 
 CellXGenePreprocessingConfig = builds(
@@ -21,16 +22,17 @@ CellXGenePreprocessingConfig = builds(
             input_dir="/home/space/omics/datasets/cellxgene/h5ads",
             converter=CellXGeneConverterConfig,
             n_debug=None,
-            n_partitions=30,
+            n_outer_partitions=50,
+            n_inner_partitions=10,
             cluster=CellXGenePreprocessingClusterConfig,
-            scale=4,
+            scale=6,
             zen_partial=True,
         ),
         builds(
-            Stratifier,
-            splitter=CellXGeneStratifiedSplitterConfig,
+            Splitting,
             converter=CellXGeneConverterConfig,
             seed=42,
+            n_partitions=1000,
             cluster=CellXGeneStratificationClusterConfig,
             scale=6,
             zen_partial=True,
