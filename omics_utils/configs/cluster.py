@@ -17,6 +17,8 @@ CellXGenePreprocessingClusterConfig = builds(
     zen_partial=True,
 )
 
-CellXGeneStratificationClusterConfig = CellXGenePreprocessingClusterConfig(processes=2)
+CellXGeneStratificationClusterConfig = CellXGenePreprocessingClusterConfig(
+    processes=2, queue="cpu-5h", walltime="05:00:00"
+)
 
 LocalClusterConfig = builds(LocalCluster, n_workers=1, threads_per_worker=4, zen_partial=True)
