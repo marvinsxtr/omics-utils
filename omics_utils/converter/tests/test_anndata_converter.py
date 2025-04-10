@@ -55,7 +55,6 @@ def test_dataframe_to_anndata_sparse() -> None:
             ColumnNames.SAMPLE_ID: ["sample1", "sample2"],
             ColumnNames.CASE_ID: ["case1", "case2"],
             ColumnNames.BATCH_ID: ["batch1", "batch2"],
-            ColumnNames.FOLD: ["0", "1"],
             "cell_type": ["A", "B"],
         }
     )
@@ -66,7 +65,6 @@ def test_dataframe_to_anndata_sparse() -> None:
     assert list(adata.var_names) == ["gene1", "gene2", "gene3"]
     assert "cell_type" in adata.obs.columns
     assert ColumnNames.CASE_ID in adata.obs.columns
-    assert ColumnNames.FOLD in adata.obs.columns
 
     assert adata.X[0, 0] == 1.0
     assert adata.X[0, 2] == 3.0

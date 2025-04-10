@@ -52,7 +52,7 @@ MethylationPreprocessingConfig = builds(
             input_dir="/home/space/methyl_group/datasets/leitheiser_classification/pp_anndata/lung",
             converter=MethylationConverterConfig,
             n_debug=2,
-            n_partitions=10,
+            n_inner_partitions=1,
             zen_partial=True,
         ),
         builds(
