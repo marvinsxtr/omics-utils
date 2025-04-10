@@ -137,7 +137,7 @@ class AnndataConverter:
         Returns:
             Reconstructed `AnnData` object.
         """
-        id_cols = {ColumnNames.CASE_ID, ColumnNames.SAMPLE_ID, ColumnNames.BATCH_ID}
+        id_cols = {ColumnNames.CASE_ID, ColumnNames.SAMPLE_ID, ColumnNames.FOLD, ColumnNames.BATCH_ID}
 
         var_cols = self.var_cols if self.var_cols is not None else list(set(df.columns) - set(self.obs_cols) - id_cols)
         var = pd.DataFrame(index=var_cols)

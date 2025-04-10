@@ -6,7 +6,7 @@ from omics_utils.configs.cluster import (
     LocalClusterConfig,
 )
 from omics_utils.configs.converter import CellXGeneConverterConfig, MethylationConverterConfig
-from omics_utils.configs.splitter import MethylationStratifiedSplitterConfig
+from omics_utils.configs.splitter import CellXGeneStratifiedSplitterConfig, MethylationStratifiedSplitterConfig
 from omics_utils.pipeline.pipeline import Pipeline
 from omics_utils.pipeline.steps.cellxgene import CellXGenePreprocessing
 from omics_utils.pipeline.steps.limiter import Limiter
@@ -30,6 +30,7 @@ CellXGenePreprocessingConfig = builds(
         ),
         builds(
             Splitting,
+            splitter=CellXGeneStratifiedSplitterConfig,
             converter=CellXGeneConverterConfig,
             seed=42,
             n_partitions=1000,

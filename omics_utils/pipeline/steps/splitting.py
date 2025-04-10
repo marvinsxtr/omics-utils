@@ -6,10 +6,10 @@ import dask
 import dask.dataframe as dd
 import pandas as pd
 from anndata._io.h5ad import write_h5ad
-from dask_ml.model_selection import train_test_split
 
 from omics_utils.converter.anndata_converter import AnndataConverter
 from omics_utils.pipeline.step import Step
+from omics_utils.splitting.splitter import Splitter
 from omics_utils.utils.columns import ColumnNames
 
 
@@ -19,6 +19,7 @@ class Splitting(Step):
     def __init__(
         self,
         *args,
+        splitter: Splitter,
         converter: AnndataConverter,
         seed: int,
         n_partitions: int,
@@ -37,6 +38,7 @@ class Splitting(Step):
         split_path = self.output_path / "split"
         categories_path = self.output_path / "categories.json"
 
+        self.splitter = splitter
         self.converter = converter
         self.seed = seed
         self.metadata_path = metadata_path
@@ -65,7 +67,7 @@ class Splitting(Step):
             list(self.input_path.glob("*.parquet")), split_row_groups=True, ignore_metadata_file=True
         )
 
-    def transform(self, data_df: dd.DataFrame) -> tuple[dict[int, dd.DataFrame], pd.DataFrame]:
+    def transform(self, data_df: dd.DataFrame) -> tuple[dict[int, dd.DataFrame], pd.DataFrame, dict[str, list[str]]]:
         """Extract the metadata and perform splitting.
 
         Returns:
@@ -75,19 +77,23 @@ class Splitting(Step):
             data_df[[ColumnNames.CASE_ID, *self.converter.obs_cols]].drop_duplicates().reset_index(drop=True).compute()
         )
         metadata_df = metadata_df.set_index(ColumnNames.CASE_ID)
-        metadata_df.to_parquet(self.metadata_path)
 
         categorized_df = data_df.categorize(columns=self.converter.obs_cols)
         categories = {col: list(categorized_df[col].cat.categories) for col in self.converter.obs_cols}
 
-        with Path.open(self.categories_path, "w") as file:
-            json.dump(categories, file)
-
         data_df = data_df.drop_duplicates(subset=ColumnNames.SAMPLE_ID)
-        data_df = data_df.sort_values(ColumnNames.SAMPLE_ID, npartitions=self.n_partitions)
+        data_df = data_df.shuffle(ColumnNames.CASE_ID, npartitions=self.n_partitions)
 
-        train_df, val_df = train_test_split(data_df, test_size=self.test_size, random_state=self.seed, shuffle=False)
-        return train_df, val_df, metadata_df
+        train_partitions = int(data_df.npartitions * (1 - self.test_size))
+        val_partitions = int(data_df.npartitions * self.test_size)
+
+        train_df = data_df.partitions[:train_partitions]
+        val_df = data_df.partitions[train_partitions:]
+
+        train_df = train_df.sort_values(ColumnNames.SAMPLE_ID, npartitions=train_partitions)
+        val_df = val_df.sort_values(ColumnNames.SAMPLE_ID, npartitions=val_partitions)
+
+        return train_df, val_df, metadata_df, categories
 
     def write_df_to_anndata(
         self, df: pd.DataFrame, output_dir: Path, fold_name: str, partition_info: dict[str, Any] | None = None
@@ -104,15 +110,21 @@ class Splitting(Step):
         adata = self.converter.dataframe_to_anndata(df)
         write_h5ad(output_dir / f"fold_{fold_name}_part_{part}.h5ad", adata, convert_strings_to_categoricals=False)
 
-    def write(self, train_df: dd.DataFrame, val_df: dd.DataFrame, metadata_df: pd.DataFrame) -> None:
+    def write(
+        self, train_df: dd.DataFrame, val_df: dd.DataFrame, metadata_df: pd.DataFrame, categories: dict[str, list[str]]
+    ) -> None:
         """Save the folds and the case metadata separately.
 
         Args:
             folds: A dict containing a mapping of the fold index to the data split.
             metadata_df: The metadata `DataFrame`.
+            categories: Categories of the metadata columns.
         """
         metadata_df.to_parquet(self.metadata_path)
         self.split_path.mkdir(exist_ok=True)
+
+        with Path.open(self.categories_path, "w") as file:
+            json.dump(categories, file)
 
         train_task = train_df.map_partitions(self.write_df_to_anndata, self.split_path, "train", meta=pd.DataFrame())
         val_task = val_df.map_partitions(self.write_df_to_anndata, self.split_path, "val", meta=pd.DataFrame())
@@ -122,5 +134,5 @@ class Splitting(Step):
     def run(self) -> None:
         """Run the stratification and splitting step."""
         data_df = self.read()
-        train_df, val_df, metadata_df = self.transform(data_df)
-        self.write(train_df, val_df, metadata_df)
+        train_df, val_df, metadata_df, categories = self.transform(data_df)
+        self.write(train_df, val_df, metadata_df, categories)
