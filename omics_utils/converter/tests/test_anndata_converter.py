@@ -13,7 +13,9 @@ from omics_utils.utils.serialization import deserialize_sparse_matrix
 def test_anndata_to_dataframe_sparse() -> None:
     """Test conversion from `AnnData` to `DataFrame` using sparse format."""
     X = sp.csr_matrix(np.array([[1.0, 0.0, 3.0], [0.0, 2.0, 0.0]]))
-    obs = pd.DataFrame({ColumnNames.CASE_ID: ["case1", "case2"], "cell_type": ["A", "B"]})
+    obs = pd.DataFrame(
+        {ColumnNames.CASE_ID: ["case1", "case2"], ColumnNames.BATCH_ID: ["batch1", "batch2"], "cell_type": ["A", "B"]}
+    )
     var = pd.DataFrame(index=["gene1", "gene2", "gene3"])
     adata = ad.AnnData(X=X, obs=obs, var=var)
 
@@ -36,7 +38,9 @@ def test_anndata_to_dataframe_sparse() -> None:
 def test_dataframe_to_anndata_sparse() -> None:
     """Test conversion from `DataFrame` to `AnnData` using sparse format."""
     X_original = sp.csr_matrix(np.array([[1.0, 0.0, 3.0], [0.0, 2.0, 0.0]]))
-    obs_original = pd.DataFrame({ColumnNames.CASE_ID: ["case1", "case2"], "cell_type": ["A", "B"]})
+    obs_original = pd.DataFrame(
+        {ColumnNames.CASE_ID: ["case1", "case2"], ColumnNames.BATCH_ID: ["batch1", "batch2"], "cell_type": ["A", "B"]}
+    )
     var_original = pd.DataFrame(index=["gene1", "gene2", "gene3"])
     adata_original = ad.AnnData(X=X_original, obs=obs_original, var=var_original)
 
@@ -50,7 +54,7 @@ def test_dataframe_to_anndata_sparse() -> None:
             ColumnNames.SPARSE_VECTOR: df_original[ColumnNames.SPARSE_VECTOR],
             ColumnNames.SAMPLE_ID: ["sample1", "sample2"],
             ColumnNames.CASE_ID: ["case1", "case2"],
-            ColumnNames.FOLD: ["0", "1"],
+            ColumnNames.BATCH_ID: ["batch1", "batch2"],
             "cell_type": ["A", "B"],
         }
     )
@@ -61,7 +65,6 @@ def test_dataframe_to_anndata_sparse() -> None:
     assert list(adata.var_names) == ["gene1", "gene2", "gene3"]
     assert "cell_type" in adata.obs.columns
     assert ColumnNames.CASE_ID in adata.obs.columns
-    assert ColumnNames.FOLD in adata.obs.columns
 
     assert adata.X[0, 0] == 1.0
     assert adata.X[0, 2] == 3.0

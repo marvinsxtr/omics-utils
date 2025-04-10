@@ -1,3 +1,4 @@
+import itertools
 from pathlib import Path
 
 import anndata as ad
@@ -21,6 +22,7 @@ class CellXGenePreprocessing(Preprocessing):
         converter: AnndataConverter,
         n_debug: int | None = None,
         chunk_size: int = 100000,
+        n_outer_partitions: int = 50,
         **kwargs,
     ) -> None:
         """
@@ -29,10 +31,11 @@ class CellXGenePreprocessing(Preprocessing):
             converter: Converter to convert `AnnData` into a `DataFrame` format.
             n_debug: Take the first n input files only for debugging purposes.
             chunk_size: Chunk size of the expression matrix in dask.
+            n_outer_partitions: Number of output partitions.
         """  # noqa: D212
-        super().__init__(*args, converter=converter,
-                         input_dir=input_dir, n_debug=n_debug, **kwargs)
+        super().__init__(*args, converter=converter, input_dir=input_dir, n_debug=n_debug, **kwargs)
         self.chunk_size = chunk_size
+        self.n_outer_partitions = n_outer_partitions
 
     def read(self, input_files: list[Path]) -> dd.DataFrame:
         """Read and transform the data from the the input data.
@@ -48,11 +51,12 @@ class CellXGenePreprocessing(Preprocessing):
         if self.n_debug is not None:
             input_files = input_files[: self.n_debug]
 
-        delayed = db.from_sequence(input_files).map(
-            self.transform).flatten().compute()
-        data_df = dd.from_delayed(delayed, meta=self.meta_df)
-
-        return data_df
+        return (
+            db.from_sequence(input_files)
+            .map(self.transform)
+            .flatten()
+            .repartition(npartitions=self.n_outer_partitions)
+        )
 
     def transform(self, file_path: Path) -> list[Delayed]:
         """Preprocess a single `AnnData` file.
@@ -74,31 +78,32 @@ class CellXGenePreprocessing(Preprocessing):
             encoding = source.attrs.get("encoding-type")
 
             if encoding == "csr_matrix":
-                adata.X = ad.experimental.read_elem_as_dask(
-                    source, chunks=(self.chunk_size, adata.shape[1]))
+                adata.X = ad.experimental.read_elem_as_dask(source, chunks=(self.chunk_size, adata.shape[1]))
             elif encoding == "csc_matrix":
                 return []
             else:
-                raise NotImplementedError(
-                    f"The encoding {encoding} is not implemented.")
+                raise NotImplementedError(f"The encoding {encoding} is not implemented.")
 
         adata.obs = adata.obs.rename(columns={"donor_id": ColumnNames.CASE_ID})
+        adata.obs[ColumnNames.BATCH_ID] = str(file_path.stem)
 
         # Filter out non-human tissue, non-primary and diseased data
         cell_filter = (
             (adata.obs["organism_ontology_term_id"] == "NCBITaxon:9606")
             & (adata.obs["is_primary_data"] == True)
-            & (adata.obs["disease"] == "normal")
             & (
                 adata.obs["assay"].isin(
                     [
+                        "10x transcription profiling",
+                        "10x 3' transcription profiling",
                         "10x 3' v1",
                         "10x 3' v2",
                         "10x 3' v3",
+                        "10x 3' v4",
+                        "10x 5' transcription profiling",
                         "10x 5' v1",
                         "10x 5' v2",
-                        "10x 3' transcription profiling",
-                        "10x 5' transcription profiling",
+                        "10x 5' v3",
                     ]
                 )
             )
@@ -107,3 +112,18 @@ class CellXGenePreprocessing(Preprocessing):
         adata = adata[cell_filter, gene_filter].copy()
 
         return self.converter.anndata_to_dataframe(adata)
+
+    def run(self) -> None:
+        """Run the whole preprocessing step by sequentially running `read` and `write`."""
+        input_files = list(self.input_path.glob("*.h5ad"))
+        delayed = self.read(input_files)
+
+        def process(delayed_iterator: itertools.chain) -> None:
+            """Process a partition of tasks."""
+            delayed_list = list(delayed_iterator)
+
+            if len(delayed_list) > 0:
+                data_df = dd.from_delayed(delayed_list, meta=self.meta_df)
+                self.write(data_df)
+
+        delayed.map_partitions(process).compute()

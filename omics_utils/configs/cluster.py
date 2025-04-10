@@ -4,16 +4,21 @@ from hydra_zen import builds
 
 from omics_utils.utils.helpers import get_output_dir
 
-ClusterConfig = builds(
+CellXGenePreprocessingClusterConfig = builds(
     SLURMCluster,
-    n_workers=2,
-    queue="cpu-5h",
-    cores=32,
-    processes=8,
-    memory="2048GiB",
-    walltime="05:00:00",
-    python="apptainer run oras://ghcr.io/bifold-pathomics/omics-utils:v0.0.23-sif python",
+    n_workers=6,
+    queue="cpu-2h",
+    cores=16,
+    processes=4,
+    memory="512GiB",
+    walltime="02:00:00",
+    python="apptainer run oras://ghcr.io/bifold-pathomics/omics-utils:latest-sif python",
     log_directory=builds(get_output_dir),
+    zen_partial=True,
 )
 
-LocalClusterConfig = builds(LocalCluster, n_workers=1, threads_per_worker=4)
+CellXGeneStratificationClusterConfig = CellXGenePreprocessingClusterConfig(
+    processes=2, queue="cpu-2d", walltime="48:00:00"
+)
+
+LocalClusterConfig = builds(LocalCluster, n_workers=1, threads_per_worker=4, zen_partial=True)

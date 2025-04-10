@@ -2,7 +2,6 @@ from hydra_zen import builds, store
 from ml_project_template.runs import Run
 from ml_project_template.wandb import WandBConfig
 
-from omics_utils.configs.cluster import ClusterConfig, LocalClusterConfig
 from omics_utils.configs.preprocessor import CellXGenePreprocessingConfig, MethylationPreprocessingConfig
 from omics_utils.preprocess import main
 
@@ -16,7 +15,6 @@ store(
         "_self_",
         {"cfg/wandb": None},
         {"preprocessor": "cellxgene"},
-        {"preprocessor/cluster": "local"},
     ],
 )
 
@@ -26,7 +24,3 @@ wandb_store(WandBConfig, name="base")
 preproc_store = store(group="preprocessor")
 preproc_store(CellXGenePreprocessingConfig, name="cellxgene")
 preproc_store(MethylationPreprocessingConfig, name="methylation")
-
-cluster_store = store(group="preprocessor/cluster")
-cluster_store(LocalClusterConfig, name="local")
-cluster_store(ClusterConfig, name="cluster")

@@ -70,23 +70,19 @@ class Stratifier(Step):
             A tuple of a dict containing a mapping of the fold index to the data split and the metadata `DataFrame`.
         """
         metadata_df: pd.DataFrame = (
-            data_df[[ColumnNames.CASE_ID, *self.converter.obs_cols]
-                    ].drop_duplicates().reset_index(drop=True).compute()
+            data_df[[ColumnNames.CASE_ID, *self.converter.obs_cols]].drop_duplicates().reset_index(drop=True).compute()
         )
         metadata_df = metadata_df.set_index(ColumnNames.CASE_ID)
         metadata_df = self.splitter.split(metadata_df)
 
-        joined_df: dd.DataFrame = data_df.join(
-            metadata_df[[ColumnNames.FOLD]], on=ColumnNames.CASE_ID)
+        joined_df: dd.DataFrame = data_df.join(metadata_df[[ColumnNames.FOLD]], on=ColumnNames.CASE_ID)
         joined_df = joined_df.dropna(subset=ColumnNames.FOLD)
         joined_df[ColumnNames.FOLD] = joined_df[ColumnNames.FOLD].astype(int)
 
         folds = {}
         for fold_idx in range(self.splitter.n_splits):
-            fold_df = joined_df[joined_df[ColumnNames.FOLD] == fold_idx].sample(
-                frac=1, random_state=self.seed)
-            fold_df = global_reset_index(
-                fold_df.drop_duplicates(subset=ColumnNames.SAMPLE_ID))
+            fold_df = joined_df[joined_df[ColumnNames.FOLD] == fold_idx].sample(frac=1, random_state=self.seed)
+            fold_df = global_reset_index(fold_df.drop_duplicates(subset=ColumnNames.SAMPLE_ID))
             folds[fold_idx] = fold_df
 
         return folds, metadata_df
@@ -104,8 +100,7 @@ class Stratifier(Step):
         """
         part = partition_info["number"]
         adata = self.converter.dataframe_to_anndata(df)
-        write_h5ad(output_dir / f"fold_{fold_idx}_part_{part}.h5ad",
-                   adata, convert_strings_to_categoricals=False)
+        write_h5ad(output_dir / f"fold_{fold_idx}_part_{part}.h5ad", adata, convert_strings_to_categoricals=False)
 
     def write(self, folds: dict[int, dd.DataFrame], metadata_df: pd.DataFrame) -> None:
         """Save the folds and the case metadata separately.
@@ -118,8 +113,7 @@ class Stratifier(Step):
         self.split_path.mkdir(exist_ok=True)
 
         for fold_idx, fold_df in folds.items():
-            fold_df.map_partitions(
-                self.write_df_to_anndata, self.split_path, fold_idx, meta=fold_df.head()).compute()
+            fold_df.map_partitions(self.write_df_to_anndata, self.split_path, fold_idx, meta=fold_df.head()).compute()
 
     def run(self) -> None:
         """Run the stratification and splitting step."""
