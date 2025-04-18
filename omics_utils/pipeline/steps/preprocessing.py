@@ -1,4 +1,3 @@
-import uuid
 from abc import ABC, abstractmethod
 from pathlib import Path
 
@@ -8,7 +7,6 @@ import pandas as pd
 from omics_utils.converter.anndata_converter import AnndataConverter
 from omics_utils.pipeline.step import Step
 from omics_utils.utils.columns import ColumnNames
-from omics_utils.utils.helpers import remove_empty_partitions
 
 
 class Preprocessing(Step, ABC):
@@ -66,10 +64,9 @@ class Preprocessing(Step, ABC):
             dtype=str,
         )
 
+    @abstractmethod
     def read(self, input_files: list[Path]) -> dd.DataFrame:
         """Read and transform the data from the the input data.
-
-        NOTE: In this case the read step contains the transform step for compatibility with dask.
 
         Args:
             input_files: File paths to process in parallel.
@@ -77,30 +74,23 @@ class Preprocessing(Step, ABC):
         Returns:
             The data ready for transformation.
         """
-        if self.n_debug is not None:
-            input_files = input_files[: self.n_debug]
-
-        data_df = dd.from_map(self.transform, input_files)
-        data_df = remove_empty_partitions(data_df)
-        return data_df
+        ...
 
     @abstractmethod
     def transform(self, file_path: Path) -> pd.DataFrame:
         """Transform a single `AnnData` file."""
         ...
 
+    @abstractmethod
     def write(self, data_df: dd.DataFrame) -> None:
         """Load/save the result of the transformation.
 
         Args:
-            data_df: A `DataFrame` containing the patient/donor metadata and the matrix `X`.
+            data_df: A `DataFrame` containing the patient/donor metadata and the serialized rows of `X`.
         """
-        data_df.repartition(npartitions=self.n_inner_partitions, force=True).to_parquet(
-            self.output_path, filesystem="arrow", name_function=lambda _: f"{uuid.uuid4()!s}.parquet"
-        )
+        ...
 
+    @abstractmethod
     def run(self) -> None:
-        """Run the whole preprocessing step by sequentially running `read` and `write`."""
-        input_files = list(self.input_path.glob("*.h5ad"))
-        data_df = self.read(input_files)
-        self.write(data_df)
+        """Run the whole preprocessing step (read, transform and write)."""
+        ...

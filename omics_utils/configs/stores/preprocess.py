@@ -2,7 +2,11 @@ from hydra_zen import builds, store
 from ml_project_template.runs import Run
 from ml_project_template.wandb import WandBConfig
 
-from omics_utils.configs.preprocessor import CellXGenePreprocessingConfig, MethylationPreprocessingConfig
+from omics_utils.configs.preprocessor import (
+    CellXGenePreprocessingConfig,
+    HLCAPreprocessingConfig,
+    MethylationPreprocessingConfig,
+)
 from omics_utils.preprocess import main
 
 RunConfig = builds(Run, seed=42, wandb=None, job=None)
@@ -24,3 +28,4 @@ wandb_store(WandBConfig, name="base")
 preproc_store = store(group="preprocessor")
 preproc_store(CellXGenePreprocessingConfig, name="cellxgene")
 preproc_store(MethylationPreprocessingConfig, name="methylation")
+preproc_store(HLCAPreprocessingConfig, name="hlca")

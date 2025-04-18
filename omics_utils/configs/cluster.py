@@ -21,4 +21,17 @@ CellXGeneStratificationClusterConfig = CellXGenePreprocessingClusterConfig(
     processes=2, queue="cpu-2d", walltime="48:00:00"
 )
 
+HLCAPreprocessingClusterConfig = builds(
+    SLURMCluster,
+    n_workers=1,
+    queue="cpu-2h",
+    cores=16,
+    processes=4,
+    memory="128GiB",
+    walltime="02:00:00",
+    python="apptainer run oras://ghcr.io/bifold-pathomics/omics-utils:latest-sif python",
+    log_directory=builds(get_output_dir),
+    zen_partial=True,
+)
+
 LocalClusterConfig = builds(LocalCluster, n_workers=1, threads_per_worker=4, zen_partial=True)
