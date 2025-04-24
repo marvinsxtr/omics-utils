@@ -1,4 +1,5 @@
 import itertools
+import uuid
 from pathlib import Path
 
 import anndata as ad
@@ -23,6 +24,8 @@ class CellXGenePreprocessing(Preprocessing):
         n_debug: int | None = None,
         chunk_size: int = 100000,
         n_outer_partitions: int = 50,
+        subset: list[str] | None = None,
+        only_primary: bool = True,
         **kwargs,
     ) -> None:
         """
@@ -32,10 +35,14 @@ class CellXGenePreprocessing(Preprocessing):
             n_debug: Take the first n input files only for debugging purposes.
             chunk_size: Chunk size of the expression matrix in dask.
             n_outer_partitions: Number of output partitions.
+            subset: Subset of .h5ad file names to process.
+            only_primary: Whether to only process cells marked as primary data.
         """  # noqa: D212
         super().__init__(*args, converter=converter, input_dir=input_dir, n_debug=n_debug, **kwargs)
         self.chunk_size = chunk_size
         self.n_outer_partitions = n_outer_partitions
+        self.subset = subset
+        self.only_primary = only_primary
 
     def read(self, input_files: list[Path]) -> dd.DataFrame:
         """Read and transform the data from the the input data.
@@ -50,6 +57,9 @@ class CellXGenePreprocessing(Preprocessing):
         """
         if self.n_debug is not None:
             input_files = input_files[: self.n_debug]
+
+        if self.subset is not None:
+            input_files = [f for f in input_files if f.stem in self.subset]
 
         return (
             db.from_sequence(input_files)
@@ -88,30 +98,39 @@ class CellXGenePreprocessing(Preprocessing):
         adata.obs[ColumnNames.BATCH_ID] = str(file_path.stem)
 
         # Filter out non-human tissue, non-primary and diseased data
-        cell_filter = (
-            (adata.obs["organism_ontology_term_id"] == "NCBITaxon:9606")
-            & (adata.obs["is_primary_data"] == True)
-            & (
-                adata.obs["assay"].isin(
-                    [
-                        "10x transcription profiling",
-                        "10x 3' transcription profiling",
-                        "10x 3' v1",
-                        "10x 3' v2",
-                        "10x 3' v3",
-                        "10x 3' v4",
-                        "10x 5' transcription profiling",
-                        "10x 5' v1",
-                        "10x 5' v2",
-                        "10x 5' v3",
-                    ]
-                )
+        cell_filter = (adata.obs["organism_ontology_term_id"] == "NCBITaxon:9606") & (
+            adata.obs["assay"].isin(
+                [
+                    "10x transcription profiling",
+                    "10x 3' transcription profiling",
+                    "10x 3' v1",
+                    "10x 3' v2",
+                    "10x 3' v3",
+                    "10x 3' v4",
+                    "10x 5' transcription profiling",
+                    "10x 5' v1",
+                    "10x 5' v2",
+                    "10x 5' v3",
+                ]
             )
         )
+        if self.only_primary:
+            cell_filter = cell_filter & (adata.obs["is_primary_data"] == True)
+
         gene_filter = adata.var.index.isin(self.converter.var_cols)
         adata = adata[cell_filter, gene_filter].copy()
 
         return self.converter.anndata_to_dataframe(adata)
+
+    def write(self, data_df: dd.DataFrame) -> None:
+        """Load/save the result of the transformation.
+
+        Args:
+            data_df: A `DataFrame` containing the patient/donor metadata and the matrix `X`.
+        """
+        data_df.repartition(npartitions=self.n_inner_partitions, force=True).to_parquet(
+            self.output_path, filesystem="arrow", name_function=lambda _: f"{uuid.uuid4()!s}.parquet"
+        )
 
     def run(self) -> None:
         """Run the whole preprocessing step by sequentially running `read` and `write`."""

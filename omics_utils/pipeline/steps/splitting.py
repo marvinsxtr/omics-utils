@@ -9,7 +9,6 @@ from anndata._io.h5ad import write_h5ad
 
 from omics_utils.converter.anndata_converter import AnndataConverter
 from omics_utils.pipeline.step import Step
-from omics_utils.splitting.splitter import Splitter
 from omics_utils.utils.columns import ColumnNames
 
 
@@ -19,7 +18,6 @@ class Splitting(Step):
     def __init__(
         self,
         *args,
-        splitter: Splitter,
         converter: AnndataConverter,
         seed: int,
         n_partitions: int,
@@ -28,7 +26,6 @@ class Splitting(Step):
     ) -> None:
         """
         Args:
-            splitter: Splitter to use for stratification, grouping and shuffling among folds.
             converter: Converter used to convert the `DataFrame` format back to `AnnData`.
             seed: Seed to use for shuffling of the dataset.
         """  # noqa: D212
@@ -38,7 +35,6 @@ class Splitting(Step):
         split_path = self.output_path / "split"
         categories_path = self.output_path / "categories.json"
 
-        self.splitter = splitter
         self.converter = converter
         self.seed = seed
         self.metadata_path = metadata_path
