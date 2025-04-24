@@ -15,7 +15,7 @@ from omics_utils.utils.helpers import sanitize_dtypes
 from omics_utils.utils.serialization import deserialize_sparse_matrix, serialize_sparse_matrix
 
 
-class AnndataConverter:
+class AnnDataConverter:
     """Converter between `AnnData` objects and `DataFrames` with serialized sparse matrices.
 
     NOTE: This class only keeps `X`, `obs` and `var_names`, everything else will be discarded.
@@ -25,30 +25,13 @@ class AnndataConverter:
         self,
         obs_cols: list[str],
         var_cols: list[str] | None = None,
-        var_cols_file: str | None = None,
     ) -> None:
-        """Initialize the converter.
-
-        Args:
-            obs_cols (list[str]): Columns to retain from the `obs` `DataFrame`, e.g. sample-level metadata
-            var_cols (list[str]): Data columns to retain from the `X` array, e.g. genes. Inserts columns which are
-                in this list but not in the data as empty columns.
-            var_cols_file (str): Path to a csv file to load the column names from. The file should contain the names
-                separated by new lines.
         """
-        if var_cols is not None and var_cols_file is not None:
-            raise ValueError(
-                "Cannot provide the `var_cols` and load `var_cols_file` at the same time. One option has to be None."
-            )
-
-        if var_cols_file is not None:
-            if not Path(var_cols_file).exists():
-                raise ValueError(f"The given {var_cols_file=} does not exist.")
-
-            var_cols = (
-                pd.read_csv(var_cols_file, header=None, index_col=None, names=["name"])["name"].to_numpy().tolist()
-            )
-
+        Args:
+            obs_cols: Columns to retain from the `obs` `DataFrame`, e.g. sample-level metadata
+            var_cols: Data columns to retain from the `X` array, e.g. genes. Inserts columns which are
+                in this list but not in the data as empty columns.
+        """  # noqa: D212
         self.obs_cols = obs_cols
         self.var_cols = var_cols
 

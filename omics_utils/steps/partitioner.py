@@ -1,48 +1,85 @@
 import itertools
 import uuid
+from abc import ABC
 from pathlib import Path
 
-import anndata as ad
 import dask.bag as db
 import dask.dataframe as dd
-import h5py
+import pandas as pd
 from dask.delayed import Delayed
+from hydra_zen.typing import Partial
 
-from omics_utils.converter.anndata_converter import AnndataConverter
-from omics_utils.steps.preprocessing import Preprocessing
+from omics_utils.pipeline.step import Step
+from omics_utils.transforms.anndata_converter import AnnDataConverter
+from omics_utils.transforms.anndata_filterer import AnnDataFilterer
 from omics_utils.utils.columns import ColumnNames
+from omics_utils.utils.helpers import read_anndata_dask
 
 
-class CellXGenePreprocessing(Preprocessing):
-    """Preprocessing of CellXGene `AnnData` files."""
+class Partitioner(Step, ABC):
+    """Partitioner for `AnnData` files."""
 
     def __init__(
         self,
         *args,
         input_dir: str,
-        converter: AnndataConverter,
-        n_debug: int | None = None,
-        chunk_size: int = 100000,
+        converter: AnnDataConverter,
+        filterer: Partial[AnnDataFilterer],
         n_outer_partitions: int = 50,
+        n_inner_partitions: int = 10,
+        n_debug: int | None = None,
         subset: list[str] | None = None,
-        only_primary: bool = True,
         **kwargs,
     ) -> None:
         """
         Args:
             input_dir: Folder where the input CellXGene `AnnData` files are saved.
             converter: Converter to convert `AnnData` into a `DataFrame` format.
+            filterer: Filter to apply to each individual `AnnData` file.
             n_debug: Take the first n input files only for debugging purposes.
-            chunk_size: Chunk size of the expression matrix in dask.
             n_outer_partitions: Number of output partitions.
+            n_inner_partitions: Number of output partitions within each outer partition.
             subset: Subset of .h5ad file names to process.
             only_primary: Whether to only process cells marked as primary data.
         """  # noqa: D212
-        super().__init__(*args, converter=converter, input_dir=input_dir, n_debug=n_debug, **kwargs)
-        self.chunk_size = chunk_size
+        super().__init__(*args, **kwargs)
+        raw_input_path = Path(input_dir)
+
+        if not raw_input_path.exists():
+            raise ValueError("Input path does not exist.")
+
+        self.converter = converter
+        self.filterer = filterer
+        self.raw_input_path = raw_input_path
         self.n_outer_partitions = n_outer_partitions
+        self.n_inner_partitions = n_inner_partitions
+        self.n_debug = n_debug
         self.subset = subset
-        self.only_primary = only_primary
+
+    @property
+    def input_step(self) -> str | None:
+        """Has no preceding preprocessing step."""
+        return "cols"
+
+    @property
+    def output_step(self) -> str:
+        """Name of this preprocessing step."""
+        return "data"
+
+    @property
+    def meta_df(self) -> pd.DataFrame:
+        """Empty `DataFrame` used by Dask to determine the output of `transform`."""
+        return pd.DataFrame(
+            columns=[
+                ColumnNames.SPARSE_VECTOR,
+                ColumnNames.CASE_ID,
+                ColumnNames.SAMPLE_ID,
+                ColumnNames.BATCH_ID,
+                *self.converter.obs_cols,
+            ],
+            index=pd.Index([], dtype=str),
+            dtype=str,
+        )
 
     def read(self, input_files: list[Path]) -> dd.DataFrame:
         """Read and transform the data from the the input data.
@@ -77,49 +114,8 @@ class CellXGenePreprocessing(Preprocessing):
         Returns:
             A list of `Delayed` tasks for preprocessing.
         """
-        with h5py.File(file_path, "r") as f:
-            adata = ad.AnnData(
-                obs=ad.io.read_elem(f["obs"]),
-                var=ad.io.read_elem(f["var"]),
-            )
-
-            source = f["raw/X"] if "raw/X" in f else f["X"]
-
-            encoding = source.attrs.get("encoding-type")
-
-            if encoding == "csr_matrix":
-                adata.X = ad.experimental.read_elem_as_dask(source, chunks=(self.chunk_size, adata.shape[1]))
-            elif encoding == "csc_matrix":
-                return []
-            else:
-                raise NotImplementedError(f"The encoding {encoding} is not implemented.")
-
-        adata.obs = adata.obs.rename(columns={"donor_id": ColumnNames.CASE_ID})
-        adata.obs[ColumnNames.BATCH_ID] = str(file_path.stem)
-
-        # Filter out non-human tissue, non-primary and diseased data
-        cell_filter = (adata.obs["organism_ontology_term_id"] == "NCBITaxon:9606") & (
-            adata.obs["assay"].isin(
-                [
-                    "10x transcription profiling",
-                    "10x 3' transcription profiling",
-                    "10x 3' v1",
-                    "10x 3' v2",
-                    "10x 3' v3",
-                    "10x 3' v4",
-                    "10x 5' transcription profiling",
-                    "10x 5' v1",
-                    "10x 5' v2",
-                    "10x 5' v3",
-                ]
-            )
-        )
-        if self.only_primary:
-            cell_filter = cell_filter & (adata.obs["is_primary_data"] == True)
-
-        gene_filter = adata.var.index.isin(self.converter.var_cols)
-        adata = adata[cell_filter, gene_filter].copy()
-
+        adata = read_anndata_dask(file_path)
+        adata = self.filterer(adata, batch_id=str(file_path.stem))
         return self.converter.anndata_to_dataframe(adata)
 
     def write(self, data_df: dd.DataFrame) -> None:
@@ -134,7 +130,15 @@ class CellXGenePreprocessing(Preprocessing):
 
     def run(self) -> None:
         """Run the whole preprocessing step by sequentially running `read` and `write`."""
-        input_files = list(self.input_path.glob("*.h5ad"))
+        var_cols = (
+            pd.read_csv(self.input_path / "cols.csv", header=None, index_col=None, names=["name"])["name"]
+            .to_numpy()
+            .tolist()
+        )
+
+        self.filterer = self.filterer(var_cols=var_cols)
+
+        input_files = list(self.raw_input_path.glob("*.h5ad"))
         delayed = self.read(input_files)
 
         def process(delayed_iterator: itertools.chain) -> None:

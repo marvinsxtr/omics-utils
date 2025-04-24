@@ -7,8 +7,8 @@ import dask.dataframe as dd
 import pandas as pd
 from anndata._io.h5ad import write_h5ad
 
-from omics_utils.converter.anndata_converter import AnndataConverter
 from omics_utils.pipeline.step import Step
+from omics_utils.transforms.anndata_converter import AnnDataConverter
 from omics_utils.utils.columns import ColumnNames
 
 
@@ -18,7 +18,7 @@ class Splitter(Step):
     def __init__(
         self,
         *args,
-        converter: AnndataConverter,
+        converter: AnnDataConverter,
         seed: int,
         n_partitions: int,
         test_size: float = 0.1,
@@ -32,7 +32,7 @@ class Splitter(Step):
         super().__init__(*args, **kwargs)
 
         metadata_path = self.output_path / "metadata.parquet"
-        split_path = self.output_path / "split"
+        split_path = self.output_path / "data"
         categories_path = self.output_path / "categories.json"
 
         self.converter = converter
@@ -51,7 +51,7 @@ class Splitter(Step):
     @property
     def output_step(self) -> str:
         """Name of this preprocessing step."""
-        return "stratification"
+        return "split"
 
     def read(self) -> dd.DataFrame:
         """Read the data from the previous step.

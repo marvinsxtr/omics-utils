@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import scipy.sparse as sp
 
-from omics_utils.converter.anndata_converter import AnndataConverter
+from omics_utils.transforms.anndata_converter import AnnDataConverter
 from omics_utils.utils.columns import ColumnNames
 from omics_utils.utils.serialization import deserialize_sparse_matrix
 
@@ -27,7 +27,7 @@ def test_anndata_to_dataframe_dask() -> None:
     var = pd.DataFrame(index=["gene1", "gene2", "gene3"])
     adata = ad.AnnData(X=X, obs=obs, var=var)
 
-    converter = AnndataConverter(obs_cols=["cell_type"], var_cols=["gene1", "gene2", "gene3"])
+    converter = AnnDataConverter(obs_cols=["cell_type"], var_cols=["gene1", "gene2", "gene3"])
 
     delayed_objects = converter.anndata_to_dataframe(adata)
     ddf = dd.from_delayed(delayed_objects)
@@ -66,7 +66,7 @@ def test_dataframe_to_anndata_dask() -> None:
     var_original = pd.DataFrame(index=["gene1", "gene2", "gene3"])
     adata_original = ad.AnnData(X=X_original, obs=obs_original, var=var_original)
 
-    converter = AnndataConverter(obs_cols=["cell_type"], var_cols=["gene1", "gene2", "gene3"])
+    converter = AnnDataConverter(obs_cols=["cell_type"], var_cols=["gene1", "gene2", "gene3"])
 
     delayed_objects = converter.anndata_to_dataframe(adata_original)
     ddf = dd.from_delayed(delayed_objects)
@@ -109,7 +109,7 @@ def test_reindex_anndata_genes() -> None:
     var = pd.DataFrame(index=["gene1", "gene2", "gene3"])
     adata = ad.AnnData(X=X, obs=obs, var=var)
 
-    converter = AnndataConverter(obs_cols=[], var_cols=["gene1", "gene3", "gene4"])
+    converter = AnnDataConverter(obs_cols=[], var_cols=["gene1", "gene3", "gene4"])
 
     adata_reindexed = converter.reindex_anndata_genes(adata, ["gene1", "gene3", "gene4"])
 

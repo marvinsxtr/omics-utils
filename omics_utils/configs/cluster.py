@@ -4,7 +4,7 @@ from hydra_zen import builds
 
 from omics_utils.utils.helpers import get_output_dir
 
-CellXGenePreprocessingClusterConfig = builds(
+CellXGenePartitioningClusterConfig = builds(
     SLURMCluster,
     n_workers=6,
     queue="cpu-2h",
@@ -12,16 +12,14 @@ CellXGenePreprocessingClusterConfig = builds(
     processes=4,
     memory="512GiB",
     walltime="02:00:00",
-    python="apptainer run oras://ghcr.io/bifold-pathomics/omics-utils:latest-sif python",
+    python="apptainer run -B /home/space/omics/datasets/cellxgene/h5ads:/srv/data oras://ghcr.io/bifold-pathomics/omics-utils:latest-sif python",  # noqa: E501
     log_directory=builds(get_output_dir),
     zen_partial=True,
 )
 
-CellXGeneStratificationClusterConfig = CellXGenePreprocessingClusterConfig(
-    processes=2, queue="cpu-2d", walltime="48:00:00"
-)
+CellXGeneSplittingClusterConfig = CellXGenePartitioningClusterConfig(processes=2, queue="cpu-2d", walltime="48:00:00")
 
-HLCAPreprocessingClusterConfig = builds(
+HLCAPartitioningClusterConfig = builds(
     SLURMCluster,
     n_workers=1,
     queue="cpu-2h",
@@ -29,7 +27,7 @@ HLCAPreprocessingClusterConfig = builds(
     processes=4,
     memory="128GiB",
     walltime="02:00:00",
-    python="apptainer run oras://ghcr.io/bifold-pathomics/omics-utils:latest-sif python",
+    python="apptainer run -B /home/space/omics/datasets/cellxgene/h5ads:/srv/data oras://ghcr.io/bifold-pathomics/omics-utils:latest-sif python",  # noqa: E501
     log_directory=builds(get_output_dir),
     zen_partial=True,
 )

@@ -11,3 +11,5 @@ class ColumnNames:
     SAMPLE_ID: Final[str] = "sample_id"
     BATCH_ID: Final[str] = "batch_id"
     SPARSE_VECTOR: Final[str] = "sparse_vector"
+    HIGHLY_VARIABLE: Final[str] = "highly_variable"
+    COLUMN_ID: Final[str] = "column_id"

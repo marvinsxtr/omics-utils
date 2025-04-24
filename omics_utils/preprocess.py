@@ -8,12 +8,12 @@ from ml_project_template.runs import Run
 from omics_utils.pipeline.pipeline import Pipeline
 
 
-def main(cfg: Run, preprocessor: Pipeline) -> None:  # noqa: ARG001
+def main(cfg: Run, pipeline: Pipeline) -> None:  # noqa: ARG001
     """Run the preprocessing pipeline."""
     # See https://distributed.dask.org/en/stable/scheduling-policies.html#adjusting-or-disabling-queuing
     dask.config.set({"distributed.scheduler.worker-saturation": 1.0})
     dask.config.set({"dataframe.shuffle.method": "p2p"})
-    preprocessor.run()
+    pipeline.run()
 
 
 if __name__ == "__main__":

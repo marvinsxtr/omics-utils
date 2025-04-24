@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import anndata as ad
+import h5py
 import pandas as pd
 from ml_project_template.utils import get_hydra_output_dir
 
@@ -33,3 +35,33 @@ def sanitize_dtypes(df: pd.DataFrame) -> pd.DataFrame:
             dtypes[name] = object
 
     return df.astype(dtypes)
+
+
+def read_anndata_dask(file_path: str, chunk_size: int = 100_000) -> ad.AnnData:
+    """Read an `AnnData` file and store the sparse expression counts with dask.
+
+    Args:
+        file_path: Path to the .h5ad file to read.
+        chunk_size: Chunk size to use for dask.
+
+    Returns:
+    An `AnnData` object containing dask-backed sparse expression counts in `X`.
+    """
+    with h5py.File(file_path, "r") as f:
+        adata = ad.AnnData(
+            obs=ad.io.read_elem(f["obs"]),
+            var=ad.io.read_elem(f["var"]),
+        )
+
+        source = f["raw/X"] if "raw/X" in f else f["X"]
+
+        encoding = source.attrs.get("encoding-type")
+
+        if encoding == "csr_matrix":
+            adata.X = ad.experimental.read_elem_as_dask(source, chunks=(chunk_size, adata.shape[1]))
+        elif encoding == "csc_matrix":
+            return []
+        else:
+            raise NotImplementedError(f"The encoding {encoding} is not implemented.")
+
+    return adata

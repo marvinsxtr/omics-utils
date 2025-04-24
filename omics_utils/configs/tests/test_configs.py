@@ -4,7 +4,7 @@ from dask.distributed import LocalCluster
 from hydra_zen import builds, instantiate, launch
 from omegaconf import DictConfig
 
-from omics_utils.configs.preprocessor import CellXGenePreprocessingConfig
+from omics_utils.configs.pipeline import CellXGenePipelineConfig
 
 
 def wrap(config: DictConfig) -> None:
@@ -18,12 +18,8 @@ def test_preprocessing_configs(tmp_path: Path) -> None:
 
     input_override = f"steps.0.input_dir={tmp_path}"
 
-    var_cols_file = tmp_path / "genes.csv"
-    var_cols_file.touch()
-    var_cols_overrides = [f"steps.{index}.converter.var_cols_file={var_cols_file}" for index in range(2)]
-
     configs = [
-        (CellXGenePreprocessingConfig(cluster=DummyClusterConfig), [input_override, *var_cols_overrides]),
+        (CellXGenePipelineConfig(cluster=DummyClusterConfig), [input_override]),
     ]
 
     for config, overrides in configs:
