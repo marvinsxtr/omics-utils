@@ -4,7 +4,7 @@ from dask.distributed import LocalCluster
 from hydra_zen import builds, instantiate, launch
 from omegaconf import DictConfig
 
-from omics_utils.configs.preprocessor import CellXGenePreprocessingConfig, MethylationPreprocessingConfig
+from omics_utils.configs.preprocessor import CellXGenePreprocessingConfig
 
 
 def wrap(config: DictConfig) -> None:
@@ -24,7 +24,6 @@ def test_preprocessing_configs(tmp_path: Path) -> None:
 
     configs = [
         (CellXGenePreprocessingConfig(cluster=DummyClusterConfig), [input_override, *var_cols_overrides]),
-        (MethylationPreprocessingConfig(cluster=DummyClusterConfig), [input_override]),
     ]
 
     for config, overrides in configs:

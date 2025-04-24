@@ -9,7 +9,7 @@ import h5py
 from dask.delayed import Delayed
 
 from omics_utils.converter.anndata_converter import AnndataConverter
-from omics_utils.pipeline.steps.preprocessing import Preprocessing
+from omics_utils.steps.preprocessing import Preprocessing
 from omics_utils.utils.columns import ColumnNames
 
 

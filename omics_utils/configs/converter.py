@@ -26,9 +26,3 @@ CellXGeneConverterConfig = builds(
     ],
     var_cols_file="/home/space/omics/datasets/vocabulary/gene_vocabulary.csv",
 )
-
-MethylationConverterConfig = builds(
-    AnndataConverter,
-    obs_cols=["organ", "category"],
-    sparse=False,
-)

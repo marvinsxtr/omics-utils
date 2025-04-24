@@ -5,16 +5,10 @@
 
 Welcome to the omics-utils documentation!
 =========================================
-.. toctree::
-   :maxdepth: 3
-   :caption: Contents:
+
+.. autosummary::
+   :toctree: _autosummary
+   :template: custom-module-template.rst
+   :recursive:
 
    readme
-   API Reference <modules> 
-
-
-Indices and Tables
-==================
-
-* :ref:`modindex`
-* :ref:`search`
