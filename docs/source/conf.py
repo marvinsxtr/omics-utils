@@ -3,8 +3,6 @@ import sys
 
 # Folder to preprocess.py had to be specified individually.
 sys.path.insert(0, os.path.abspath("../../omics_utils"))  # noqa: PTH100
-sys.path.insert(0, os.path.abspath("../../../omics-utils"))  # noqa: PTH100
-
 
 # Configuration file for the Sphinx documentation builder.
 #
@@ -23,21 +21,21 @@ release = "v0.0.24"
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-    "myst_parser",
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
+    "sphinx.ext.autosummary",
     "sphinx_autodoc_typehints",
     "myst_parser",
-    "sphinx.ext.autodoc",
-    "sphinx.ext.autosummary",
 ]
 
-autosummary_generate = True
 templates_path = ["_templates"]
-exclude_patterns = []
+autosummary_generate = True
+autosummary_ignore_module_all = False
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = "pydata_sphinx_theme"
 html_static_path = ["_static"]
+html_sidebars = {"readme": []}
+html_title = "🧬 omics-utils"

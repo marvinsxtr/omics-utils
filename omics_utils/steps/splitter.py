@@ -12,8 +12,8 @@ from omics_utils.pipeline.step import Step
 from omics_utils.utils.columns import ColumnNames
 
 
-class Splitting(Step):
-    """Preprocessing step which reads case metadata and splits the data accordingly."""
+class Splitter(Step):
+    """Splits the data into a train and validation set."""
 
     def __init__(
         self,

@@ -14,7 +14,7 @@ def wrap(config: DictConfig) -> None:
 
 def test_preprocessing_configs(tmp_path: Path) -> None:
     """Test config instantiation of preprocessing pipelines."""
-    DummyClusterConfig = builds(LocalCluster, n_workers=0)
+    DummyClusterConfig = builds(LocalCluster, n_workers=0, silence_logs=True, processes=False)
 
     input_override = f"steps.0.input_dir={tmp_path}"
 

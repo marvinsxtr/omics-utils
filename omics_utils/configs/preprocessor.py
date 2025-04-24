@@ -1,4 +1,5 @@
 from hydra_zen import builds
+from steps.splitter import Splitter
 
 from omics_utils.configs.cluster import (
     CellXGenePreprocessingClusterConfig,
@@ -10,7 +11,6 @@ from omics_utils.configs.converter import CellXGeneConverterConfig
 from omics_utils.pipeline.pipeline import Pipeline
 from omics_utils.steps.cellxgene.preprocessing import CellXGenePreprocessing
 from omics_utils.steps.limiter import Limiter
-from omics_utils.steps.splitting import Splitting
 
 CellXGenePreprocessingConfig = builds(
     Pipeline,
@@ -27,7 +27,7 @@ CellXGenePreprocessingConfig = builds(
             zen_partial=True,
         ),
         builds(
-            Splitting,
+            Splitter,
             converter=CellXGeneConverterConfig,
             seed=42,
             n_partitions=1000,
@@ -58,7 +58,7 @@ HLCAPreprocessingConfig = builds(
             zen_partial=True,
         ),
         builds(
-            Splitting,
+            Splitter,
             converter=CellXGeneConverterConfig,
             seed=42,
             n_partitions=5,

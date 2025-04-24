@@ -11,7 +11,7 @@ import scipy.sparse as sp
 from dask.delayed import Delayed
 
 from omics_utils.utils.columns import ColumnNames
-from omics_utils.utils.helpers import densify_matrix, sanitize_dtypes, sparsify_matrix
+from omics_utils.utils.helpers import sanitize_dtypes
 from omics_utils.utils.serialization import deserialize_sparse_matrix, serialize_sparse_matrix
 
 
@@ -26,7 +26,6 @@ class AnndataConverter:
         obs_cols: list[str],
         var_cols: list[str] | None = None,
         var_cols_file: str | None = None,
-        sparse: bool = True,
     ) -> None:
         """Initialize the converter.
 
@@ -36,7 +35,6 @@ class AnndataConverter:
                 in this list but not in the data as empty columns.
             var_cols_file (str): Path to a csv file to load the column names from. The file should contain the names
                 separated by new lines.
-            sparse (bool): Whether to save the samples in a sparse format or as a dense `DataFrame`.
         """
         if var_cols is not None and var_cols_file is not None:
             raise ValueError(
@@ -51,7 +49,6 @@ class AnndataConverter:
                 pd.read_csv(var_cols_file, header=None, index_col=None, names=["name"])["name"].to_numpy().tolist()
             )
 
-        self.sparse = sparse
         self.obs_cols = obs_cols
         self.var_cols = var_cols
 
@@ -94,7 +91,7 @@ class AnndataConverter:
             obs[[ColumnNames.CASE_ID, ColumnNames.SAMPLE_ID, ColumnNames.BATCH_ID, *self.obs_cols]].astype(str)
         )
 
-    def anndata_to_dataframe(self, adata: anndata.AnnData) -> pd.DataFrame | list[Delayed]:
+    def anndata_to_dataframe(self, adata: anndata.AnnData) -> list[Delayed]:
         """Convert an AnnData object to a DataFrame.
 
         The result will have all obs metadata plus a `sparse_vector` column
@@ -104,29 +101,20 @@ class AnndataConverter:
             adata: `AnnData` object to convert
 
         Returns:
-            `DataFrame` with cell metadata and serialized expression data or a list of `Delayed` tasks.
+        List of `Delayed` serialization tasks.
         """
         adata.obs = self._prepare_metadata(adata)
 
         if self.var_cols is not None and adata.n_obs > 0:
             adata = self.reindex_anndata_genes(adata, self.var_cols)
 
-        if self.sparse:
-            if isinstance(adata.X, da.Array):
-                df = [] if adata.n_obs == 0 else self.serialize(adata)
-            elif isinstance(adata.X, sp.csr_matrix):
-                sparse_vectors = [serialize_sparse_matrix(x) for x in adata.X]
-                df = pd.DataFrame({ColumnNames.SPARSE_VECTOR: sparse_vectors}, index=adata.obs_names).astype(str)
-                df = self.join_metadata(df, adata.obs)
-        else:
-            X = densify_matrix(adata.X) if isinstance(adata.X, sp.spmatrix) else adata.X
-            df = pd.DataFrame(X, index=adata.obs_names, columns=adata.var_names)
-            df = self.join_metadata(df, adata.obs)
+        if not isinstance(adata.X, da.Array):
+            raise TypeError("AnnData object must contain a dask-backed `X`.")
 
-            if self.var_cols is not None:
-                df = df.reindex(columns=self.var_cols).astype(float)
+        if adata.n_obs == 0:
+            return []
 
-        return df
+        return self.serialize(adata)
 
     def dataframe_to_anndata(self, df: pd.DataFrame) -> anndata.AnnData:
         """Convert a `DataFrame` back to an `AnnData` object.
@@ -145,17 +133,11 @@ class AnndataConverter:
         obs_cols = list(set(self.obs_cols) | id_cols)
         obs = sanitize_dtypes(df[obs_cols]).set_index(ColumnNames.SAMPLE_ID)
 
-        if self.sparse:
-            if ColumnNames.SPARSE_VECTOR not in df.columns:
-                raise ValueError(
-                    f"When using the sparse format, the `DataFrame` has to contain a column named "
-                    f"`{ColumnNames.SPARSE_VECTOR}`."
-                )
+        if ColumnNames.SPARSE_VECTOR not in df.columns:
+            raise ValueError(f"The `DataFrame` has to contain a column named `{ColumnNames.SPARSE_VECTOR}`.")
 
-            sparse_rows = [deserialize_sparse_matrix(row) for row in df[ColumnNames.SPARSE_VECTOR]]
-            X = sp.vstack(sparse_rows, format="csr")
-        else:
-            X = sparsify_matrix(df[var_cols].to_numpy(dtype=float))
+        sparse_rows = [deserialize_sparse_matrix(row) for row in df[ColumnNames.SPARSE_VECTOR]]
+        X = sp.vstack(sparse_rows, format="csr")
 
         return anndata.AnnData(X=X, obs=obs, var=var)
 
@@ -202,24 +184,22 @@ class AnndataConverter:
         Returns:
             New `AnnData` object with exactly the genes specified, in the specified order.
         """
-        n_genes = len(genes)
-        common_genes = list(set(genes) & set(adata.var_names))
-
         if adata.n_obs == 0:
             raise ValueError("Must have at least one observation to reindex the genes.")
 
-        if isinstance(adata.X, sp.csr_matrix | da.Array):
-            old_indices = np.array([adata.var_names.get_loc(g) for g in common_genes])
-            new_indices = np.array([genes.index(g) for g in common_genes])
+        if not isinstance(adata.X, da.Array):
+            raise TypeError("AnnData object must contain a dask-backed `X`.")
 
-            P = sp.csr_matrix((np.ones(len(common_genes)), (old_indices, new_indices)), shape=(adata.n_vars, n_genes))
+        n_genes = len(genes)
+        common_genes = list(set(genes) & set(adata.var_names))
 
-            new_X = adata.X.dot(P)
-        else:
-            raise NotImplementedError(f"The type {type(adata.X)} is not supported.")
+        old_indices = np.array([adata.var_names.get_loc(g) for g in common_genes])
+        new_indices = np.array([genes.index(g) for g in common_genes])
+
+        P = sp.csr_matrix((np.ones(len(common_genes)), (old_indices, new_indices)), shape=(adata.n_vars, n_genes))
 
         return ad.AnnData(
-            new_X,
+            adata.X.dot(P),
             obs=adata.obs,
             var=adata.var.reindex(genes),
         )

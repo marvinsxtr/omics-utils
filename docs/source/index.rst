@@ -6,9 +6,6 @@
 Welcome to the omics-utils documentation!
 =========================================
 
-.. autosummary::
-   :toctree: _autosummary
-   :template: custom-module-template.rst
-   :recursive:
-
+.. toctree::
    readme
+   reference

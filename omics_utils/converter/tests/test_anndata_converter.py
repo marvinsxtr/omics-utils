@@ -1,6 +1,6 @@
-from unittest.mock import patch
-
 import anndata as ad
+import dask.array as da
+import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
@@ -10,44 +10,67 @@ from omics_utils.utils.columns import ColumnNames
 from omics_utils.utils.serialization import deserialize_sparse_matrix
 
 
-def test_anndata_to_dataframe_sparse() -> None:
-    """Test conversion from `AnnData` to `DataFrame` using sparse format."""
-    X = sp.csr_matrix(np.array([[1.0, 0.0, 3.0], [0.0, 2.0, 0.0]]))
+def test_anndata_to_dataframe_dask() -> None:
+    """Test conversion from `AnnData` to dask DataFrame using sparse arrays."""
+    X_dense = np.array([[1.0, 0.0, 3.0], [0.0, 2.0, 0.0]])
+    X_dask = da.from_array(X_dense, chunks=(1, 3))
+    X = X_dask.map_blocks(sp.csr_matrix)
+
     obs = pd.DataFrame(
-        {ColumnNames.CASE_ID: ["case1", "case2"], ColumnNames.BATCH_ID: ["batch1", "batch2"], "cell_type": ["A", "B"]}
+        {
+            ColumnNames.CASE_ID: ["case1", "case2"],
+            ColumnNames.BATCH_ID: ["batch1", "batch2"],
+            ColumnNames.SAMPLE_ID: ["sample1", "sample2"],
+            "cell_type": ["A", "B"],
+        }
     )
     var = pd.DataFrame(index=["gene1", "gene2", "gene3"])
     adata = ad.AnnData(X=X, obs=obs, var=var)
 
-    converter = AnndataConverter(sparse=True, obs_cols=["cell_type"], var_cols=["gene1", "gene2", "gene3"])
+    converter = AnndataConverter(obs_cols=["cell_type"], var_cols=["gene1", "gene2", "gene3"])
 
-    with patch("uuid.uuid4", side_effect=["sample1", "sample2", "case1_new", "case2_new"]):
-        df = converter.anndata_to_dataframe(adata)
+    delayed_objects = converter.anndata_to_dataframe(adata)
+    ddf = dd.from_delayed(delayed_objects)
+    df = ddf.compute()
 
     assert ColumnNames.SPARSE_VECTOR in df.columns
     assert "cell_type" in df.columns
     assert len(df) == 2
 
-    row1_vector = deserialize_sparse_matrix(df[ColumnNames.SPARSE_VECTOR].iloc[0])
-    assert row1_vector[0, 0] == 1.0
+    vectors = []
+    for i in range(len(df)):
+        vec = deserialize_sparse_matrix(df[ColumnNames.SPARSE_VECTOR].iloc[i])
+        vectors.append(vec)
 
-    row2_vector = deserialize_sparse_matrix(df[ColumnNames.SPARSE_VECTOR].iloc[1])
-    assert row2_vector[0, 0] == 0.0
+    combined = sp.vstack(vectors)
+
+    assert combined[0, 0] == 1.0
+    assert combined[0, 2] == 3.0
+    assert combined[1, 1] == 2.0
 
 
-def test_dataframe_to_anndata_sparse() -> None:
-    """Test conversion from `DataFrame` to `AnnData` using sparse format."""
-    X_original = sp.csr_matrix(np.array([[1.0, 0.0, 3.0], [0.0, 2.0, 0.0]]))
+def test_dataframe_to_anndata_dask() -> None:
+    """Test conversion from dask DataFrame to `AnnData` using sparse arrays."""
+    X_dense = np.array([[1.0, 0.0, 3.0], [0.0, 2.0, 0.0]])
+    X_dask = da.from_array(X_dense, chunks=(1, 3))
+    X_original = X_dask.map_blocks(sp.csr_matrix)
+
     obs_original = pd.DataFrame(
-        {ColumnNames.CASE_ID: ["case1", "case2"], ColumnNames.BATCH_ID: ["batch1", "batch2"], "cell_type": ["A", "B"]}
+        {
+            ColumnNames.CASE_ID: ["case1", "case2"],
+            ColumnNames.BATCH_ID: ["batch1", "batch2"],
+            ColumnNames.SAMPLE_ID: ["sample1", "sample2"],
+            "cell_type": ["A", "B"],
+        }
     )
     var_original = pd.DataFrame(index=["gene1", "gene2", "gene3"])
     adata_original = ad.AnnData(X=X_original, obs=obs_original, var=var_original)
 
-    converter = AnndataConverter(sparse=True, obs_cols=["cell_type"], var_cols=["gene1", "gene2", "gene3"])
+    converter = AnndataConverter(obs_cols=["cell_type"], var_cols=["gene1", "gene2", "gene3"])
 
-    with patch("uuid.uuid4", side_effect=["sample1", "sample2", "case1_new", "case2_new"]):
-        df_original = converter.anndata_to_dataframe(adata_original)
+    delayed_objects = converter.anndata_to_dataframe(adata_original)
+    ddf = dd.from_delayed(delayed_objects)
+    df_original = ddf.compute()
 
     df = pd.DataFrame(
         {
@@ -72,8 +95,11 @@ def test_dataframe_to_anndata_sparse() -> None:
 
 
 def test_reindex_anndata_genes() -> None:
-    """Test reindexing of genes with insertion of new genes."""
-    X = sp.csr_matrix(np.array([[1.0, 0.0, 3.0], [0.0, 2.0, 0.0]]))
+    """Test reindexing of genes with insertion of new genes using sparse arrays."""
+    X_dense = np.array([[1.0, 0.0, 3.0], [0.0, 2.0, 0.0]])
+    X_dask = da.from_array(X_dense, chunks=(1, 3))
+    X = X_dask.map_blocks(sp.csr_matrix)
+
     obs = pd.DataFrame(
         {
             ColumnNames.CASE_ID: ["case1", "case2"],
@@ -90,8 +116,10 @@ def test_reindex_anndata_genes() -> None:
     assert list(adata_reindexed.var_names) == ["gene1", "gene3", "gene4"]
     assert adata_reindexed.shape == (2, 3)
 
-    assert adata_reindexed.X[0, 0] == 1.0
-    assert adata_reindexed.X[0, 1] == 3.0
-    assert adata_reindexed.X[1, 1] == 0.0
-    assert adata_reindexed.X[0, 2] == 0.0
-    assert adata_reindexed.X[1, 2] == 0.0
+    X_reindexed_computed = adata_reindexed.X.compute()
+
+    assert X_reindexed_computed[0, 0] == 1.0
+    assert X_reindexed_computed[0, 1] == 3.0
+    assert X_reindexed_computed[1, 1] == 0.0
+    assert X_reindexed_computed[0, 2] == 0.0
+    assert X_reindexed_computed[1, 2] == 0.0
