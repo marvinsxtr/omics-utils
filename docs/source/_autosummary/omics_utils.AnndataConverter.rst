@@ -1,9 +1,9 @@
-omics\_utils.AnndataConverter
+omics\_utils.AnnDataConverter
 =============================
 
 .. currentmodule:: omics_utils
 
-.. autoclass:: AnndataConverter
+.. autoclass:: AnnDataConverter
    :members:
    :show-inheritance:
    :inherited-members:
@@ -16,12 +16,12 @@ omics\_utils.AnndataConverter
 
    .. autosummary::
    
-      ~AnndataConverter.__init__
-      ~AnndataConverter.anndata_to_dataframe
-      ~AnndataConverter.dataframe_to_anndata
-      ~AnndataConverter.join_metadata
-      ~AnndataConverter.reindex_anndata_genes
-      ~AnndataConverter.serialize
+      ~AnnDataConverter.__init__
+      ~AnnDataConverter.anndata_to_dataframe
+      ~AnnDataConverter.dataframe_to_anndata
+      ~AnnDataConverter.join_metadata
+      ~AnnDataConverter.reindex_anndata_genes
+      ~AnnDataConverter.serialize
    
    
 

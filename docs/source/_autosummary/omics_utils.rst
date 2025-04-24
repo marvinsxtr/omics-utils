@@ -19,11 +19,10 @@
       :toctree:
       :template: custom-class-template.rst
    
-      AnndataConverter
-      CellXGenePreprocessing
+      AnnDataConverter
       Limiter
+      Partitioner
       Pipeline
-      Preprocessing
       Splitter
       Step
    
