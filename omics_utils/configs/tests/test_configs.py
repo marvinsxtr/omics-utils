@@ -16,11 +16,10 @@ def test_preprocessing_configs(tmp_path: Path) -> None:
     """Test config instantiation of preprocessing pipelines."""
     DummyClusterConfig = builds(LocalCluster, n_workers=0, silence_logs=True, processes=False)
 
-    input_override = f"steps.0.input_dir={tmp_path}"
-    tmp_path.touch()
+    input_overrides = [f"steps.0.input_dir={tmp_path}", f"steps.1.input_dir={tmp_path}"]
 
     configs = [
-        (CellXGenePipelineConfig(cluster=DummyClusterConfig), [input_override]),
+        (CellXGenePipelineConfig(cluster=DummyClusterConfig), input_overrides),
     ]
 
     for config, overrides in configs:
