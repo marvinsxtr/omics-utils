@@ -1,7 +1,6 @@
 from abc import abstractmethod
 
 import anndata as ad
-from dask.distributed import print
 
 from omics_utils.utils.columns import ColumnNames
 
@@ -33,7 +32,18 @@ class AnnDataFilterer:
 
 
 class CellXGeneFilterer(AnnDataFilterer):
+    """Filters `AnnData` objects from the CellXGene dataset."""
+
     def __call__(self, adata: ad.AnnData, batch_id: str) -> ad.AnnData:
+        """Apply gene and observation filters an `AnnData` object.
+
+        Args:
+            adata: `AnnData` object to filter.
+            batch_id: Batch identifier for the `AnnData` object.
+
+        Returns:
+        The filtered `AnnData` object.
+        """
         adata.obs = adata.obs.rename(columns={"donor_id": ColumnNames.CASE_ID})
         adata.obs[ColumnNames.BATCH_ID] = batch_id
 
@@ -54,17 +64,14 @@ class CellXGeneFilterer(AnnDataFilterer):
                 ]
             )
         )
+
         if self.only_primary:
             cell_filter = cell_filter & (adata.obs["is_primary_data"] == True)
-
-        print(adata)
 
         if self.var_cols is not None:
             gene_filter = adata.var.index.isin(self.var_cols)
             adata = adata[cell_filter, gene_filter].copy()
         else:
             adata = adata[cell_filter, :].copy()
-
-        print(adata)
 
         return adata

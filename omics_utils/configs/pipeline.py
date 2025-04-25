@@ -1,5 +1,4 @@
 from hydra_zen import builds
-from steps.splitter import Splitter
 
 from omics_utils.configs.cluster import (
     CellXGenePartitioningClusterConfig,
@@ -12,6 +11,7 @@ from omics_utils.pipeline.pipeline import Pipeline
 from omics_utils.steps.limiter import Limiter
 from omics_utils.steps.partitioner import Partitioner
 from omics_utils.steps.selector import Selector
+from omics_utils.steps.splitter import Splitter
 
 CellXGenePipelineConfig = builds(
     Pipeline,
@@ -72,6 +72,7 @@ HLCAPipelineConfig = builds(
             n_outer_partitions=5,
             n_inner_partitions=1,
             cluster=HLCAPartitioningClusterConfig,
+            subset=["f72958f5-7f42-4ebb-98da-445b0c6de516"],
             scale=1,
             zen_partial=True,
         ),

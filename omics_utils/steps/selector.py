@@ -3,7 +3,6 @@ from pathlib import Path
 import dask.dataframe as dd
 import pandas as pd
 import scanpy as sc
-from dask.distributed import print
 from hydra_zen.typing import Partial
 
 from omics_utils.pipeline.step import Step
@@ -53,13 +52,13 @@ class Selector(Step):
     @property
     def output_step(self) -> str:
         """Name of this preprocessing step."""
-        return "cols"
+        return "genes"
 
     @property
     def meta_df(self) -> pd.DataFrame:
         """Empty `DataFrame` used by Dask to determine the output of `transform`."""
         return pd.DataFrame(
-            columns=[ColumnNames.BATCH_ID, ColumnNames.COLUMN_ID, ColumnNames.HIGHLY_VARIABLE],
+            columns=[ColumnNames.GENE_ID, ColumnNames.HIGHLY_VARIABLE, ColumnNames.BATCH_ID],
             index=pd.Index([], dtype=str),
             dtype=str,
         )
@@ -105,18 +104,28 @@ class Selector(Step):
 
         df = adata.var[ColumnNames.HIGHLY_VARIABLE].to_frame(name=ColumnNames.HIGHLY_VARIABLE)
         df[ColumnNames.BATCH_ID] = batch_id
-        return df.reset_index(names=ColumnNames.COLUMN_ID)
+        return df.reset_index(names=ColumnNames.GENE_ID)
 
     def write(self, data_df: dd.DataFrame) -> None:
         """Load/save the result of the transformation.
 
         Args:
-            data_df: A `DataFrame` containing the patient/donor metadata and the matrix `X`.
+            data_df: `DataFrame` containing a gene and batch identifier as well as a highly variable gene flag.
         """
-        pass
+        highly_variable = data_df[data_df[ColumnNames.HIGHLY_VARIABLE] == True]
+
+        gene_counts = highly_variable.groupby(ColumnNames.GENE_ID)[ColumnNames.BATCH_ID].nunique().reset_index()
+        gene_counts = gene_counts.rename(columns={ColumnNames.BATCH_ID: ColumnNames.HIGHLY_VARIABLE})
+
+        ranking_ddf = gene_counts.sort_values(ColumnNames.HIGHLY_VARIABLE, ascending=False)
+        ranking_ddf = ranking_ddf.reset_index(drop=True)
+        ranking_ddf["rank"] = ranking_ddf.reset_index()["index"] + 1
+
+        ranking_df: pd.DataFrame = ranking_ddf.compute()
+        ranking_df[ColumnNames.GENE_ID].to_csv(self.output_path / "genes.csv", header=None, index=None)
 
     def run(self) -> None:
         """Run the whole preprocessing step by sequentially running `read` and `write`."""
         input_files = list(self.raw_input_path.glob("*.h5ad"))
-        df = self.read(input_files).compute()
-        print(df)
+        data_df = self.read(input_files)
+        self.write(data_df)

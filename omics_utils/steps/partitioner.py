@@ -13,7 +13,7 @@ from omics_utils.pipeline.step import Step
 from omics_utils.transforms.anndata_converter import AnnDataConverter
 from omics_utils.transforms.anndata_filterer import AnnDataFilterer
 from omics_utils.utils.columns import ColumnNames
-from omics_utils.utils.helpers import read_anndata_dask
+from omics_utils.utils.helpers import read_anndata_dask, read_var_cols
 
 
 class Partitioner(Step, ABC):
@@ -23,7 +23,7 @@ class Partitioner(Step, ABC):
         self,
         *args,
         input_dir: str,
-        converter: AnnDataConverter,
+        converter: Partial[AnnDataConverter],
         filterer: Partial[AnnDataFilterer],
         n_outer_partitions: int = 50,
         n_inner_partitions: int = 10,
@@ -59,7 +59,7 @@ class Partitioner(Step, ABC):
     @property
     def input_step(self) -> str | None:
         """Has no preceding preprocessing step."""
-        return "cols"
+        return "genes"
 
     @property
     def output_step(self) -> str:
@@ -92,6 +92,11 @@ class Partitioner(Step, ABC):
         Returns:
             The data ready for transformation.
         """
+        var_cols = read_var_cols(self.input_path / "genes.csv")
+
+        self.converter = self.converter(var_cols=var_cols)
+        self.filterer = self.filterer(var_cols=var_cols)
+
         if self.n_debug is not None:
             input_files = input_files[: self.n_debug]
 
@@ -130,14 +135,6 @@ class Partitioner(Step, ABC):
 
     def run(self) -> None:
         """Run the whole preprocessing step by sequentially running `read` and `write`."""
-        var_cols = (
-            pd.read_csv(self.input_path / "cols.csv", header=None, index_col=None, names=["name"])["name"]
-            .to_numpy()
-            .tolist()
-        )
-
-        self.filterer = self.filterer(var_cols=var_cols)
-
         input_files = list(self.raw_input_path.glob("*.h5ad"))
         delayed = self.read(input_files)
 

@@ -25,6 +25,7 @@ CellXGeneConverterConfig = builds(
         "sex_ontology_term_id",
         "tissue_ontology_term_id",
     ],
+    zen_partial=True,
 )
 
 CellXGeneFiltererConfig = builds(CellXGeneFilterer, only_primary=True, var_cols=None, zen_partial=True)

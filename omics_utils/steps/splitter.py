@@ -6,10 +6,12 @@ import dask
 import dask.dataframe as dd
 import pandas as pd
 from anndata._io.h5ad import write_h5ad
+from hydra_zen.typing import Partial
 
 from omics_utils.pipeline.step import Step
 from omics_utils.transforms.anndata_converter import AnnDataConverter
 from omics_utils.utils.columns import ColumnNames
+from omics_utils.utils.helpers import read_var_cols
 
 
 class Splitter(Step):
@@ -18,7 +20,7 @@ class Splitter(Step):
     def __init__(
         self,
         *args,
-        converter: AnnDataConverter,
+        converter: Partial[AnnDataConverter],
         seed: int,
         n_partitions: int,
         test_size: float = 0.1,
@@ -59,6 +61,9 @@ class Splitter(Step):
         Returns:
             The data ready for transformation.
         """
+        var_cols = read_var_cols(self.base_path / "genes" / "genes.csv")
+        self.converter = self.converter(var_cols=var_cols)
+
         return dd.read_parquet(
             list(self.input_path.glob("*.parquet")), split_row_groups=True, ignore_metadata_file=True
         )
