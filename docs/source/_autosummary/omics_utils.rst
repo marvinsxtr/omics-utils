@@ -20,6 +20,8 @@
       :template: custom-class-template.rst
    
       AnnDataConverter
+      AnnDataFilterer
+      CellXGeneFilterer
       Limiter
       Partitioner
       Pipeline
