@@ -23,6 +23,7 @@
       Limiter
       Partitioner
       Pipeline
+      Selector
       Splitter
       Step
    
