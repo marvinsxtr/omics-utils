@@ -17,6 +17,7 @@ def test_preprocessing_configs(tmp_path: Path) -> None:
     DummyClusterConfig = builds(LocalCluster, n_workers=0, silence_logs=True, processes=False)
 
     input_override = f"steps.0.input_dir={tmp_path}"
+    tmp_path.touch()
 
     configs = [
         (CellXGenePipelineConfig(cluster=DummyClusterConfig), [input_override]),
