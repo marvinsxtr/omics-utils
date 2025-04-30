@@ -96,6 +96,10 @@ class Selector(Step):
         """
         batch_id = str(file_path.stem)
         adata = read_anndata_dask(file_path)
+
+        if adata is None:
+            return self.meta_df
+
         adata = self.filterer(adata, batch_id=batch_id)
 
         if adata.n_obs == 0:
@@ -103,16 +107,16 @@ class Selector(Step):
 
         sc.pp.normalize_total(adata, target_sum=1e4)
         sc.pp.log1p(adata)
-        sc.pp.highly_variable_genes(adata, n_top_genes=self.n_highly_variable, flavor="cell_ranger")
+        sc.pp.highly_variable_genes(adata, n_top_genes=self.n_highly_variable)
 
         df = adata.var[[ColumnNames.HIGHLY_VARIABLE, ColumnNames.DISPERSIONS_NORM]]
         return df.reset_index(names=ColumnNames.GENE_ID)
 
     def write(self, data_df: dd.DataFrame) -> None:
-        """Load/save the result of the transformation.
+        """Rank the genes by number of batches they are HVG and break ties by dispersion norm.
 
         Args:
-            data_df: `DataFrame` containing a gene and batch identifier as well as a highly variable gene flag.
+            data_df: `DataFrame` containing a gene id, a highly variable gene flag and the dispersion norm.
         """
         data_df = data_df[data_df[ColumnNames.HIGHLY_VARIABLE] == True]
         data_df[ColumnNames.HIGHLY_VARIABLE] = data_df[ColumnNames.HIGHLY_VARIABLE].astype(int)
@@ -129,6 +133,7 @@ class Selector(Step):
         ranking_ddf = ranking_ddf.reset_index(drop=True)
 
         ranking_df: pd.DataFrame = ranking_ddf.compute()
+        ranking_df.to_parquet(self.output_path / "ranking.parquet")
         ranking_df[ColumnNames.GENE_ID].to_csv(self.output_path / "genes.csv", header=None, index=None)
 
     def run(self) -> None:

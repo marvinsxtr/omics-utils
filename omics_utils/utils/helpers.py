@@ -37,7 +37,7 @@ def sanitize_dtypes(df: pd.DataFrame) -> pd.DataFrame:
     return df.astype(dtypes)
 
 
-def read_anndata_dask(file_path: str, chunk_size: int = 100_000) -> ad.AnnData:
+def read_anndata_dask(file_path: str, chunk_size: int = 100_000) -> ad.AnnData | None:
     """Read an `AnnData` file and store the sparse expression counts with dask.
 
     Args:
@@ -45,7 +45,7 @@ def read_anndata_dask(file_path: str, chunk_size: int = 100_000) -> ad.AnnData:
         chunk_size: Chunk size to use for dask.
 
     Returns:
-    An `AnnData` object containing dask-backed sparse expression counts in `X`.
+    An `AnnData` object containing dask-backed sparse expression counts in `X` or None if the encoding is not csr.
     """
     with h5py.File(file_path, "r") as f:
         adata = ad.AnnData(
@@ -55,15 +55,10 @@ def read_anndata_dask(file_path: str, chunk_size: int = 100_000) -> ad.AnnData:
 
         source = f["raw/X"] if "raw/X" in f else f["X"]
 
-        encoding = source.attrs.get("encoding-type")
+        if source.attrs.get("encoding-type") != "csr_matrix":
+            return None
 
-        if encoding == "csr_matrix":
-            adata.X = ad.experimental.read_elem_as_dask(source, chunks=(chunk_size, adata.shape[1]))
-        elif encoding == "csc_matrix":
-            return []
-        else:
-            raise NotImplementedError(f"The encoding {encoding} is not implemented.")
-
+        adata.X = ad.experimental.read_elem_as_dask(source, chunks=(chunk_size, adata.shape[1]))
     return adata
 
 
