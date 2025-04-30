@@ -120,6 +120,10 @@ class Partitioner(Step, ABC):
             A list of `Delayed` tasks for preprocessing.
         """
         adata = read_anndata_dask(file_path)
+
+        if adata is None:
+            return []
+
         adata = self.filterer(adata, batch_id=str(file_path.stem))
         return self.converter.anndata_to_dataframe(adata)
 

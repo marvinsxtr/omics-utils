@@ -134,7 +134,9 @@ class Selector(Step):
 
         ranking_df: pd.DataFrame = ranking_ddf.compute()
         ranking_df.to_parquet(self.output_path / "ranking.parquet")
-        ranking_df[ColumnNames.GENE_ID].to_csv(self.output_path / "genes.csv", header=None, index=None)
+        ranking_df.head(self.n_highly_variable)[ColumnNames.GENE_ID].to_csv(
+            self.output_path / "genes.csv", header=None, index=None
+        )
 
     def run(self) -> None:
         """Run the whole preprocessing step by sequentially running `read` and `write`."""
