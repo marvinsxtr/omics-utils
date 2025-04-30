@@ -13,3 +13,4 @@ class ColumnNames:
     SPARSE_VECTOR: Final[str] = "sparse_vector"
     HIGHLY_VARIABLE: Final[str] = "highly_variable"
     GENE_ID: Final[str] = "gene_id"
+    DISPERSIONS_NORM: Final[str] = "dispersions_norm"

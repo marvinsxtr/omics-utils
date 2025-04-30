@@ -58,9 +58,12 @@ class Selector(Step):
     def meta_df(self) -> pd.DataFrame:
         """Empty `DataFrame` used by Dask to determine the output of `transform`."""
         return pd.DataFrame(
-            columns=[ColumnNames.GENE_ID, ColumnNames.HIGHLY_VARIABLE, ColumnNames.BATCH_ID],
+            {
+                ColumnNames.GENE_ID: pd.Series(dtype=str),
+                ColumnNames.HIGHLY_VARIABLE: pd.Series(dtype=bool),
+                ColumnNames.DISPERSIONS_NORM: pd.Series(dtype=float),
+            },
             index=pd.Index([], dtype=str),
-            dtype=str,
         )
 
     def read(self, input_files: list[Path]) -> dd.DataFrame:
@@ -102,8 +105,7 @@ class Selector(Step):
         sc.pp.log1p(adata)
         sc.pp.highly_variable_genes(adata, n_top_genes=self.n_highly_variable, flavor="cell_ranger")
 
-        df = adata.var[ColumnNames.HIGHLY_VARIABLE].to_frame(name=ColumnNames.HIGHLY_VARIABLE)
-        df[ColumnNames.BATCH_ID] = batch_id
+        df = adata.var[[ColumnNames.HIGHLY_VARIABLE, ColumnNames.DISPERSIONS_NORM]]
         return df.reset_index(names=ColumnNames.GENE_ID)
 
     def write(self, data_df: dd.DataFrame) -> None:
@@ -112,14 +114,19 @@ class Selector(Step):
         Args:
             data_df: `DataFrame` containing a gene and batch identifier as well as a highly variable gene flag.
         """
-        highly_variable = data_df[data_df[ColumnNames.HIGHLY_VARIABLE] == True]
+        data_df = data_df[data_df[ColumnNames.HIGHLY_VARIABLE] == True]
+        data_df[ColumnNames.HIGHLY_VARIABLE] = data_df[ColumnNames.HIGHLY_VARIABLE].astype(int)
 
-        gene_counts = highly_variable.groupby(ColumnNames.GENE_ID)[ColumnNames.BATCH_ID].nunique().reset_index()
-        gene_counts = gene_counts.rename(columns={ColumnNames.BATCH_ID: ColumnNames.HIGHLY_VARIABLE})
+        agg_dict = {
+            ColumnNames.HIGHLY_VARIABLE: "sum",
+            ColumnNames.DISPERSIONS_NORM: "mean",
+        }
 
-        ranking_ddf = gene_counts.sort_values(ColumnNames.HIGHLY_VARIABLE, ascending=False)
+        aggregated_ddf = data_df.groupby(ColumnNames.GENE_ID).agg(agg_dict).reset_index()
+        ranking_ddf = aggregated_ddf.sort_values(
+            [ColumnNames.HIGHLY_VARIABLE, ColumnNames.DISPERSIONS_NORM], ascending=False
+        )
         ranking_ddf = ranking_ddf.reset_index(drop=True)
-        ranking_ddf["rank"] = ranking_ddf.reset_index()["index"] + 1
 
         ranking_df: pd.DataFrame = ranking_ddf.compute()
         ranking_df[ColumnNames.GENE_ID].to_csv(self.output_path / "genes.csv", header=None, index=None)
