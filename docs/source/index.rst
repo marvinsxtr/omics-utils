@@ -5,16 +5,7 @@
 
 Welcome to the omics-utils documentation!
 =========================================
+
 .. toctree::
-   :maxdepth: 3
-   :caption: Contents:
-
    readme
-   API Reference <modules> 
-
-
-Indices and Tables
-==================
-
-* :ref:`modindex`
-* :ref:`search`
+   reference

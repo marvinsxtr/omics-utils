@@ -1,9 +1,10 @@
 from hydra_zen import builds
 
-from omics_utils.converter.anndata_converter import AnndataConverter
+from omics_utils.transforms.anndata_converter import AnnDataConverter
+from omics_utils.transforms.anndata_filterer import CellXGeneFilterer
 
 CellXGeneConverterConfig = builds(
-    AnndataConverter,
+    AnnDataConverter,
     obs_cols=[
         "sex",
         "tissue",
@@ -24,11 +25,13 @@ CellXGeneConverterConfig = builds(
         "sex_ontology_term_id",
         "tissue_ontology_term_id",
     ],
-    var_cols_file="/home/space/omics/datasets/vocabulary/gene_vocabulary.csv",
+    zen_partial=True,
 )
 
-MethylationConverterConfig = builds(
-    AnndataConverter,
-    obs_cols=["organ", "category"],
-    sparse=False,
+CellXGeneFiltererConfig = builds(CellXGeneFilterer, only_primary=True, var_cols=None, zen_partial=True)
+HLCAFiltererConfig = builds(
+    CellXGeneFilterer,
+    only_primary=False,
+    var_cols=None,
+    zen_partial=True,
 )

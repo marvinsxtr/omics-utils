@@ -18,12 +18,12 @@ class Limiter(Step):
         super().__init__(*args, **kwargs)
 
         self.limit_path = self.output_path / "limits.json"
-        self.split_path = self.input_path / "split"
+        self.split_path = self.input_path / "data"
 
     @property
     def input_step(self) -> str:
         """Name of the preceding preprocessing step."""
-        return "stratification"
+        return "split"
 
     @property
     def output_step(self) -> str:

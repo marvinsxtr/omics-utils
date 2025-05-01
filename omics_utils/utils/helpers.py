@@ -1,9 +1,8 @@
 from pathlib import Path
 
-import dask.dataframe as dd
-import numpy as np
+import anndata as ad
+import h5py
 import pandas as pd
-import scipy.sparse as sp
 from ml_project_template.utils import get_hydra_output_dir
 
 
@@ -21,76 +20,6 @@ def get_output_dir() -> Path:
     return output_dir
 
 
-def remove_empty_partitions(df: dd.DataFrame) -> dd.DataFrame:
-    """Removes empty partitions from a dask `DataFrame`.
-
-    Args:
-        df: Dask `DataFrame` to remove empty partitions from.
-
-    Returns:
-        Dask `DataFrame` without empty partitions.
-    """
-    ll = list(df.map_partitions(len).compute())
-    df_delayed = df.to_delayed()
-    df_delayed_new = []
-    pempty = None
-    for ix, n in enumerate(ll):
-        if n == 0:
-            pempty = df.get_partition(ix)
-        else:
-            df_delayed_new.append(df_delayed[ix])
-    if pempty is not None:
-        df = dd.from_delayed(df_delayed_new, meta=pempty)
-    return df
-
-
-def densify_matrix(sparse_matrix: sp.spmatrix) -> np.ndarray:
-    """Replaces missing values with `np.nan` while preserving zeros.
-
-    Args:
-        sparse_matrix: The sparse matrix to densify, e.g. in csr format.
-
-    Returns:
-        The densified matrix.
-    """
-    dense = np.full(sparse_matrix.shape, np.nan)
-    coo = sparse_matrix.tocoo()
-    dense[coo.row, coo.col] = coo.data
-    return dense
-
-
-def sparsify_matrix(dense_matrix: np.ndarray) -> sp.csr_matrix:
-    """Convert a dense matrix to a sparse matrix where `np.nan` are not explicitly stored.
-
-    Args:
-        dense_matrix: Matrix to sparsify.
-
-    Returns:
-        The sparse matrix storing zeros explicitly and not storing `np.nan`.
-    """
-    mask = ~np.isnan(dense_matrix)
-    rows, cols = np.nonzero(mask)
-    values = dense_matrix[mask]
-    sparse_matrix = sp.csr_matrix((values, (rows, cols)), shape=dense_matrix.shape)
-    return sparse_matrix
-
-
-def global_reset_index(df: dd.DataFrame) -> dd.DataFrame:
-    """Resets the index of a dask `DataFrame` globally instead of per partition.
-
-    Args:
-        df: Dask `DataFrame` to reset the index of.
-
-    Returns:
-        Dask `DataFrame` with a globally reset index.
-    """
-    index_name = "__tmp_idx"
-    df = df.assign(**{index_name: 1})
-    df = df.set_index((df[index_name].cumsum() - 1).rename(None))
-    df = df.drop(columns=index_name)
-    return df
-
-
 def sanitize_dtypes(df: pd.DataFrame) -> pd.DataFrame:
     """Sanitize the dtypes of a `DataFrame` for compatibility with anndata.
 
@@ -106,3 +35,40 @@ def sanitize_dtypes(df: pd.DataFrame) -> pd.DataFrame:
             dtypes[name] = object
 
     return df.astype(dtypes)
+
+
+def read_anndata_dask(file_path: str, chunk_size: int = 100_000) -> ad.AnnData | None:
+    """Read an `AnnData` file and store the sparse expression counts with dask.
+
+    Args:
+        file_path: Path to the .h5ad file to read.
+        chunk_size: Chunk size to use for dask.
+
+    Returns:
+    An `AnnData` object containing dask-backed sparse expression counts in `X` or None if the encoding is not csr.
+    """
+    with h5py.File(file_path, "r") as f:
+        adata = ad.AnnData(
+            obs=ad.io.read_elem(f["obs"]),
+            var=ad.io.read_elem(f["var"]),
+        )
+
+        source = f["raw/X"] if "raw/X" in f else f["X"]
+
+        if source.attrs.get("encoding-type") != "csr_matrix":
+            return None
+
+        adata.X = ad.experimental.read_elem_as_dask(source, chunks=(chunk_size, adata.shape[1]))
+    return adata
+
+
+def read_var_cols(file_path: str) -> list[str]:
+    """Read the column/gene names saved as a single-column csv file.
+
+    Args:
+        file_path: Path to read the columns from.
+
+    Returns:
+    A list of columns/gene identifiers.
+    """
+    return pd.read_csv(file_path, header=None, index_col=None, names=["name"])["name"].to_numpy().tolist()

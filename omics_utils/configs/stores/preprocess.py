@@ -1,11 +1,9 @@
 from hydra_zen import builds, store
 from ml_project_template.runs import Run
-from ml_project_template.wandb import WandBConfig
 
-from omics_utils.configs.preprocessor import (
-    CellXGenePreprocessingConfig,
-    HLCAPreprocessingConfig,
-    MethylationPreprocessingConfig,
+from omics_utils.configs.pipeline import (
+    CellXGenePipelineConfig,
+    HLCAPipelineConfig,
 )
 from omics_utils.preprocess import main
 
@@ -18,14 +16,10 @@ store(
     hydra_defaults=[
         "_self_",
         {"cfg/wandb": None},
-        {"preprocessor": "cellxgene"},
+        {"pipeline": "cellxgene"},
     ],
 )
 
-wandb_store = store(group="cfg/wandb")
-wandb_store(WandBConfig, name="base")
-
-preproc_store = store(group="preprocessor")
-preproc_store(CellXGenePreprocessingConfig, name="cellxgene")
-preproc_store(MethylationPreprocessingConfig, name="methylation")
-preproc_store(HLCAPreprocessingConfig, name="hlca")
+pipeline_store = store(group="pipeline")
+pipeline_store(CellXGenePipelineConfig, name="cellxgene")
+pipeline_store(HLCAPipelineConfig, name="hlca")
