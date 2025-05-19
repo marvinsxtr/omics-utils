@@ -56,10 +56,7 @@ HLCAPipelineConfig = builds(
     steps=[
         builds(
             Selector,
-            input_dir="/srv/data",
-            filterer=HLCAFiltererConfig,
-            cluster=HLCAPartitioningClusterConfig,
-            subset=["f72958f5-7f42-4ebb-98da-445b0c6de516"],
+            gene_file="/home/space/omics/datasets/depmap/depmap_hvgs.csv",
             scale=1,
             zen_partial=True,
         ),

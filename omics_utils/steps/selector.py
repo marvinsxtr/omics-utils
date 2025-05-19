@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 
 import dask.dataframe as dd
@@ -17,11 +18,12 @@ class Selector(Step):
     def __init__(
         self,
         *args,
-        input_dir: str,
-        filterer: Partial[AnnDataFilterer],
+        input_dir: str | None = None,
+        filterer: Partial[AnnDataFilterer] | None = None,
         n_debug: int | None = None,
         subset: list[str] | None = None,
         n_highly_variable: int = 5000,
+        gene_file: str | None = None,
         **kwargs,
     ) -> None:
         """
@@ -31,18 +33,21 @@ class Selector(Step):
             n_debug: Take the first n input files only for debugging purposes.
             subset: Subset of .h5ad file names to process.
             n_highly_variable: Number of highly variable genes to take per sub-dataset.
+            gene_file: File to load the selected genes from. Ignores all other kwargs.
         """  # noqa: D212
         super().__init__(*args, **kwargs)
-        raw_input_path = Path(input_dir)
 
-        if not raw_input_path.exists():
+        raw_input_path = Path(input_dir) if input_dir is not None else None
+
+        if raw_input_path is not None and not raw_input_path.exists():
             raise ValueError("Input path does not exist.")
 
-        self.filterer = filterer()
+        self.filterer = filterer() if filterer is not None else None
         self.raw_input_path = raw_input_path
         self.n_debug = n_debug
         self.subset = subset
         self.n_highly_variable = n_highly_variable
+        self.gene_file_path = Path(gene_file) if gene_file is not None else None
 
     @property
     def input_step(self) -> str | None:
@@ -100,7 +105,8 @@ class Selector(Step):
         if adata is None:
             return self.meta_df
 
-        adata = self.filterer(adata, batch_id=batch_id)
+        if self.filterer is not None:
+            adata = self.filterer(adata, batch_id=batch_id)
 
         if adata.n_obs == 0:
             return self.meta_df
@@ -140,6 +146,10 @@ class Selector(Step):
 
     def run(self) -> None:
         """Run the whole preprocessing step by sequentially running `read` and `write`."""
+        if self.gene_file_path is not None:
+            shutil.copyfile(self.gene_file_path, self.output_path / "genes.csv")
+            return
+
         input_files = list(self.raw_input_path.glob("*.h5ad"))
         data_df = self.read(input_files)
         self.write(data_df)
