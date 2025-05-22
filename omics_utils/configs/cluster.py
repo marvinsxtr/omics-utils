@@ -19,7 +19,7 @@ CellXGenePartitioningClusterConfig = builds(
 
 CellXGeneSplittingClusterConfig = CellXGenePartitioningClusterConfig(processes=2, queue="cpu-2d", walltime="48:00:00")
 
-HLCAPartitioningClusterConfig = builds(
+HLCAClusterConfig = builds(
     SLURMCluster,
     n_workers=1,
     queue="cpu-2h",

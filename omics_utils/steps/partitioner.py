@@ -13,7 +13,7 @@ from omics_utils.pipeline.step import Step
 from omics_utils.transforms.anndata_converter import AnnDataConverter
 from omics_utils.transforms.anndata_filterer import AnnDataFilterer
 from omics_utils.utils.columns import ColumnNames
-from omics_utils.utils.helpers import read_anndata_dask, read_var_cols
+from omics_utils.utils.helpers import read_anndata_dask
 
 
 class Partitioner(Step, ABC):
@@ -92,10 +92,10 @@ class Partitioner(Step, ABC):
         Returns:
             The data ready for transformation.
         """
-        var_cols = read_var_cols(self.input_path / "genes.csv")
+        genes = pd.read_parquet(self.input_path / "genes.parquet").index.to_list()
 
-        self.converter = self.converter(var_cols=var_cols)
-        self.filterer = self.filterer(var_cols=var_cols)
+        self.converter = self.converter(genes=genes)
+        self.filterer = self.filterer(genes=genes)
 
         if self.n_debug is not None:
             input_files = input_files[: self.n_debug]

@@ -23,16 +23,16 @@ class AnnDataConverter:
     def __init__(
         self,
         obs_cols: list[str],
-        var_cols: list[str] | None = None,
+        genes: list[str],
     ) -> None:
         """
         Args:
             obs_cols: Columns to retain from the `obs` `DataFrame`, e.g. sample-level metadata
-            var_cols: Data columns to retain from the `X` array, e.g. genes. Inserts columns which are
-                in this list but not in the data as empty columns.
+            genes: Genes to retain from the `X` array. Inserts columns which are in this list but not in the data as
+                empty columns.
         """  # noqa: D212
         self.obs_cols = obs_cols
-        self.var_cols = var_cols
+        self.genes = genes
 
     def serialize(self, adata: ad.AnnData) -> list[Delayed]:
         """Serialize a Dask-backed `AnnData` object.
@@ -87,8 +87,8 @@ class AnnDataConverter:
         """
         adata.obs = self._prepare_metadata(adata)
 
-        if self.var_cols is not None and adata.n_obs > 0:
-            adata = self.reindex_anndata_genes(adata, self.var_cols)
+        if adata.n_obs > 0:
+            adata = self.reindex_anndata_genes(adata, self.genes)
 
         if not isinstance(adata.X, da.Array):
             raise TypeError("AnnData object must contain a dask-backed `X`.")
@@ -98,19 +98,22 @@ class AnnDataConverter:
 
         return self.serialize(adata)
 
-    def dataframe_to_anndata(self, df: pd.DataFrame) -> anndata.AnnData:
+    def dataframe_to_anndata(self, df: pd.DataFrame, var: pd.DataFrame | None = None) -> anndata.AnnData:
         """Convert a `DataFrame` back to an `AnnData` object.
 
         Args:
             df: `DataFrame` with serialized expression data
+            var: `DataFrame` with gene metadata to include in the `AnnData` object
 
         Returns:
             Reconstructed `AnnData` object.
         """
         id_cols = {ColumnNames.CASE_ID, ColumnNames.SAMPLE_ID, ColumnNames.BATCH_ID}
 
-        var_cols = self.var_cols if self.var_cols is not None else list(set(df.columns) - set(self.obs_cols) - id_cols)
-        var = pd.DataFrame(index=var_cols)
+        var = var if var is not None else pd.DataFrame(index=self.genes)
+
+        if var.index.to_list() != self.genes:
+            raise ValueError("Genes from `DataFrame` and the provided list must match.")
 
         obs_cols = list(set(self.obs_cols) | id_cols)
         obs = sanitize_dtypes(df[obs_cols]).set_index(ColumnNames.SAMPLE_ID)

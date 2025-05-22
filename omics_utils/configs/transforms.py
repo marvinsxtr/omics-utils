@@ -28,10 +28,10 @@ CellXGeneConverterConfig = builds(
     zen_partial=True,
 )
 
-CellXGeneFiltererConfig = builds(CellXGeneFilterer, only_primary=True, var_cols=None, zen_partial=True)
+CellXGeneFiltererConfig = builds(CellXGeneFilterer, only_primary=True, genes=None, zen_partial=True)
 HLCAFiltererConfig = builds(
     CellXGeneFilterer,
     only_primary=False,
-    var_cols=None,
+    genes=None,
     zen_partial=True,
 )
