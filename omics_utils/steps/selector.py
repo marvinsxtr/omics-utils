@@ -156,9 +156,10 @@ class Selector(Step):
         ranking_ddf = ranking_ddf.reset_index(drop=True)
 
         ranking_df: pd.DataFrame = ranking_ddf.compute()
-        ranking_df.set_index(ColumnNames.GENE_ID, drop=True).head(self.n_highly_variable).to_parquet(
-            self.output_path / "genes.parquet"
-        )
+        ranking_df = ranking_df.set_index(ColumnNames.GENE_ID, drop=True)
+
+        ranking_df.to_parquet(self.output_path / "ranking.parquet")
+        ranking_df.head(self.n_highly_variable).to_parquet(self.output_path / "genes.parquet")
 
     def run(self) -> None:
         """Run the whole preprocessing step by sequentially running `read` and `write`."""

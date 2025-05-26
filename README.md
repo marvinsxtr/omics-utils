@@ -1,6 +1,6 @@
 # 🧬 omics-utils
 
-A modern toolkit for handling larger-than-memory datasets across multiple omics modalities using **hydra-zen** and **dask** on a Slurm cluster with Docker/Apptainer containerization.
+A modern toolkit for handling larger-than-memory omics datasets using **hydra-zen** and **dask** on a Slurm cluster with Docker/Apptainer containerization.
 
 <div align="center">
 
@@ -14,8 +14,7 @@ A modern toolkit for handling larger-than-memory datasets across multiple omics 
 ## 🌟 Key Features
 
 - 🧪 Concatenation of multiple sub-datasets/cohorts into one larger dataset
-- 🔍 Stratification and grouping by specific metadata columns
-- 🔀 Assigning cross-validation folds and train/val/test splits
+- 🔀 Assigning train/val dataset splits and shuffling
 - 💾 Sharding of the folds across multiple smaller-than-memory files
 - 🚀 Dask + Slurm integration for efficient parallelization
 - 🧩 Reproducibility and modular type-checked configs via [hydra-zen](https://github.com/mit-ll-responsible-ai/hydra-zen)
@@ -138,18 +137,22 @@ which should return without any prompt.
 
 > Make sure you followed the previous sections beforehand and run these commands in the container.
 
-The preprocessing pipeline supports multiple omics modalities:
+The preprocessing pipeline supports multiple omics datasets:
 
 ### CellXGene Preprocessing
 
+Before running the CellXGene preprocessing, download the `h5ad` files from AWS into a folder as described in the [documentation](https://chanzuckerberg.github.io/cellxgene-census/cellxgene_census_aws_open_data.html#aws-cli-for-programatic-downloads) and set `DATA_DIR` to point to this folder.
+
+> The current version was tested on the `2024-07-01` release of CellXGene.
+
 ```bash
-python omics_utils/preprocess.py
+python omics_utils/preprocess.py pipeline=cellxgene
 ```
 
-### Methylation Preprocessing
+### HLCA Preprocessing
 
 ```bash
-python omics_utils/preprocess.py preprocessor=methylation
+python omics_utils/preprocess.py pipeline=hlca
 ```
 
 (package-management)=

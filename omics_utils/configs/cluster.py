@@ -12,7 +12,7 @@ CellXGenePartitioningClusterConfig = builds(
     processes=4,
     memory="512GiB",
     walltime="02:00:00",
-    python="apptainer run -B /home/space/omics/datasets/cellxgene/h5ads:/srv/data oras://ghcr.io/bifold-pathomics/omics-utils:latest-sif python",  # noqa: E501
+    python="apptainer run -B $DATA_DIR:/srv/data oras://ghcr.io/bifold-pathomics/omics-utils:latest-sif python",
     log_directory=builds(get_output_dir),
     zen_partial=True,
 )
@@ -27,7 +27,7 @@ HLCAClusterConfig = builds(
     processes=4,
     memory="128GiB",
     walltime="02:00:00",
-    python="apptainer run -B /home/space/omics/datasets/cellxgene/h5ads:/srv/data oras://ghcr.io/bifold-pathomics/omics-utils:latest-sif python",  # noqa: E501
+    python="apptainer run -B $DATA_DIR:/srv/data oras://ghcr.io/bifold-pathomics/omics-utils:latest-sif python",
     log_directory=builds(get_output_dir),
     zen_partial=True,
 )
