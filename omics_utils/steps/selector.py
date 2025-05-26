@@ -19,7 +19,7 @@ class Selector(Step):
         *args,
         input_dir: str,
         filterer: Partial[AnnDataFilterer],
-        var_cols: list[str],
+        var_cols: dict[str, str],
         n_debug: int | None = None,
         subset: list[str] | None = None,
         n_highly_variable: int | None = None,
@@ -30,7 +30,7 @@ class Selector(Step):
         Args:
             input_dir: Folder where the input CellXGene `AnnData` files are saved.
             filterer: Filter to apply to each individual `AnnData` file.
-            var_cols: Subset of columns in the `var` `DataFrame` to keep.
+            var_cols: Subset of columns in the `var` `DataFrame` to keep and their respective dtype.
             n_debug: Take the first n input files only for debugging purposes.
             subset: Subset of .h5ad file names to process.
             n_highly_variable: Number of highly variable genes to take per sub-dataset.
@@ -67,13 +67,15 @@ class Selector(Step):
     @property
     def meta_df(self) -> pd.DataFrame:
         """Empty `DataFrame` used by Dask to determine the output of `transform`."""
-        cols = [ColumnNames.GENE_ID]
+        cols = {ColumnNames.GENE_ID: "str"}
 
         if self.n_highly_variable is not None:
-            cols += [ColumnNames.HIGHLY_VARIABLE, ColumnNames.DISPERSIONS_NORM]
+            cols.update({ColumnNames.HIGHLY_VARIABLE: "bool", ColumnNames.DISPERSIONS_NORM: "float"})
+
+        cols.update(self.var_cols)
 
         return pd.DataFrame(
-            columns=[*cols, *self.var_cols],
+            {k: pd.Series(dtype=v) for k, v in cols.items()},
             index=pd.Index([], dtype=str),
         )
 
@@ -116,7 +118,7 @@ class Selector(Step):
         if adata.n_obs == 0:
             return self.meta_df
 
-        var_cols = self.var_cols
+        var_cols = list(self.var_cols.keys())
 
         if self.n_highly_variable is not None:
             sc.pp.normalize_total(adata, target_sum=1e4)
