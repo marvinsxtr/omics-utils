@@ -38,7 +38,9 @@ class Selector(Step):
         """  # noqa: D212
         super().__init__(*args, **kwargs)
 
-        if n_highly_variable is not None and gene_file is not None:
+        if (n_highly_variable is not None and gene_file is not None) or (
+            n_highly_variable is None and gene_file is None
+        ):
             raise ValueError("Either select the HVGs or provide a list of genes to use.")
 
         raw_input_path = Path(input_dir) if input_dir is not None else None
