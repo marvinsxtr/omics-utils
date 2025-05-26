@@ -21,7 +21,6 @@
    
       AnnDataConverter
       AnnDataFilterer
-      CellXGeneFilterer
       Limiter
       Partitioner
       Pipeline

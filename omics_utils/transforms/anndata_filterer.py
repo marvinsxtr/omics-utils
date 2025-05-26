@@ -1,5 +1,3 @@
-from abc import abstractmethod
-
 import anndata as ad
 
 from omics_utils.utils.columns import ColumnNames
@@ -8,18 +6,21 @@ from omics_utils.utils.columns import ColumnNames
 class AnnDataFilterer:
     """Apply a set of filters to an `AnnData` object."""
 
-    def __init__(self, genes: list[str] | None, obs_filters: dict[str, list]) -> None:
+    def __init__(
+        self, genes: list[str] | None, obs_filters: dict[str, list], obs_col_renames: dict[str, str] | None = None
+    ) -> None:
         """
         Args:
             genes: Which genes to keep.
             obs_filters: Filters to apply to the `obs` `DataFrame` as a mapping from column to allowed values.
+            obs_col_renames: Mapping of column renames in the `obs` `DataFrame`.
         """  # noqa: D212
-        self.obs_filters = obs_filters
         self.genes = genes
+        self.obs_filters = obs_filters
+        self.obs_col_renames = obs_col_renames
 
-    @abstractmethod
     def __call__(self, adata: ad.AnnData, batch_id: str) -> ad.AnnData:
-        """Apply the filters to an `AnnData` object.
+        """Apply gene and cell filters an `AnnData` object.
 
         Args:
             adata: `AnnData` object to filter.
@@ -28,23 +29,9 @@ class AnnDataFilterer:
         Returns:
         The filtered `AnnData` object.
         """
-        ...
+        if self.obs_col_renames is not None:
+            adata.obs = adata.obs.rename(columns=self.obs_col_renames)
 
-
-class CellXGeneFilterer(AnnDataFilterer):
-    """Filters `AnnData` objects from the CellXGene dataset."""
-
-    def __call__(self, adata: ad.AnnData, batch_id: str) -> ad.AnnData:
-        """Apply gene and observation filters an `AnnData` object.
-
-        Args:
-            adata: `AnnData` object to filter.
-            batch_id: Batch identifier for the `AnnData` object.
-
-        Returns:
-        The filtered `AnnData` object.
-        """
-        adata.obs = adata.obs.rename(columns={"donor_id": ColumnNames.CASE_ID})
         adata.obs[ColumnNames.BATCH_ID] = batch_id
 
         cell_filter = True

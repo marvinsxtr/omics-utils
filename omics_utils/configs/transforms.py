@@ -1,7 +1,8 @@
 from hydra_zen import builds
 
 from omics_utils.transforms.anndata_converter import AnnDataConverter
-from omics_utils.transforms.anndata_filterer import CellXGeneFilterer
+from omics_utils.transforms.anndata_filterer import AnnDataFilterer
+from omics_utils.utils.columns import ColumnNames
 
 OBS_COLS = [
     "sex",
@@ -108,13 +109,22 @@ CellXGeneSubsetFilterConfig = builds(
     disease=DISEASES,
 )
 
-CellXGeneFiltererConfig = builds(CellXGeneFilterer, genes=None, obs_filters=CellXGeneFilterConfig, zen_partial=True)
+RenameConfig = builds(dict, donor_id=ColumnNames.CASE_ID)
+
+CellXGeneFiltererConfig = builds(
+    AnnDataFilterer, genes=None, obs_filters=CellXGeneFilterConfig, obs_col_renames=RenameConfig, zen_partial=True
+)
 CellXGeneSubsetFiltererConfig = builds(
-    CellXGeneFilterer, genes=None, obs_filters=CellXGeneSubsetFilterConfig, zen_partial=True
+    AnnDataFilterer,
+    genes=None,
+    obs_filters=CellXGeneSubsetFilterConfig,
+    obs_col_renames=RenameConfig,
+    zen_partial=True,
 )
 HLCAFiltererConfig = builds(
-    CellXGeneFilterer,
+    AnnDataFilterer,
     genes=None,
     obs_filters=HLCAFilterConfig,
+    obs_col_renames=RenameConfig,
     zen_partial=True,
 )
