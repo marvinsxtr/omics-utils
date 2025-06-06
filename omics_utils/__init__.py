@@ -5,12 +5,11 @@ from .steps.partitioner import Partitioner
 from .steps.selector import Selector
 from .steps.splitter import Splitter
 from .transforms.anndata_converter import AnnDataConverter
-from .transforms.anndata_filterer import AnnDataFilterer, CellXGeneFilterer
+from .transforms.anndata_filterer import AnnDataFilterer
 
 __all__ = [
     "AnnDataConverter",
     "AnnDataFilterer",
-    "CellXGeneFilterer",
     "Limiter",
     "Partitioner",
     "Partitioner",

@@ -11,7 +11,6 @@ from hydra_zen.typing import Partial
 from omics_utils.pipeline.step import Step
 from omics_utils.transforms.anndata_converter import AnnDataConverter
 from omics_utils.utils.columns import ColumnNames
-from omics_utils.utils.helpers import read_var_cols
 
 
 class Splitter(Step):
@@ -61,8 +60,8 @@ class Splitter(Step):
         Returns:
             The data ready for transformation.
         """
-        var_cols = read_var_cols(self.base_path / "genes" / "genes.csv")
-        self.converter = self.converter(var_cols=var_cols)
+        self.gene_df = pd.read_parquet(self.base_path / "genes" / "genes.parquet")
+        self.converter = self.converter(genes=self.gene_df.index.to_list())
 
         return dd.read_parquet(
             list(self.input_path.glob("*.parquet")), split_row_groups=True, ignore_metadata_file=True
@@ -108,7 +107,7 @@ class Splitter(Step):
             partition_info: Dictionary containing metadata about the partition.
         """
         part = partition_info["number"]
-        adata = self.converter.dataframe_to_anndata(df)
+        adata = self.converter.dataframe_to_anndata(df, self.gene_df)
         write_h5ad(output_dir / f"fold_{fold_name}_part_{part}.h5ad", adata, convert_strings_to_categoricals=False)
 
     def write(

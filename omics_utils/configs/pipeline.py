@@ -3,10 +3,14 @@ from hydra_zen import builds
 from omics_utils.configs.cluster import (
     CellXGenePartitioningClusterConfig,
     CellXGeneSplittingClusterConfig,
-    HLCAPartitioningClusterConfig,
+    HLCAClusterConfig,
     LocalClusterConfig,
 )
-from omics_utils.configs.transforms import CellXGeneConverterConfig, CellXGeneFiltererConfig, HLCAFiltererConfig
+from omics_utils.configs.transforms import (
+    CellXGeneConverterConfig,
+    CellXGeneSubsetFiltererConfig,
+    HLCAFiltererConfig,
+)
 from omics_utils.pipeline.pipeline import Pipeline
 from omics_utils.steps.limiter import Limiter
 from omics_utils.steps.partitioner import Partitioner
@@ -19,7 +23,9 @@ CellXGenePipelineConfig = builds(
         builds(
             Selector,
             input_dir="/srv/data",
-            filterer=CellXGeneFiltererConfig,
+            filterer=CellXGeneSubsetFiltererConfig,
+            var_cols=builds(dict, feature_name="str", feature_length="int"),
+            gene_file="/home/space/omics/datasets/depmap/metadata/depmap_hvgs.csv",
             cluster=CellXGenePartitioningClusterConfig,
             scale=6,
             zen_partial=True,
@@ -28,7 +34,7 @@ CellXGenePipelineConfig = builds(
             Partitioner,
             input_dir="/srv/data",
             converter=CellXGeneConverterConfig,
-            filterer=CellXGeneFiltererConfig,
+            filterer=CellXGeneSubsetFiltererConfig,
             n_debug=None,
             n_outer_partitions=50,
             n_inner_partitions=10,
@@ -40,7 +46,7 @@ CellXGenePipelineConfig = builds(
             Splitter,
             converter=CellXGeneConverterConfig,
             seed=42,
-            n_partitions=1000,
+            n_partitions=200,
             cluster=CellXGeneSplittingClusterConfig,
             scale=6,
             zen_partial=True,
@@ -58,7 +64,9 @@ HLCAPipelineConfig = builds(
             Selector,
             input_dir="/srv/data",
             filterer=HLCAFiltererConfig,
-            cluster=HLCAPartitioningClusterConfig,
+            var_cols=builds(dict, feature_name="str", feature_length="int"),
+            gene_file="/home/space/omics/datasets/depmap/metadata/depmap_hvgs.csv",
+            cluster=HLCAClusterConfig,
             subset=["f72958f5-7f42-4ebb-98da-445b0c6de516"],
             scale=1,
             zen_partial=True,
@@ -71,7 +79,7 @@ HLCAPipelineConfig = builds(
             n_debug=None,
             n_outer_partitions=5,
             n_inner_partitions=1,
-            cluster=HLCAPartitioningClusterConfig,
+            cluster=HLCAClusterConfig,
             subset=["f72958f5-7f42-4ebb-98da-445b0c6de516"],
             scale=1,
             zen_partial=True,
@@ -81,7 +89,7 @@ HLCAPipelineConfig = builds(
             converter=CellXGeneConverterConfig,
             seed=42,
             n_partitions=5,
-            cluster=HLCAPartitioningClusterConfig,
+            cluster=HLCAClusterConfig,
             scale=1,
             zen_partial=True,
         ),

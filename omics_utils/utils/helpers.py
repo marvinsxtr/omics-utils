@@ -62,13 +62,13 @@ def read_anndata_dask(file_path: str, chunk_size: int = 100_000) -> ad.AnnData |
     return adata
 
 
-def read_var_cols(file_path: str) -> list[str]:
-    """Read the column/gene names saved as a single-column csv file.
+def read_genes(file_path: str) -> list[str]:
+    """Read the gene names saved as a single-column csv file.
 
     Args:
-        file_path: Path to read the columns from.
+        file_path: Path to read the genes from.
 
     Returns:
-    A list of columns/gene identifiers.
+    A list of gene identifiers.
     """
     return pd.read_csv(file_path, header=None, index_col=None, names=["name"])["name"].to_numpy().tolist()
