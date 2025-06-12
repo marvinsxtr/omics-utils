@@ -44,8 +44,13 @@ class AnnDataConverter:
             A list of `Delayed` tasks computing the serialized entries from the `AnnData` object.
         """
 
-        def serialize_partition(block: sp.csr_matrix, obs_names_part: list[str], obs: pd.DataFrame) -> pd.DataFrame:
+        def serialize_partition(
+            block: sp.csr_matrix | np.ndarray, obs_names_part: list[str], obs: pd.DataFrame
+        ) -> pd.DataFrame:
             """Serialize a partition of data."""
+            if isinstance(block, np.ndarray):
+                block = sp.csr_matrix(block)
+
             sparse_vectors = [serialize_sparse_matrix(row) for row in block]
             df = pd.DataFrame({ColumnNames.SPARSE_VECTOR: sparse_vectors}, index=obs_names_part)
             return self.join_metadata(df, obs)

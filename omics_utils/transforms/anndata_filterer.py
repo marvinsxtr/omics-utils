@@ -7,7 +7,10 @@ class AnnDataFilterer:
     """Apply a set of filters to an `AnnData` object."""
 
     def __init__(
-        self, genes: list[str] | None, obs_filters: dict[str, list], obs_col_renames: dict[str, str] | None = None
+        self,
+        genes: list[str] | None,
+        obs_filters: dict[str, list] | None = None,
+        obs_col_renames: dict[str, str] | None = None,
     ) -> None:
         """
         Args:
@@ -34,9 +37,10 @@ class AnnDataFilterer:
 
         adata.obs[ColumnNames.BATCH_ID] = batch_id
 
-        cell_filter = True
-        for obs_col, obs_values in self.obs_filters.items():
-            cell_filter &= adata.obs[obs_col].isin(obs_values)
+        cell_filter = [True] * len(adata)
+        if self.obs_filters is not None:
+            for obs_col, obs_values in self.obs_filters.items():
+                cell_filter &= adata.obs[obs_col].isin(obs_values)
 
         if self.genes is not None:
             gene_filter = adata.var.index.isin(self.genes)

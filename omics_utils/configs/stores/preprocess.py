@@ -2,6 +2,7 @@ from hydra_zen import builds, store
 from ml_project_template.runs import Run
 
 from omics_utils.configs.pipeline import (
+    Archs4PipelineConfig,
     CellXGenePipelineConfig,
     HLCAPipelineConfig,
 )
@@ -23,3 +24,4 @@ store(
 pipeline_store = store(group="pipeline")
 pipeline_store(CellXGenePipelineConfig, name="cellxgene")
 pipeline_store(HLCAPipelineConfig, name="hlca")
+pipeline_store(Archs4PipelineConfig, name="archs4")

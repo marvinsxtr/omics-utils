@@ -8,7 +8,7 @@ from hydra_zen.typing import Partial
 from omics_utils.pipeline.step import Step
 from omics_utils.transforms.anndata_filterer import AnnDataFilterer
 from omics_utils.utils.columns import ColumnNames
-from omics_utils.utils.helpers import read_anndata_dask, read_genes
+from omics_utils.utils.helpers import read_anndata_dask
 
 
 class Selector(Step):
@@ -48,7 +48,7 @@ class Selector(Step):
         if raw_input_path is not None and not raw_input_path.exists():
             raise ValueError("Input path does not exist.")
 
-        self.genes = read_genes(gene_file) if gene_file is not None else None
+        self.genes = pd.read_parquet(gene_file).index.to_list() if gene_file is not None else None
         self.filterer = filterer(genes=self.genes)
         self.raw_input_path = raw_input_path
         self.n_debug = n_debug
