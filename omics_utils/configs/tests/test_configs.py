@@ -16,12 +16,8 @@ def test_preprocessing_configs(tmp_path: Path) -> None:
     """Test config instantiation of preprocessing pipelines."""
     DummyClusterConfig = builds(LocalCluster, n_workers=0, silence_logs=True, processes=False)
 
-    gene_file = tmp_path / "genes.csv"
-    gene_file.touch()
-
     input_overrides = [
         f"steps.0.input_dir={tmp_path}",
-        f"steps.0.gene_file={gene_file}",
         f"steps.1.input_dir={tmp_path}",
     ]
 
