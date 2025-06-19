@@ -1,112 +1,37 @@
 from hydra_zen import builds
 
+from omics_utils.configs.constants import (
+    ARCHS4_OBS_COLS,
+    CELLXGENE_ASSAYS,
+    CELLXGENE_DISEASES,
+    CELLXGENE_OBS_COLS,
+    CELLXGENE_ORGANISMS,
+    CELLXGENE_TISSUES,
+)
 from omics_utils.transforms.anndata_converter import AnnDataConverter
 from omics_utils.transforms.anndata_filterer import AnnDataFilterer
 from omics_utils.utils.columns import ColumnNames
 
-OBS_COLS = [
-    "sex",
-    "tissue",
-    "disease",
-    "assay",
-    "cell_type",
-    "organism",
-    "tissue_type",
-    "development_stage",
-    "suspension_type",
-    "self_reported_ethnicity",
-    "assay_ontology_term_id",
-    "cell_type_ontology_term_id",
-    "development_stage_ontology_term_id",
-    "disease_ontology_term_id",
-    "organism_ontology_term_id",
-    "self_reported_ethnicity_ontology_term_id",
-    "sex_ontology_term_id",
-    "tissue_ontology_term_id",
-]
-
-ORGANISMS = ["Homo sapiens"]
-
-ASSAYS = [
-    "10x transcription profiling",
-    "10x 3' transcription profiling",
-    "10x 3' v1",
-    "10x 3' v2",
-    "10x 3' v3",
-    "10x 3' v4",
-    "10x 5' transcription profiling",
-    "10x 5' v1",
-    "10x 5' v2",
-    "10x 5' v3",
-]
-
-TISSUES = [
-    "ovary",
-    "blood",
-    "colon",
-    "bladder organ",
-    "lung",
-    "kidney",
-    "breast",
-    "brain",
-    "skin of body",
-    "stomach",
-    "lymph node",
-    "bone marrow",
-    "prostate gland",
-    "skin of face",
-    "ampulla of uterine tube",
-    "lamina propria",
-    "liver",
-    "esophagus",
-    "endometrium",
-    "small intestine",
-    "adrenal gland",
-    "decidua",
-    "spleen",
-    "eye",
-    "vein",
-    "muscle tissue",
-    "endocrine pancreas",
-]
-
-DISEASES = [
-    "adenocarcinoma",
-    "premalignant hematological system disease",
-    "non-small cell lung carcinoma",
-    "lung large cell carcinoma",
-    "clear cell renal carcinoma",
-    "breast cancer",
-    "B-cell acute lymphoblastic leukemia",
-    "glioblastoma",
-    "normal",
-    "gastric cancer",
-    "blastoma",
-    "B-cell non-Hodgkin lymphoma",
-    "squamous cell lung carcinoma",
-    "small cell lung carcinoma",
-    "tongue cancer",
-    "lung adenocarcinoma",
-    "Wilms tumor",
-    "follicular lymphoma",
-    "neuroendocrine carcinoma",
-]
-
 CellXGeneConverterConfig = builds(
     AnnDataConverter,
-    obs_cols=OBS_COLS,
+    obs_cols=CELLXGENE_OBS_COLS,
+    zen_partial=True,
+)
+Archs4ConverterConfig = builds(
+    AnnDataConverter,
+    obs_cols=ARCHS4_OBS_COLS,
     zen_partial=True,
 )
 
-HLCAFilterConfig = builds(dict, organism=ORGANISMS, assay=ASSAYS, is_primary_data=[False])
-CellXGeneFilterConfig = builds(dict, organism=ORGANISMS, assay=ASSAYS, is_primary_data=[True])
+HLCAFilterConfig = builds(dict, organism=CELLXGENE_ORGANISMS, assay=CELLXGENE_ASSAYS, is_primary_data=[False])
+CellXGeneFilterConfig = builds(dict, organism=CELLXGENE_ORGANISMS, assay=CELLXGENE_ASSAYS, is_primary_data=[True])
 CellXGeneSubsetFilterConfig = builds(
     dict,
-    organism=ORGANISMS,
-    assay=ASSAYS,
+    organism=CELLXGENE_ORGANISMS,
+    assay=CELLXGENE_ASSAYS,
     is_primary_data=[True],
-    tissue=TISSUES,
-    disease=DISEASES,
+    tissue=CELLXGENE_TISSUES,
+    disease=CELLXGENE_DISEASES,
 )
 
 RenameConfig = builds(dict, donor_id=ColumnNames.CASE_ID)
@@ -128,3 +53,4 @@ HLCAFiltererConfig = builds(
     obs_col_renames=RenameConfig,
     zen_partial=True,
 )
+Archs4FiltererConfig = builds(AnnDataFilterer, genes=None, obs_filters=None, obs_col_renames=None, zen_partial=True)

@@ -4,6 +4,8 @@ from hydra_zen import builds
 
 from omics_utils.utils.helpers import get_output_dir
 
+LocalClusterConfig = builds(LocalCluster, n_workers=1, threads_per_worker=4, zen_partial=True)
+
 CellXGenePartitioningClusterConfig = builds(
     SLURMCluster,
     n_workers=6,
@@ -32,4 +34,15 @@ HLCAClusterConfig = builds(
     zen_partial=True,
 )
 
-LocalClusterConfig = builds(LocalCluster, n_workers=1, threads_per_worker=4, zen_partial=True)
+Archs4ClusterConfig = builds(
+    SLURMCluster,
+    n_workers=1,
+    queue="cpu-2h",
+    cores=16,
+    processes=4,
+    memory="128GiB",
+    walltime="02:00:00",
+    python="apptainer run -B $DATA_DIR:/srv/data oras://ghcr.io/bifold-pathomics/omics-utils:latest-sif python",
+    log_directory=builds(get_output_dir),
+    zen_partial=True,
+)
