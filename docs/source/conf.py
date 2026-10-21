@@ -1,8 +1,8 @@
 import os
 import sys
 
-# Folder to preprocess.py had to be specified individually.
-sys.path.insert(0, os.path.abspath("../../omics_utils"))  # noqa: PTH100
+# Repo root, so that omics_utils is importable without the container's PYTHONPATH.
+sys.path.insert(0, os.path.abspath("../.."))  # noqa: PTH100
 
 # Configuration file for the Sphinx documentation builder.
 #
@@ -36,6 +36,5 @@ autosummary_ignore_module_all = False
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = "pydata_sphinx_theme"
-html_static_path = ["_static"]
 html_sidebars = {"readme": []}
 html_title = "🧬 omics-utils"
