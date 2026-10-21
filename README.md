@@ -81,16 +81,16 @@ Choose one of the following methods to set up your environment:
 
    To open a tunnel to connect your local VSCode to the container on the cluster:
    ```bash
-   apptainer run --nv --writable-tmpfs oras://ghcr.io/bifold-pathomics/omics-utils:latest-sif code tunnel
+   apptainer run --nv --writable-tmpfs oras://ghcr.io/marvinsxtr/omics-utils:latest-sif code tunnel
    ```
 
-   > 💡 You can specify a version tag (e.g., `v0.0.1`) instead of `latest`. Available versions are listed at [GitHub Container Registry](https://github.com/bifold-pathomics/omics-utils/pkgs/container/omics-utils).
+   > 💡 You can specify a version tag (e.g., `v0.0.1`) instead of `latest`. Available versions are listed at [GitHub Container Registry](https://github.com/marvinsxtr/omics-utils/pkgs/container/omics-utils).
 
    In VSCode press `Shift+Alt+P` (Windows/Linux) or `Shift+Cmd+P` (Mac), type "connect to tunnel", select GitHub and select your named node on the cluster. Your IDE is now connected to the cluster.
 
    To open a shell in the container on the cluster:
    ```bash
-   apptainer run --nv --writable-tmpfs oras://ghcr.io/bifold-pathomics/omics-utils:latest-sif /bin/bash
+   apptainer run --nv --writable-tmpfs oras://ghcr.io/marvinsxtr/omics-utils:latest-sif /bin/bash
    ```
 
    > 💡 This may take a few minutes on the first run as the container image is downloaded.
@@ -188,12 +188,12 @@ python omics_utils/preprocess.py pipeline=hlca
 
    With Apptainer:
    ```bash
-   apptainer run --nv --writable-tmpfs oras://ghcr.io/bifold-pathomics/omics-utils:v0.0.1-sif /bin/bash
+   apptainer run --nv --writable-tmpfs oras://ghcr.io/marvinsxtr/omics-utils:v0.0.1-sif /bin/bash
    ```
 
    With Docker:
    ```bash
-   docker run -it --rm --platform=linux/amd64 ghcr.io/bifold-pathomics/omics-utils:v0.0.1 /bin/bash
+   docker run -it --rm --platform=linux/amd64 ghcr.io/marvinsxtr/omics-utils:v0.0.1 /bin/bash
    ```
 
 (documentation)=
