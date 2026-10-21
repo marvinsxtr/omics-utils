@@ -101,6 +101,6 @@ jobs:
         env:
           TAGS: ${{ steps.meta.outputs.tags }}
         run: |
-           echo ${{ secrets.GITHUB_TOKEN }} | apptainer registry login -u ${{ secrets.GHCR_USERNAME }} --password-stdin docker://ghcr.io
+           echo ${{ secrets.GITHUB_TOKEN }} | apptainer registry login -u ${{ github.actor }} --password-stdin docker://ghcr.io
            apptainer build container.sif docker://${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
            echo "${TAGS}" | xargs -I {} apptainer push container.sif oras://{}-sif
