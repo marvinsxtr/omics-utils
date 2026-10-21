@@ -32,6 +32,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # The image (incl. torch) does not fit on a default runner disk
+      - name: Clean up disk space
+        uses: jlumbroso/free-disk-space@main
+
       # Install the cosign tool except on PR
       # https://github.com/sigstore/cosign-installer
       - name: Install cosign
@@ -92,11 +96,28 @@ jobs:
         # against the sigstore community Fulcio instance.
         run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
 
-      # Build and push .sif files for Apptainer
+  # Build and push .sif files for Apptainer on a fresh runner with its own disk
+  apptainer:
+
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
       - name: Clean up disk space
         uses: jlumbroso/free-disk-space@main
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934 # v5.0.0
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
       - name: Setup Apptainer
         uses: eWaterCycle/setup-apptainer@v2
+
       - name: Build and push Apptainer
         env:
           TAGS: ${{ steps.meta.outputs.tags }}
